@@ -31,6 +31,8 @@ export interface QuireApi {
 }
 
 const SECTION_KIND_VALUES = new Set<string>(['prose', 'achievements', 'entries', 'columns', 'skills']);
+/** The Quire mark: a sheet with the accent bar and two hairlines, the document's own first viewport in miniature. */
+const MARK_SVG = '<svg class="mark" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3" width="17" height="18" rx="2.5" stroke-width="1.75"/><path d="M7.5 8h6" stroke-width="2.75"/><path d="M7.5 12.5h9M7.5 16h9" stroke-width="1.5"/></svg>';
 const STORE = `quire:${location.pathname}`;
 const VERSIONS = `quire:versions:${location.pathname}`;
 const PAGE_MM = 297;
@@ -159,6 +161,13 @@ export class Editor {
     root.setProperty('--m-top', `${d.marginTop}mm`);
     root.setProperty('--m-side', `${d.marginSide}mm`);
     this.pageRule.textContent = pageRuleCSS(d, this.doc, { date: formatDateAU(new Date()) });
+    this.updateFavicon(d.accent);
+  }
+  /** The mark on an accent tile, so the tab icon follows the chosen scheme. */
+  private updateFavicon(accent: string): void {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${accent}"/><g fill="none" stroke="#fff" stroke-linecap="round"><rect x="8" y="7" width="16" height="18" rx="2.5" stroke-width="1.9"/><path d="M12 12h5.5" stroke-width="2.8"/><path d="M12 16.5h8.5M12 20h8.5" stroke-width="1.6"/></g></svg>`;
+    const link = document.getElementById('favicon');
+    if (link instanceof HTMLLinkElement) link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }
 
   private renderTabs(): void {
@@ -189,7 +198,9 @@ export class Editor {
 
   private emptyState(): HTMLElement {
     const box = h('div', 'start');
-    box.append(h('h2', null, 'Start a document'), h('p', null, 'Pick a template. Everything in it can be changed, moved or removed.'));
+    const mark = document.createElement('template');
+    mark.innerHTML = `${MARK_SVG}`;
+    box.append(mark.content.firstElementChild!, h('h2', null, 'Start a document'), h('p', null, 'Pick a template. Everything in it can be changed, moved or removed.'));
     const row = h('div', 'start-row');
     for (const kind of TEMPLATE_KINDS) {
       const b = h('button', 'start-btn', this.templateLabel(kind));

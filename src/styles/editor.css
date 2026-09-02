@@ -48,12 +48,15 @@
   .tb-sep { width: 1px; height: 22px; background: var(--c-line); margin: 0 6px; }
 
   .wordmark {
+    display: inline-flex; align-items: center; gap: 7px;
     font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
     color: var(--accent);
     padding: 0 12px 0 4px;
     border-right: 1px solid var(--c-line);
     margin-right: 4px;
   }
+  .mark { width: 18px; height: 18px; flex: none; }
+  .start .mark { width: 36px; height: 36px; color: var(--accent); margin-bottom: 10px; }
 
   .tabs { display: flex; align-items: stretch; gap: 2px; height: 44px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 0 1 auto; }
   .tabs::-webkit-scrollbar { display: none; }
@@ -382,7 +385,7 @@
   }
   .panel-btn .icon { width: 14px; height: 14px; }
   .panel-btn:hover { border-color: var(--accent); }
-  .panel-btn:disabled { color: var(--c-faint); border-color: var(--c-line); cursor: default; }
+  .panel-btn:disabled { color: var(--c-quiet); border-color: var(--c-line); cursor: default; }
   .panel-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; align-self: flex-start; }
   .panel-btn#doc-delete:hover { border-color: var(--c-danger); color: var(--c-danger); }
   .panel-foot { display: flex; justify-content: flex-end; }

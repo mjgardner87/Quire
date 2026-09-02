@@ -187,6 +187,42 @@ components:
     typography: "{typography.control}"
     rounded: "{rounded.lg}"
     padding: "10px 14px"
+  selection-toolbar:
+    backgroundColor: "{colors.sheet}"
+    textColor: "{colors.ink}"
+    rounded: "7px"
+    padding: "3px"
+  selection-toolbar-button:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sm}"
+    padding: "0 7px"
+    height: "26px"
+  context-menu:
+    backgroundColor: "{colors.sheet}"
+    textColor: "{colors.ink}"
+    typography: "{typography.control}"
+    rounded: "{rounded.lg}"
+    padding: "6px"
+    width: "240px"
+  palette:
+    backgroundColor: "{colors.sheet}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    width: "560px"
+  palette-input:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    padding: "0 16px"
+    height: "{spacing.tier}"
+  palette-row:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    typography: "{typography.control}"
+    rounded: "{rounded.md}"
+    padding: "8px 10px"
+  palette-row-active:
+    textColor: "{colors.accent}"
   sheet:
     backgroundColor: "{colors.sheet}"
     textColor: "{colors.ink}"
@@ -295,7 +331,7 @@ Below 760px the tiers wrap (the toolbar grows to 130px), the desk scrolls horizo
 
 ## Elevation & Depth
 
-Depth is nearly flat. Two shadows exist. The sheet casts a soft offset shadow onto the desk so it reads as paper lying on a surface. Panels, menus and toasts cast a lifted shadow because they float above the desk for a moment and then leave. Everything else, including the toolbar, the rail, buttons and inputs, is flat and bounded by a hairline. A hovered rail row and the margin control buttons carry a 1px hairline shadow that lifts them from the tinted rail or the white sheet by the least visible amount.
+Depth is nearly flat. Two shadows exist. The sheet casts a soft offset shadow onto the desk so it reads as paper lying on a surface. Panels, menus, the right-click menu, the selection toolbar, the command palette and toasts cast a lifted shadow because they float above the desk for a moment and then leave. Everything else, including the toolbar, the rail, buttons and inputs, is flat and bounded by a hairline. A hovered rail row and the margin control buttons carry a 1px hairline shadow that lifts them from the tinted rail or the white sheet by the least visible amount.
 
 ### Shadow Vocabulary
 - **Sheet** (`box-shadow: 0 1px 2px rgba(22, 30, 38, 0.06), 0 16px 40px -8px rgba(22, 30, 38, 0.18)`): The A4 sheet on the desk. Nothing else uses it.
@@ -305,7 +341,7 @@ Depth is nearly flat. Two shadows exist. The sheet casts a soft offset shadow on
 ### Named Rules
 **The Two Shadows Rule.** Only the sheet and floating surfaces cast a shadow. A control is flat, and a hairline border says where it ends.
 
-**The Rise Rule.** A floating surface rises: opacity 0 to 1 and 4px upward over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`. A toast rises from below over 6px. Hover changes fade over 120ms on the same curve. A moved block settles from the soft accent wash to transparent over 600ms. Nothing else moves.
+**The Rise Rule.** A floating surface rises: opacity 0 to 1 and 4px upward over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`. A toast rises from below over 6px. The selection toolbar rises over 120ms, because it follows the caret and must not lag it. Hover changes fade over 120ms on the same curve. A moved block settles from the soft accent wash to transparent over 600ms. Nothing else moves.
 
 ## Shapes
 
@@ -325,7 +361,7 @@ Calm, bordered, one line of Inter. Every button has a visible name; the three ic
 - **Quiet:** No border, no background, ink-2 text. Hover takes the soft accent wash and ink text.
 - **Disabled:** Chrome quiet text, line border, transparent background, default cursor.
 - **Focus:** 2px accent outline offset 2px on every control in the toolbar, rail, panels and menus. A tab focuses inward, offset -4px, with a 4px corner.
-- **Panel button:** The same at 30px tall, 12.5px text and 10px padding. Disabled goes to faint text.
+- **Panel button:** The same at 30px tall, 12.5px text and 10px padding. Disabled uses chrome quiet, like every disabled control.
 - **Start buttons (empty sheet):** Default style with 10px by 14px padding; hover adds the soft accent wash.
 
 ### Tabs
@@ -335,6 +371,15 @@ Calm, bordered, one line of Inter. Every button has a visible name; the three ic
 ### Menus
 - **Style:** White, 1px line border, 8px corners, panel shadow, 6px inner padding, 220px minimum, 38px below its anchor. Rises over 160ms.
 - **Items:** 13px Inter at 500, ink, 9px by 10px padding, 5px corners. Hover and focus take the soft accent wash. A shortcut sits right in chrome quiet at 11px with no key styling. Group headings are badges. A separator is a 1px line with 5px margins. A danger item turns red on hover only.
+
+### Right-click menu
+The same menu vocabulary, opened at the pointer. Right-click on any editable run positions a fixed menu at the click (kept 8px inside the viewport), at least 240px wide, and moves the caret there if the selection was collapsed. Shift-click keeps the browser's own menu for spelling. Items are the commands that apply at that point (Format, then Structure), separated by group with the 1px menu line, each with its shortcut as a plain `kbd` pushed to the right. The first item takes focus.
+
+### Selection toolbar
+A small white bar that appears 8px above a text selection or a flag on the sheet: 3px padding, 1px line border, 7px corners, panel shadow, rising over 120ms. Its buttons are 26px tall with 7px side padding, 12px Inter at 500 in ink, 5px corners, no border, with a 14px Phosphor icon; hover takes the soft accent wash and accent text. Bold and Italic are icon-only with `title` and `aria-label`; a 1px 16px-tall line separates them from Flag or Remove flag, which carry their labels. It shows only the commands that apply: Bold, Italic and the separator need a selection, Flag hides inside a flag, Remove flag shows only there. It hides while a panel is open and stays clamped 8px inside the viewport.
+
+### Command palette
+Ctrl K. A 560px white dialog centred at 96px from the top, 10px corners, 1px line border, panel shadow, rising over 160ms. A 44px input at 14px Inter with 16px side padding, no border but a 1px line beneath, placeholder in chrome quiet. Below it a list padded 6px and capped at 380px: each row is an uppercase group label (500, 10.5px, 0.06em, chrome quiet, 64px minimum) then the command, then its shortcut as a plain `kbd`; rows have 8px by 10px padding and 6px corners. Hover and the active row take the soft accent wash; the active row and its group label turn accent. At most 40 matches show; an empty result is a single muted line. A hint line in 11.5px chrome quiet sits under a 1px top line. Arrow keys move, Enter runs, Esc closes.
 
 ### Panels
 - **Style:** Fixed under the toolbar, 400px wide, white, 1px line border, 10px corners, panel shadow, 13px Inter at 400. Rises over 160ms. The shortcuts panel docks right; all others dock left at 16px.
@@ -353,6 +398,9 @@ Calm, bordered, one line of Inter. Every button has a visible name; the three ic
 - **Drag:** A dragged row goes to 45% opacity; the drop target draws a 2px accent line above or below.
 - **Page break:** A dashed line in line strong with a 10.5px uppercase tag between its halves.
 - **Add section:** A full-width dashed line-strong button; hover turns border and text to the accent on white. Its menu opens upward.
+
+### One command list (signature)
+One list drives the selection toolbar, the right-click menu and the command palette. Each command has a label, a group (Format, Structure, Insert, Go to, Document), an optional shortcut and a condition; the three surfaces are filters on that list. The toolbar and the menu show only contextual commands that apply at the caret; the palette shows every applicable command and matches typed text against it. A shortcut is written the same way everywhere, as a plain `kbd` in chrome quiet at 11px, so a user who learns it in one surface reads it in the other two.
 
 ### Block controls (signature)
 The proof-reader's marks. Each block on the sheet owns a 17mm strip of the right margin. On hover or focus-within, a vertical cluster of 24px white buttons (line-strong border, 5px corner, hairline lift) fades in at -16.5mm over 120ms: move up, move down, page break, remove. Only the innermost hovered block shows its cluster; pointing at the margin beside a section shows the section's. Hover turns a button's border and icon to the accent; remove turns red; an active toggle (page break on) takes the soft accent wash and accent border. Item-level controls are a single 19px remove button in a row 30px inboard of the block cluster. A word count sits at the block's bottom right in 10.5px tabular chrome quiet and turns amber at 600 when over the limit. An adder (dashed accent-ring border, 11px accent text) appears under a hovered block to add the next item.
