@@ -32,7 +32,7 @@ export interface QuireApi {
 
 const SECTION_KIND_VALUES = new Set<string>(['prose', 'achievements', 'entries', 'columns', 'skills']);
 /** The Quire mark: a sheet with the accent bar and two hairlines, the document's own first viewport in miniature. */
-const MARK_SVG = '<svg class="mark" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3" width="17" height="18" rx="2.5" stroke-width="1.75"/><path d="M7.5 8h6" stroke-width="2.75"/><path d="M7.5 12.5h9M7.5 16h9" stroke-width="1.5"/></svg>';
+const MARK_SVG = '<svg class="mark" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1"><path d="M4 20V7.5a3.5 3.5 0 0 1 3.5-3.5H20v13"/><path d="M8 20V11a3 3 0 0 1 3-3h9"/><path d="M12 20v-5a2.5 2.5 0 0 1 2.5-2.5H20"/><path d="M4 20h16"/></svg>';
 const STORE = `quire:${location.pathname}`;
 const VERSIONS = `quire:versions:${location.pathname}`;
 const PAGE_MM = 297;
@@ -163,9 +163,9 @@ export class Editor {
     this.pageRule.textContent = pageRuleCSS(d, this.doc, { date: formatDateAU(new Date()) });
     this.updateFavicon(d.accent);
   }
-  /** The mark on an accent tile, so the tab icon follows the chosen scheme. */
-  private updateFavicon(accent: string): void {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${accent}"/><g fill="none" stroke="#fff" stroke-linecap="round"><rect x="7.5" y="6.5" width="17" height="19" rx="3" stroke-width="2.4"/><path d="M12 12h6" stroke-width="3.4"/><path d="M12 17h8.5M12 21h8.5" stroke-width="2.2"/></g></svg>`;
+  /** The Quire mark on its own indigo tile. The brand colour is fixed; the document scheme is the author's. */
+  private updateFavicon(_accent: string): void {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#2f47b8"/><g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="M8 24V11.5A3.5 3.5 0 0 1 11.5 8H24v13"/><path d="M12.5 24v-9a3 3 0 0 1 3-3H24"/><path d="M17 24v-4.5a2.5 2.5 0 0 1 2.5-2.5H24"/><path d="M8 24h16"/></g></svg>`;
     const link = document.getElementById('favicon');
     if (link instanceof HTMLLinkElement) link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }

@@ -23,6 +23,7 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --bar-h: 89px;
+  --brand: #2f47b8;   /* the Quire mark only; never a control */
 }
 
 @media screen {
@@ -50,13 +51,13 @@
   .wordmark {
     display: inline-flex; align-items: center; gap: 7px;
     font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
-    color: var(--accent);
+    color: var(--c-ink);
     padding: 0 12px 0 4px;
     border-right: 1px solid var(--c-line);
     margin-right: 4px;
   }
-  .mark { width: 18px; height: 18px; flex: none; }
-  .start .mark { width: 36px; height: 36px; color: var(--accent); margin-bottom: 10px; }
+  .mark { width: 18px; height: 18px; flex: none; color: var(--brand); }
+  .start .mark { width: 40px; height: 40px; margin-bottom: 12px; }
 
   .tabs { display: flex; align-items: stretch; gap: 2px; height: 44px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 0 1 auto; }
   .tabs::-webkit-scrollbar { display: none; }
