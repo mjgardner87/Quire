@@ -1,0 +1,385 @@
+/* The printed document. Every size is relative to --base so the design panel can scale it;
+   every vertical gap is multiplied by --density. Colours come from the scheme. */
+
+:root {
+  --ink: #1c2024;
+  --ink-2: #3a4148;
+  --muted: #6a7178;
+  --accent: #1f5c4d;
+  --rule: #d2d7db;
+  --rule-strong: #9aa3aa;
+  --flag: #9a4b00;
+  --flag-bg: #fff1dc;
+
+  --font-body: "XCharter", "Source Serif 4", Charter, Georgia, serif;
+  --font-label: "Inter", system-ui, sans-serif;
+  --font-display: "Inter Display", "Inter", system-ui, sans-serif;
+  --base: 10pt;
+  --density: 1;
+}
+
+html { font-size: var(--base); }
+
+.sheet {
+  font-family: var(--font-body);
+  color: var(--ink);
+  line-height: 1.42;
+  font-feature-settings: "kern" 1, "tnum" 1;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.sheet p { margin: 0; }
+.sheet ul { margin: 0; padding: 0; list-style: none; }
+.sheet ::selection { background: color-mix(in srgb, var(--accent) 22%, white); }
+.sheet [contenteditable] { caret-color: var(--accent); }
+
+/* ---------- Masthead ---------- */
+
+.mast {
+  display: grid;
+  grid-template-columns: 1fr 52mm;
+  column-gap: 8mm;
+  align-items: start;
+  padding-bottom: 3.8mm;
+  border-bottom: 0.5pt solid var(--rule-strong);
+}
+.mast::before {
+  content: "";
+  grid-column: 1 / -1;
+  width: 16mm;
+  height: 1.6pt;
+  background: var(--accent);
+  margin-bottom: 3mm;
+}
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2.4rem;
+  letter-spacing: -0.022em;
+  line-height: 1;
+  margin: 0 0 2.2mm 0;
+}
+.creds {
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 3mm;
+}
+.tagline {
+  font-size: 1.04rem;
+  line-height: 1.38;
+  color: var(--ink-2);
+  max-width: 128mm;
+}
+.contact {
+  font-family: var(--font-label);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: right;
+  padding-top: 1.2mm;
+}
+.contact .contact-line:first-child { color: var(--ink); font-weight: 500; }
+
+/* ---------- Sections ---------- */
+
+.sheet section { margin-top: calc(3.6mm * var(--density)); }
+
+.sheet h2 {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 calc(2.2mm * var(--density)) 0;
+  break-after: avoid;
+}
+.sheet h2::after {
+  content: "";
+  flex: 1;
+  border-top: 0.5pt solid var(--rule);
+}
+
+.prose { font-size: 0.98rem; line-height: 1.44; }
+.prose .pw + .pw { margin-top: calc(2mm * var(--density)); }
+
+/* ---------- Achievements ---------- */
+
+.achievements li {
+  position: relative;
+  padding-left: 4mm;
+  margin-bottom: calc(1.1mm * var(--density));
+  font-size: 0.92rem;
+  line-height: 1.4;
+  break-inside: avoid;
+}
+.achievements li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.75mm;
+  width: 2.2mm;
+  height: 0.6pt;
+  background: var(--accent);
+}
+.achievements strong {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+/* ---------- Skills ---------- */
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6mm 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.skills li { display: inline; }
+.skills li + li::before {
+  content: "·";
+  color: var(--accent);
+  padding: 0 2mm;
+}
+
+/* ---------- Career entries (a float, not a grid: grids do not split across pages) ---------- */
+
+.entry { margin-bottom: calc(3.2mm * var(--density)); }
+.entry::after { content: ""; display: block; clear: both; }
+.entry > .when { float: left; width: 36mm; }
+.entry > .what { margin-left: 41mm; }
+.entry .head { break-inside: avoid; break-after: avoid; }
+
+.dates {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--ink);
+  line-height: 1.3;
+  padding-top: 0.5mm;
+}
+.org {
+  font-family: var(--font-label);
+  font-size: 0.79rem;
+  color: var(--muted);
+  line-height: 1.38;
+  margin-top: 1mm;
+}
+.sheet h3 {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.25;
+  margin: 0 0 1mm 0;
+}
+.context {
+  font-size: 0.92rem;
+  line-height: 1.38;
+  color: var(--ink-2);
+  font-style: italic;
+  margin-bottom: 1.5mm;
+}
+.entry li {
+  position: relative;
+  padding-left: 3.6mm;
+  margin-bottom: calc(0.7mm * var(--density));
+  font-size: 0.92rem;
+  line-height: 1.34;
+  break-inside: avoid;
+}
+.entry li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.7mm;
+  width: 1.8mm;
+  height: 0.5pt;
+  background: var(--rule-strong);
+}
+
+/* ---------- Two-column lists ---------- */
+
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8mm;
+}
+.cols.three { grid-template-columns: 1fr 1fr 1fr; column-gap: 6mm; }
+.keep { break-inside: avoid; }
+.sheet h4 {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin: 0 0 1.1mm 0;
+}
+.cols li {
+  font-size: 0.86rem;
+  line-height: 1.34;
+  margin-bottom: calc(1mm * var(--density));
+}
+.cols li .sub,
+.referee .sub {
+  display: block;
+  font-family: var(--font-label);
+  font-size: 0.77rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.referee { font-size: 0.86rem; line-height: 1.4; }
+.referee strong { font-family: var(--font-label); font-weight: 600; font-size: 0.86rem; }
+.referees { margin-top: 4mm; break-inside: avoid; }
+
+/* ---------- Document masthead (criteria response, letter) ---------- */
+
+.doc-mast {
+  display: grid;
+  grid-template-columns: 1fr 52mm;
+  column-gap: 8mm;
+  align-items: end;
+  padding-bottom: 4mm;
+  border-bottom: 0.5pt solid var(--rule-strong);
+}
+.doc-mast::before {
+  content: "";
+  grid-column: 1 / -1;
+  width: 16mm;
+  height: 1.6pt;
+  background: var(--accent);
+  margin-bottom: 4mm;
+}
+.doc-kicker {
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2mm;
+}
+.doc-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.9rem;
+  letter-spacing: -0.018em;
+  line-height: 1.08;
+  margin: 0 0 1.6mm 0;
+}
+.doc-sub {
+  font-family: var(--font-label);
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.opening { margin-top: calc(5.5mm * var(--density)); }
+.opening p { font-size: 1.04rem; line-height: 1.48; }
+.opening .pw + .pw { margin-top: calc(2.4mm * var(--density)); }
+
+/* ---------- Criteria ---------- */
+
+.crit {
+  display: grid;
+  grid-template-columns: 11mm 1fr;
+  column-gap: 4mm;
+  margin-top: calc(6.5mm * var(--density));
+}
+.crit .num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  padding-top: 0.6mm;
+}
+.crit .head { break-inside: avoid; break-after: avoid; }
+.crit .label {
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.2mm;
+}
+.crit h2 {
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--ink);
+  line-height: 1.3;
+  margin: 0 0 2.6mm 0;
+}
+.crit h2::after { display: none; }
+.crit p {
+  font-size: 1rem;
+  line-height: 1.46;
+  orphans: 3;
+  widows: 3;
+}
+.crit .pw + .pw { margin-top: calc(2.2mm * var(--density)); }
+.crit[data-numbering="number"] .label,
+.crit[data-numbering="none"] .label,
+.crit[data-numbering="label"] .num,
+.crit[data-numbering="none"] .num { display: none; }
+.crit[data-numbering="label"],
+.crit[data-numbering="none"] { grid-template-columns: 0 1fr; column-gap: 0; }
+
+/* ---------- Closing ---------- */
+
+.closing {
+  margin-top: calc(7mm * var(--density));
+  padding-top: 3.5mm;
+  border-top: 0.5pt solid var(--rule);
+  font-size: 1rem;
+  line-height: 1.46;
+}
+.closing .pw + .pw { margin-top: calc(2mm * var(--density)); }
+
+/* ---------- Letter ---------- */
+
+.letterhead {
+  margin-top: calc(6mm * var(--density));
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.letterhead .date { font-family: var(--font-label); font-size: 0.86rem; color: var(--muted); margin-bottom: 3mm; }
+.letterhead .recipient p { margin: 0; }
+.letterhead .subject { margin-top: 3.5mm; font-family: var(--font-label); font-weight: 600; font-size: 0.96rem; }
+.signoff { margin-top: calc(7mm * var(--density)); font-size: 1rem; line-height: 1.5; }
+.signoff .sig-name { margin-top: 9mm; font-family: var(--font-label); font-weight: 600; }
+
+/* ---------- Flags ---------- */
+
+.flag {
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 0.82rem;
+  color: var(--flag);
+  background: var(--flag-bg);
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------- Page breaks ---------- */
+
+@media print {
+  .pb { break-before: page; }
+  .sheet .context:empty,
+  .sheet .sub:empty,
+  .sheet .date:empty,
+  .sheet .subject:empty { display: none !important; }
+}

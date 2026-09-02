@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Quire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style id="page-rule">@page { size: A4; margin: 14mm 17mm 14mm 17mm; }</style>
+</head>
+<body>
+<!--
+THESIS: The author owns the words; the tool owns the typography. The sheet on the desk is the
+finished document, edited in place, and the chrome around it recedes the way a drafting table
+recedes behind the drawing. It refuses the word-processor arrangement of ribbons, rulers and a
+floating page.
+OWN-WORLD: A cool grey desk, one white A4 sheet with a soft offset shadow, hairline rules, Inter
+for every control at 13px, the document's own accent colour carried into the active tab, focus
+ring, selection and primary action. Controls sit in the sheet's right margin like a proof
+reader's marks; the structure rail on the left is the table of contents. No cards, no icons
+without labels, no gradients.
+STORY: Open, read your own application as the panel will, fix a word, move a section, watch the
+count, print. Nothing unresolved can hide: flags are amber on screen and on paper.
+FIRST VIEWPORT: Toolbar 52px across the top: wordmark, document tabs, Add a section, undo and
+redo, then Design, Header and footer, Document, Versions, file actions, the status line and a
+filled Print button at the far right. Structure rail 224px on the left. The sheet centred on the
+desk with the masthead visible and its controls appearing on hover or focus.
+FORM: Expansion of an established world (the print design confirmed 2 September 2026), Operate
+mode; no direction roll, chrome derived from the document's own type and colour.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the
+verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+<header class="toolbar" role="toolbar" aria-label="Quire">
+  <div class="tier tier-docs">
+    <span class="wordmark" aria-label="Quire">Quire</span>
+    <div id="tabs" class="tabs" role="tablist" aria-label="Documents"></div>
+    <div class="menu-anchor">
+      <button id="add-doc" class="tb-btn quiet" type="button" aria-haspopup="menu" aria-expanded="false" title="New document">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg>
+        <span>New</span>
+      </button>
+      <div id="menu-add-doc" class="menu" role="menu" aria-label="New document" hidden>
+        <button type="button" role="menuitem" data-template="cv">Curriculum vitae</button>
+        <button type="button" role="menuitem" data-template="criteria">Criteria response</button>
+        <button type="button" role="menuitem" data-template="letter">Cover letter</button>
+        <button type="button" role="menuitem" data-template="blank">Blank</button>
+      </div>
+    </div>
+    <span class="tb-spacer"></span>
+    <div class="menu-anchor">
+      <button id="file" class="tb-btn quiet" type="button" aria-haspopup="menu" aria-expanded="false">File</button>
+      <div id="menu-file" class="menu right" role="menu" aria-label="File" hidden>
+        <button id="save" type="button" role="menuitem">Save file <kbd>Ctrl S</kbd></button>
+        <label id="open-label" class="menu-item" for="open-file" role="menuitem" tabindex="0">Open file <kbd>Ctrl O</kbd></label>
+        <input type="file" id="open-file" accept="application/json,.json" hidden>
+        <button id="versions" type="button" role="menuitem" aria-haspopup="dialog">Versions</button>
+        <button id="help" type="button" role="menuitem" aria-haspopup="dialog">Keyboard shortcuts <kbd>?</kbd></button>
+        <span class="menu-sep" role="separator"></span>
+        <button id="reset" type="button" role="menuitem" class="danger">Reset to sample</button>
+      </div>
+    </div>
+    <button id="print" class="tb-btn primary" type="button" title="Print or save as PDF (Ctrl+P)">
+      <svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M214.67,72H200V40a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8V72H41.33C27.36,72,16,82.77,16,96v80a8,8,0,0,0,8,8H56v32a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V184h32a8,8,0,0,0,8-8V96C240,82.77,228.64,72,214.67,72ZM72,48H184V72H72ZM184,208H72V160H184Zm40-40H200V152a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v16H32V96c0-4.41,4.19-8,9.33-8H214.67c5.14,0,9.33,3.59,9.33,8Zm-24-52a12,12,0,1,1-12-12A12,12,0,0,1,200,116Z"/></svg>
+      <span>Print</span>
+    </button>
+  </div>
+  <div class="tier tier-tools">
+    <select id="add-section" class="tb-select" aria-label="Add a section"></select>
+    <button id="undo" class="tb-btn icon-only" type="button" title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"/></svg></button>
+    <button id="redo" class="tb-btn icon-only" type="button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,56v48a8,8,0,0,1-8,8H184a8,8,0,0,1,0-16h27.4L184.81,71.64l-.25-.24a80,80,0,1,0-1.67,114.78,8,8,0,0,1,11,11.63A95.44,95.44,0,0,1,128,224h-1.32A96,96,0,1,1,195.75,60L224,85.8V56a8,8,0,1,1,16,0Z"/></svg></button>
+    <span class="tb-sep" aria-hidden="true"></span>
+    <button id="design" class="tb-btn" type="button" aria-haspopup="dialog" aria-expanded="false">Design</button>
+    <button id="running" class="tb-btn" type="button" aria-haspopup="dialog" aria-expanded="false">Header and footer</button>
+    <button id="doc-menu" class="tb-btn" type="button" aria-haspopup="dialog" aria-expanded="false">Document</button>
+    <span class="tb-spacer"></span>
+    <div class="status" aria-live="polite">
+      <span id="pages" title="An estimate. The print preview is exact."></span>
+      <span id="words"></span>
+      <button id="flags" class="flags" type="button"></button>
+    </div>
+    <button id="rail-toggle" class="tb-btn icon-only quiet" type="button" title="Show or hide the structure rail" aria-label="Structure rail" aria-pressed="true"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H88V200H40ZM216,200H104V56H216V200Z"/></svg></button>
+  </div>
+</header>
+
+<div class="workbench">
+  <aside id="rail" class="rail" aria-label="Document structure"></aside>
+  <main class="desk">
+    <article class="sheet" id="sheet"></article>
+  </main>
+</div>
+
+<div id="panel-design" class="panel" role="dialog" aria-label="Design" hidden>
+  <div class="panel-head"><h2>Design</h2><button class="panel-close" type="button" aria-label="Close">×</button></div>
+  <div class="panel-body"></div>
+</div>
+<div id="panel-running" class="panel" role="dialog" aria-label="Header and footer" hidden>
+  <div class="panel-head"><h2>Header and footer</h2><button class="panel-close" type="button" aria-label="Close">×</button></div>
+  <div class="panel-body"></div>
+</div>
+<div id="panel-doc" class="panel" role="dialog" aria-label="Document" hidden>
+  <div class="panel-head"><h2>Document</h2><button class="panel-close" type="button" aria-label="Close">×</button></div>
+  <div class="panel-body"></div>
+</div>
+<div id="panel-versions" class="panel" role="dialog" aria-label="Versions" hidden>
+  <div class="panel-head"><h2>Versions</h2><button class="panel-close" type="button" aria-label="Close">×</button></div>
+  <div class="panel-body"></div>
+</div>
+
+<div id="shortcuts" class="panel shortcuts" role="dialog" aria-label="Keyboard shortcuts" hidden>
+  <div class="panel-head"><h2>Keyboard shortcuts</h2><button class="panel-close" type="button" aria-label="Close">×</button></div>
+  <div class="panel-body">
+    <dl class="keys">
+      <dt><kbd>Enter</kbd></dt><dd>New bullet or paragraph after this one</dd>
+      <dt><kbd>Backspace</kbd></dt><dd>On an empty bullet or paragraph, remove it</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Bold or italic</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>F</kbd></dt><dd>Flag the selected words for confirmation</dd>
+      <dt><kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Move this bullet, paragraph or entry</dd>
+      <dt><kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Move the whole section</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></dt><dd>Undo or redo a structural change (outside text)</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>S</kbd> / <kbd>O</kbd> / <kbd>P</kbd></dt><dd>Save file, open file, print</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close a panel</dd>
+      <dt><kbd>?</kbd></dt><dd>This list</dd>
+    </dl>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+{
+  "format": "quire/1",
+  "design": {
+    "scheme": "eucalyptus",
+    "accent": "#1f5c4d",
+    "bodyFont": "XCharter",
+    "labelFont": "Inter",
+    "baseSize": 10,
+    "marginTop": 14,
+    "marginSide": 17,
+    "density": 1
+  },
+  "documents": [
+    {
+      "id": "cv",
+      "title": "Curriculum vitae",
+      "kind": "cv",
+      "numbering": "both",
+      "wordLimit": null,
+      "blockWordLimit": null,
+      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "", "right": "" }, "firstPage": false },
+      "blocks": [
+        {
+          "type": "masthead",
+          "name": "Jordan Example",
+          "creds": "BEng (Hons) · CPEng · PMP",
+          "tagline": "Chartered engineer and project director. Fourteen years on the client side of public infrastructure: business cases, procurement, delivery assurance and the measurement of what was built.",
+          "contact": ["Canberra ACT", "0400 000 000", "jordan@example.com.au"]
+        },
+        {
+          "type": "section",
+          "kind": "prose",
+          "heading": "Profile",
+          "paragraphs": [
+            "Chartered Professional Engineer and certified project manager with fourteen years across state and Commonwealth infrastructure, transport and utilities. I have taken three programs through a formal investment gate, written the tender suites that followed and led their evaluation, held the client position on a $40 million rail depot while it was built around a live timetable, and reported the benefits after the ribbon was cut. I lead a section of nine and act for the Executive Director in their absence."
+          ]
+        },
+        {
+          "type": "section",
+          "kind": "achievements",
+          "heading": "Selected achievements",
+          "items": [
+            { "lead": "Three investment gates passed.", "text": "Wrote the investment logic and business cases that secured Budget funding for a depot, a signalling renewal and a bus interchange, together worth $126 million." },
+            { "lead": "Full procurement cycle led.", "text": "Ran the market approach, evaluation and negotiation for the depot design-and-construct contract, awarded on schedule and within the approved envelope." },
+            { "lead": "Built around a live timetable.", "text": "Held the client position on a 22-month depot construction with no unplanned service cancellations attributed to the works." },
+            { "lead": "Benefits measured, not assumed.", "text": "Delivered the post-implementation review that showed the interchange cut average interchange time by 38 per cent, [[CONFIRM: check the final figure in the PIR]]." }
+          ]
+        },
+        {
+          "type": "section",
+          "kind": "entries",
+          "heading": "Career history",
+          "entries": [
+            {
+              "dates": "Mar 2022 – present",
+              "org": "Department of Transport and Main Roads\nInfrastructure Investment Branch\nCanberra",
+              "title": "Director, Major Projects",
+              "context": "Client-side lead for a $180 million portfolio of transport projects from investment case to benefits realisation. Acts for the Executive Director; leads a section of nine.",
+              "bullets": [
+                "Prepare the Branch's annual business cases into the Budget process, working with the delivery agency on scope, cost and staging.",
+                "Chair project control groups for three live builds and report milestones against the service outcomes each project promised.",
+                "Own the design standards that define what a depot, interchange or station must provide, and hold the delivery agency to them."
+              ]
+            },
+            {
+              "dates": "Jul 2019 – Mar 2022",
+              "org": "Department of Transport and Main Roads\nCanberra",
+              "title": "Senior Project Manager, Northside Depot",
+              "context": "Client-side project manager for a $40 million bus depot delivered while the existing depot kept operating.",
+              "bullets": [
+                "Wrote the business case and functional brief, led the design-and-construct procurement and negotiated the contract to award.",
+                "Staged the works with operations so the timetable ran unchanged for 22 months; managed 41 variations and two extensions of time.",
+                "Ran the client-side safety and quality audits and closed out the defects period six weeks early."
+              ]
+            },
+            {
+              "dates": "Feb 2016 – Jul 2019",
+              "org": "Regional Water Corporation\nWagga Wagga NSW",
+              "title": "Project Engineer, Treatment Plant Renewals",
+              "context": "Owner's engineer for a rolling program of treatment plant and network renewals worth about $12 million a year.",
+              "bullets": [
+                "Scoped, tendered and supervised twenty-six renewal packages across nine plants, each delivered inside a scheduled shutdown window.",
+                "Introduced condition-based prioritisation that moved the program from reactive repair to a five-year forward plan.",
+                "Represented the corporation at council briefings and community meetings on works affecting supply."
+              ]
+            },
+            {
+              "dates": "Jan 2013 – Feb 2016",
+              "org": "Bridgewater Consulting\nSydney",
+              "title": "Graduate to Project Engineer, Civil Infrastructure",
+              "context": "",
+              "bullets": [
+                "Site engineer and then project engineer on road and drainage works for local government clients, including contract administration and progress claims.",
+                "Prepared feasibility studies and cost estimates for a regional council's ten-year capital program."
+              ]
+            },
+            {
+              "dates": "Nov 2011 – Dec 2012",
+              "org": "State Rail\nSydney",
+              "title": "Undergraduate Engineer, Signalling Renewals",
+              "context": "",
+              "bullets": [
+                "Supported the commissioning of two interlocking renewals, including testing documentation and possession planning."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "section",
+          "kind": "skills",
+          "heading": "Areas of practice",
+          "skills": ["Business cases and investment logic", "Government procurement", "Contract administration", "Project controls", "Stakeholder and community engagement", "Asset management", "WHS in construction", "Benefits realisation"]
+        },
+        {
+          "type": "section",
+          "kind": "columns",
+          "heading": "Qualifications and registrations",
+          "columns": [
+            {
+              "heading": "Qualifications",
+              "items": [
+                { "text": "Bachelor of Engineering (Honours), Civil, University of Newcastle, 2012", "sub": "Engineers Australia accredited" },
+                { "text": "Project Management Professional (PMP), Project Management Institute", "sub": "Current" },
+                { "text": "Graduate Certificate in Public Sector Management, 2020", "sub": "" }
+              ]
+            },
+            {
+              "heading": "Registrations",
+              "items": [
+                { "text": "Chartered Professional Engineer (CPEng), Civil and Project Management", "sub": "Engineers Australia" },
+                { "text": "General construction induction (white card)", "sub": "" },
+                { "text": "Working with Vulnerable People registration", "sub": "ACT, current" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "criteria",
+      "title": "Response to selection criteria",
+      "kind": "criteria",
+      "numbering": "both",
+      "wordLimit": null,
+      "blockWordLimit": 350,
+      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "Page {page} of {pages}", "right": "" }, "firstPage": false },
+      "blocks": [
+        {
+          "type": "docmast",
+          "kicker": "Response to selection criteria",
+          "title": "Senior Director, Capital Works",
+          "sub": "Position 00000 · Senior Officer Grade A\nInfrastructure Division, Example Directorate",
+          "contact": ["Jordan Example", "BEng (Hons) CPEng PMP", "0400 000 000", "jordan@example.com.au"]
+        },
+        {
+          "type": "opening",
+          "paragraphs": [
+            "I am a Chartered Professional Engineer and certified project manager with fourteen years on the client side of public infrastructure. I have taken projects through formal investment gates and written the evidence that justified them, run the full procurement cycle from tender documentation to contract negotiation, held the client's position on live construction, and measured whether what was delivered met the need. I currently lead a section of nine and act for the Executive Director.",
+            "The Senior Director, Capital Works sits at the front and the back of the investment lifecycle: proving the case, holding the Directorate's position while the delivery agency builds, and showing the benefits were realised. That is the shape of my last decade. Below I set out where my evidence is direct and where it transfers."
+          ]
+        },
+        {
+          "type": "criterion",
+          "heading": "High level conceptual, strategic planning and policy skills.",
+          "paragraphs": [
+            "Strategic planning in my work means deciding what an asset must do over its life, what it will cost to own and what evidence a decision-maker needs before committing public money. For the Northside Depot I wrote the investment logic and the business case that set out the problem, the options, the whole-of-life consequences of each and a recommended approach. It passed the Budget gate at the first attempt and funded a $40 million build.",
+            "I have also planned at portfolio scale. At Regional Water I moved a $12 million a year renewals program from reactive repair to a five-year forward plan built on condition data, which changed how the corporation set its capital budget for the following decade.",
+            "On policy, I own the design standards that define what a depot or interchange must provide. I have rewritten two of them from the operational evidence of completed projects, and I brief the Executive Director and the Minister's office on asset development matters each quarter. **The frameworks differ between jurisdictions; the discipline of an evidence-based case that survives a gate does not.**"
+          ]
+        },
+        {
+          "type": "criterion",
+          "heading": "Highly developed knowledge and experience of major project delivery methodologies, principles and practices.",
+          "paragraphs": [
+            "I hold PMP certification and have applied it on the client side of major projects for fourteen years, in staged and gated delivery and in agile environments for digital components.",
+            "The Northside Depot is my most direct evidence. As client-side project manager I led the design-and-construct procurement, then held the client position for 22 months of construction while the existing depot kept operating. I staged the works with operations so the timetable ran unchanged, managed 41 variations and two extensions of time against the contract, ran the client-side safety and quality audits, and closed the defects period six weeks early.",
+            "As Director I now chair the project control groups for three live builds. My method is the same at every scale: staged scope, controlled change, evidence-based milestone acceptance and a governed path for problems to reach a decision before they reach the Minister. _Where the delivery agency builds, I answer for whether what is built still meets the service need._"
+          ]
+        },
+        {
+          "type": "criterion",
+          "heading": "Ability to provide high level leadership and to effectively manage the resources of the Section.",
+          "paragraphs": [
+            "I lead by setting priorities, making the standard visible and doing the work alongside the team. I lead a section of nine project managers and analysts and act for the Executive Director when required, taking on their decisions, stakeholder commitments and reporting to the Director-General.",
+            "I manage the section as a portfolio: $180 million of projects at different stages, a consultancy panel, and the delegations that come with them. I hold a financial delegation to $500,000 and exercise it against a documented risk appetite. I build capability deliberately, with a structured development plan for each staff member and a rotation through business case, procurement and delivery roles so that no project depends on one person.",
+            "[[CONFIRM: add the staff survey engagement figure from the 2025 results]]"
+          ]
+        },
+        {
+          "type": "criterion",
+          "heading": "Highly developed knowledge and experience in Government procurement processes.",
+          "paragraphs": [
+            "I have run the full procurement cycle for major capital works under state and Commonwealth rules: strategy, market approach, evaluation, negotiation, award and contract management.",
+            "For the depot I wrote the request for tender, chaired the evaluation panel under a probity plan, authored the evaluation report and negotiated the contract to award on schedule and inside the approved envelope. At Regional Water I tendered twenty-six renewal packages through open and select processes and administered every one of them to completion. I have sat on three evaluation panels as the technical member for other agencies' projects.",
+            "Every process I have run has been auditable: conflicts declared, criteria fixed before tenders opened, and records kept to a standard that survives an Auditor-General's question."
+          ]
+        },
+        {
+          "type": "criterion",
+          "heading": "Highly developed oral and written communication, negotiation and liaison skills.",
+          "paragraphs": [
+            "My writing has had to move decisions. The depot business case secured funding at the first gate. The briefs I write for the Minister's office are cleared with few changes because they say what is decided, what is not, and what the Minister is being asked to do.",
+            "I have negotiated contract variations and extensions of time with contractors who did not share my incentives, and I have chaired community meetings on works that closed a road for a fortnight. In both settings the same things work: plain language, an honest account of what is known, and a person who comes back with the answer they promised."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "letter",
+      "title": "Cover letter",
+      "kind": "letter",
+      "numbering": "both",
+      "wordLimit": 400,
+      "blockWordLimit": null,
+      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "", "right": "" }, "firstPage": false },
+      "blocks": [
+        {
+          "type": "docmast",
+          "kicker": "Application",
+          "title": "Senior Director, Capital Works",
+          "sub": "Position 00000 · Example Directorate",
+          "contact": ["Jordan Example", "0400 000 000", "jordan@example.com.au"]
+        },
+        {
+          "type": "letterhead",
+          "date": "2 September 2026",
+          "recipient": ["Selection panel", "Infrastructure Division", "Example Directorate"],
+          "subject": "Application for Senior Director, Capital Works, position 00000"
+        },
+        {
+          "type": "opening",
+          "paragraphs": [
+            "Dear panel,",
+            "I am applying for the Senior Director, Capital Works role advertised on 31 August. My curriculum vitae and my response to the selection criteria are attached.",
+            "In fourteen years on the client side of public infrastructure I have written the business cases that funded three major projects, run their procurements to award, held the client position through construction on live sites, and reported the benefits afterwards. That is the lifecycle this role owns, and I would bring to it a section leader's habits: clear priorities, visible risk, and staff trusted to own their projects.",
+            "I would welcome the chance to discuss the role and the Division's current program with the panel."
+          ]
+        },
+        { "type": "signoff", "closing": "Yours sincerely", "name": "Jordan Example" }
+      ]
+    }
+  ]
+}
