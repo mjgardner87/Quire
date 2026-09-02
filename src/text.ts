@@ -66,10 +66,34 @@ export function placeCaret(el: HTMLElement, atEnd = true): void {
   sel?.addRange(range);
 }
 
-/** Wrap the current selection (inside an editable) in a flag span. */
+/** The flag span containing the selection's anchor, if any. */
+export function flagAtSelection(): HTMLElement | null {
+  const sel = getSelection();
+  const node = sel?.anchorNode;
+  const el = node instanceof HTMLElement ? node : node?.parentElement;
+  return el?.closest<HTMLElement>('.flag') ?? null;
+}
+
+/** Replace a flag span with its text, keeping the caret inside the text. */
+export function unflag(span: HTMLElement): void {
+  const text = document.createTextNode(span.textContent?.replace(/^CONFIRM:\s*/, '') ?? '');
+  span.replaceWith(text);
+  const sel = getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  sel?.removeAllRanges();
+  sel?.addRange(range);
+}
+
+/** Wrap the current selection (inside an editable) in a flag span. A collapsed caret flags the word around it. */
 export function flagSelection(): boolean {
   const sel = getSelection();
-  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return false;
+  if (!sel || sel.rangeCount === 0) return false;
+  if (sel.isCollapsed) {
+    sel.modify('move', 'backward', 'word');
+    sel.modify('extend', 'forward', 'word');
+    if (sel.isCollapsed || !sel.toString().trim()) return false;
+  }
   const range = sel.getRangeAt(0);
   const host = (range.commonAncestorContainer instanceof HTMLElement ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement)?.closest('[contenteditable]');
   if (!host) return false;

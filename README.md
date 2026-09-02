@@ -21,8 +21,9 @@ A quire is a gathering of sheets.
 6. Click Print and choose Save as PDF.
 
 Text between `[[` and `]]` is a flag. It prints amber and the toolbar counts it, so a fact you
-still have to confirm cannot slip into a submission. Select words and press Ctrl+Shift+F to flag
-them.
+still have to confirm cannot slip into a submission. To flag words: select them and use the
+toolbar that appears, right-click them, or press Ctrl+Shift+F. Ctrl+K opens a command palette
+with every action, every section type and a jump to any block.
 
 ### Keyboard
 
@@ -31,7 +32,9 @@ them.
 | Enter | New bullet or paragraph after this one |
 | Backspace | On an empty bullet or paragraph, remove it |
 | Ctrl+B, Ctrl+I | Bold, italic |
-| Ctrl+Shift+F | Flag the selected words |
+| Ctrl+Shift+F | Flag the selected words, or the word at the caret |
+| Ctrl+K | Command palette |
+| Right-click | Actions for the text under the pointer (Shift and right-click keeps the browser's menu) |
 | Alt+Up, Alt+Down | Move this bullet, paragraph or entry |
 | Alt+Shift+Up, Alt+Shift+Down | Move the whole section |
 | Ctrl+Z, Ctrl+Shift+Z | Undo, redo a structural change (outside text) |

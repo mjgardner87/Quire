@@ -115,7 +115,9 @@ verdict, DESIGN.md, and every shipping raster carrying its provenance.
       <dt><kbd>Enter</kbd></dt><dd>New bullet or paragraph after this one</dd>
       <dt><kbd>Backspace</kbd></dt><dd>On an empty bullet or paragraph, remove it</dd>
       <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Bold or italic</dd>
-      <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>F</kbd></dt><dd>Flag the selected words for confirmation</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>F</kbd></dt><dd>Flag the selected words, or the word at the caret, for confirmation</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd>Command palette: every action, every section type, jump to a block</dd>
+      <dt>Right-click</dt><dd>Actions for the text under the pointer. Shift and right-click for the browser's own menu and spelling suggestions</dd>
       <dt><kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Move this bullet, paragraph or entry</dd>
       <dt><kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Move the whole section</dd>
       <dt><kbd>Ctrl</kbd> <kbd>Z</kbd> / <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></dt><dd>Undo or redo a structural change (outside text)</dd>
@@ -126,6 +128,19 @@ verdict, DESIGN.md, and every shipping raster carrying its provenance.
   </div>
 </div>
 
+<div id="bubble" class="bubble" role="toolbar" aria-label="Selection" hidden>
+  <button type="button" data-command="bold" title="Bold (Ctrl+B)" aria-label="Bold"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M170.48,115.7A44,44,0,0,0,140,40H72a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8h80a48,48,0,0,0,18.48-92.3ZM80,56h60a28,28,0,0,1,0,56H80Zm72,136H80V128h72a32,32,0,0,1,0,64Z"/></svg></button>
+  <button type="button" data-command="italic" title="Italic (Ctrl+I)" aria-label="Italic"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M200,56a8,8,0,0,1-8,8H157.77L115.1,192H144a8,8,0,0,1,0,16H64a8,8,0,0,1,0-16H98.23L140.9,64H112a8,8,0,0,1,0-16h80A8,8,0,0,1,200,56Z"/></svg></button>
+  <span class="bubble-sep" aria-hidden="true"></span>
+  <button type="button" data-command="flag" title="Flag for confirmation (Ctrl+Shift+F)"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M34.76,42A8,8,0,0,0,32,48V216a8,8,0,0,0,16,0V171.77c26.79-21.16,49.87-9.75,76.45,3.41,16.4,8.11,34.06,16.85,53,16.85,13.93,0,28.54-4.75,43.82-18a8,8,0,0,0,2.76-6V48A8,8,0,0,0,210.76,42c-28,24.23-51.72,12.49-79.21-1.12C103.07,26.76,70.78,10.79,34.76,42ZM208,164.25c-26.79,21.16-49.87,9.74-76.45-3.41-25-12.35-52.81-26.13-83.55-8.4V51.79c26.79-21.16,49.87-9.75,76.45,3.4,25,12.35,52.82,26.13,83.55,8.4Z"/></svg><span>Flag</span></button>
+  <button type="button" data-command="unflag" title="Remove this flag"><svg class="icon" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg><span>Remove flag</span></button>
+</div>
+<div id="context" class="menu context" role="menu" aria-label="Actions" hidden></div>
+<div id="palette" class="palette" role="dialog" aria-label="Commands" hidden>
+  <input id="palette-input" type="text" placeholder="Type a command, a section to add, or a block to go to" autocomplete="off" spellcheck="false" aria-label="Command">
+  <ol id="palette-list" role="listbox"></ol>
+  <p class="palette-hint">Up and down to choose, Enter to run, Esc to close</p>
+</div>
 <div id="toast" class="toast" role="status" hidden></div>
 
 <script type="module" src="/src/main.ts"></script>

@@ -122,6 +122,42 @@ test.describe('editing', () => {
   });
 });
 
+test.describe('commands', () => {
+  test('selecting text shows the toolbar and its Flag button flags the words', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const flags0 = await page.locator('.flag').count();
+    await page.locator('.prose p').first().click();
+    await page.keyboard.press('Control+a');
+    await expect(page.locator('#bubble')).toBeVisible();
+    await page.click('#bubble [data-command="flag"]');
+    await expect(page.locator('.flag')).toHaveCount(flags0 + 1);
+    await expect(page.locator('#bubble')).toBeHidden();
+  });
+
+  test('right-click opens a menu with structural actions', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const bullets = page.locator('.entry').first().locator('li');
+    const before = await bullets.count();
+    await bullets.first().locator('[contenteditable]').click({ button: 'right' });
+    await expect(page.locator('#context')).toBeVisible();
+    await page.click('#context [data-command="add-item"]');
+    await expect(bullets).toHaveCount(before + 1);
+    await expect(page.locator('#context')).toBeHidden();
+  });
+
+  test('Ctrl+K opens the palette and runs a filtered command', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const n = await page.locator('section').count();
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#palette')).toBeVisible();
+    await page.fill('#palette-input', 'skills');
+    await expect(page.locator('#palette-list li').first()).toContainText('Skills list');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('section')).toHaveCount(n + 1);
+    await expect(page.locator('#palette')).toBeHidden();
+  });
+});
+
 test.describe('sections', () => {
   test('remove, add every type, move and page-break', async ({ page }) => {
     await page.goto(url('#cv'));

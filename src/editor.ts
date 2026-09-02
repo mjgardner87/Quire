@@ -11,7 +11,8 @@ import {
   type Block, type Design, type DocKind, type Numbering, type QDocument, type Workspace,
 } from './model';
 import { h, renderDocument } from './render';
-import { caretAtStart, fill, flagSelection, placeCaret, readText } from './text';
+import { caretAtStart, fill, flagAtSelection, flagSelection, placeCaret, readText, unflag } from './text';
+import { applicable, matchCommands, type Command, type CommandContext } from './commands';
 
 export interface State { workspace: Workspace; activeId: string }
 interface Version { at: string; label: string; workspace: Workspace }
@@ -53,6 +54,10 @@ export class Editor {
   private openPanelId: string | null = null;
   private panelOpener: HTMLElement | null = null;
   private drag: { list: string; index: number } | null = null;
+  private savedRange: Range | null = null;
+  private bubbleTimer = 0;
+  private paletteItems: Command[] = [];
+  private paletteIndex = 0;
 
   private readonly sheet = $('#sheet');
   private readonly rail = $('#rail');
@@ -852,8 +857,27 @@ export class Editor {
       if (this.openPanelId && !inside((el) => el.classList.contains('panel') || el.classList.contains('toolbar'))) this.closePanels();
       if (!inside((el) => el.classList.contains('menu') || el.getAttribute('aria-haspopup') === 'menu')) this.hideMenus();
       if (!$('#shortcuts').hidden && !inside((el) => el.id === 'shortcuts' || el.id === 'help')) $('#shortcuts').hidden = true;
+      if (!$('#palette').hidden && !inside((el) => el.id === 'palette')) this.closePalette();
     });
     document.addEventListener('keydown', (e) => this.onGlobalKey(e));
+    sheet.addEventListener('contextmenu', (e) => this.openContextMenu(e));
+    document.addEventListener('selectionchange', () => { clearTimeout(this.bubbleTimer); this.bubbleTimer = window.setTimeout(() => this.updateBubble(), 80); });
+    $('#bubble').addEventListener('mousedown', (e) => e.preventDefault());   /* keep the text selection */
+    $('#bubble').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-command]');
+      const c = b && this.commands().find((x) => x.id === b.dataset.command);
+      if (!c) return;
+      this.saveSelection();
+      c.run();
+      $('#bubble').hidden = true;
+    });
+    const paletteInput = $<HTMLInputElement>('#palette-input');
+    paletteInput.addEventListener('input', () => this.renderPalette(paletteInput.value));
+    paletteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); this.setPaletteIndex(this.paletteIndex + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); this.setPaletteIndex(this.paletteIndex - 1); }
+      else if (e.key === 'Enter') { e.preventDefault(); this.runPalette(this.paletteIndex); }
+    });
     window.addEventListener('beforeprint', () => this.sheet.querySelectorAll('.guide').forEach((g) => g.remove()));
     window.addEventListener('afterprint', () => this.updateStatus());
     window.addEventListener('hashchange', () => {
@@ -903,33 +927,17 @@ export class Editor {
     if (mod && !e.altKey && e.key.toLowerCase() === 'b') { e.preventDefault(); document.execCommand('bold'); return; }
     if (mod && !e.altKey && e.key.toLowerCase() === 'i') { e.preventDefault(); document.execCommand('italic'); return; }
     if (mod && e.key.toLowerCase() === 'u') { e.preventDefault(); return; }
-    if (mod && e.shiftKey && e.key.toLowerCase() === 'f') {
-      e.preventDefault();
-      if (flagSelection()) el.dispatchEvent(new Event('input', { bubbles: true }));
-      else this.notify('Select the words to flag first.');
-      return;
-    }
+    if (mod && e.shiftKey && e.key.toLowerCase() === 'f') { e.preventDefault(); this.savedRange = null; this.flag(); return; }
     if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault();
-      const delta = e.key === 'ArrowUp' ? -1 : 1;
-      const nav = e.shiftKey
-        ? el.closest<HTMLElement>('.blk:has(> .ctl[data-list="blocks"])')?.querySelector<HTMLElement>(':scope > .ctl[data-list="blocks"]')
-        : el.closest<HTMLElement>('.blk')?.querySelector<HTMLElement>(':scope > .ctl');
-      if (nav?.dataset.list) this.move(nav.dataset.list, Number(nav.dataset.index), Number(nav.dataset.index) + delta);
+      this.moveFrom(el, e.key === 'ArrowUp' ? -1 : 1, e.shiftKey);
       return;
     }
 
     if (e.key === 'Enter') {
       if (kind === 'lines') { if (!e.shiftKey) { e.preventDefault(); document.execCommand('insertLineBreak'); } return; }
       e.preventDefault();
-      if (kind !== 'item') return;
-      const path = pparse(el.dataset.path!);
-      const isField = typeof path[path.length - 1] === 'string';
-      const listPath = isField ? path.slice(0, -2) : path.slice(0, -1);
-      const index = (isField ? path[path.length - 2] : path[path.length - 1]) as number;
-      const current = (get(this.doc, listPath) as unknown[])[index];
-      const fresh = typeof current === 'string' ? '' : Object.fromEntries(Object.entries(current as Record<string, string>).map(([k, v]) => [k, k === 'label' ? v : '']));
-      this.insertAt(pstr(listPath), index + 1, fresh);
+      if (kind === 'item') this.addItemAfter(el);
       return;
     }
     if (e.key === 'Backspace' && kind === 'item' && readText(el).trim() === '' && caretAtStart(el)) {
@@ -947,6 +955,229 @@ export class Editor {
       const target = this.sheet.querySelector<HTMLElement>(`[data-path="${pstr(listPath.concat(index - 1, typeof prev === 'string' ? [] : ['text']))}"]`);
       if (target) placeCaret(target, true);
     }
+  }
+
+  /** The list member (bullet, paragraph, entry) or block the run belongs to, and its controls. */
+  private navFor(el: HTMLElement, wholeBlock: boolean): HTMLElement | null {
+    return wholeBlock
+      ? el.closest<HTMLElement>('.blk:has(> .ctl[data-list="blocks"])')?.querySelector<HTMLElement>(':scope > .ctl[data-list="blocks"]') ?? null
+      : el.closest<HTMLElement>('.blk')?.querySelector<HTMLElement>(':scope > .ctl') ?? null;
+  }
+  private moveFrom(el: HTMLElement, delta: number, wholeBlock: boolean): void {
+    const nav = this.navFor(el, wholeBlock);
+    if (nav?.dataset.list) this.move(nav.dataset.list, Number(nav.dataset.index), Number(nav.dataset.index) + delta);
+  }
+  private removeFrom(el: HTMLElement, wholeBlock: boolean): void {
+    const nav = this.navFor(el, wholeBlock);
+    if (nav?.dataset.list) this.removeAt(nav.dataset.list, Number(nav.dataset.index));
+  }
+  private addItemAfter(el: HTMLElement): void {
+    if (!this.doc || el.dataset.kind !== 'item' || !el.dataset.path) return;
+    const path = pparse(el.dataset.path);
+    const isField = typeof path[path.length - 1] === 'string';
+    const listPath = isField ? path.slice(0, -2) : path.slice(0, -1);
+    const index = (isField ? path[path.length - 2] : path[path.length - 1]) as number;
+    const current = (get(this.doc, listPath) as unknown[])[index];
+    const fresh = typeof current === 'string' ? '' : Object.fromEntries(Object.entries(current as Record<string, string>).map(([k, v]) => [k, k === 'label' ? v : '']));
+    this.insertAt(pstr(listPath), index + 1, fresh);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Commands: one list behind the selection toolbar, the right-click menu and Ctrl+K */
+  /* ------------------------------------------------------------------ */
+
+  private currentRun(): HTMLElement | null {
+    const node = getSelection()?.anchorNode;
+    const el = node instanceof HTMLElement ? node : node?.parentElement;
+    return el?.closest<HTMLElement>('#sheet [data-path]') ?? null;
+  }
+  private context(run: HTMLElement | null = this.currentRun()): CommandContext {
+    const sel = getSelection();
+    return {
+      hasDocument: !!this.doc,
+      inText: !!run,
+      hasSelection: !!run && !!sel && !sel.isCollapsed,
+      inFlag: !!run && !!flagAtSelection(),
+      inItem: run?.dataset.kind === 'item',
+      inBlock: !!run?.closest('.blk:has(> .ctl[data-list="blocks"])'),
+    };
+  }
+  /** Keep the text selection across a palette or menu, which take focus. */
+  private saveSelection(): void {
+    const sel = getSelection();
+    this.savedRange = sel && sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+  }
+  private restoreSelection(): HTMLElement | null {
+    const range = this.savedRange;
+    if (!range) return null;
+    const node = range.commonAncestorContainer;
+    const host = (node instanceof HTMLElement ? node : node.parentElement)?.closest<HTMLElement>('#sheet [contenteditable]');
+    if (!host) return null;
+    host.focus({ preventScroll: true });
+    const sel = getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+    return host;
+  }
+  private inRun(fn: (run: HTMLElement) => void): void {
+    const run = this.restoreSelection() ?? this.currentRun();
+    if (run) fn(run);
+  }
+  private format(command: 'bold' | 'italic'): void {
+    this.inRun((run) => { document.execCommand(command); run.dispatchEvent(new Event('input', { bubbles: true })); });
+  }
+  private flag(): void {
+    this.inRun((run) => {
+      if (flagSelection()) run.dispatchEvent(new Event('input', { bubbles: true }));
+      else this.notify('Put the caret in a word, or select the words to flag.');
+    });
+  }
+  private removeFlag(): void {
+    this.inRun((run) => { const span = flagAtSelection(); if (span) { unflag(span); run.dispatchEvent(new Event('input', { bubbles: true })); } });
+  }
+
+  private commands(): Command[] {
+    const doc = this.doc;
+    const list: Command[] = [
+      { id: 'bold', label: 'Bold', group: 'Format', keys: 'Ctrl B', when: (c) => c.hasSelection, contextual: true, run: () => this.format('bold') },
+      { id: 'italic', label: 'Italic', group: 'Format', keys: 'Ctrl I', when: (c) => c.hasSelection, contextual: true, run: () => this.format('italic') },
+      { id: 'flag', label: 'Flag for confirmation', group: 'Format', keys: 'Ctrl Shift F', when: (c) => c.inText && !c.inFlag, contextual: true, run: () => this.flag() },
+      { id: 'unflag', label: 'Remove flag', group: 'Format', when: (c) => c.inFlag, contextual: true, run: () => this.removeFlag() },
+      { id: 'add-item', label: 'Add one below', group: 'Structure', keys: 'Enter', when: (c) => c.inItem, contextual: true, run: () => this.inRun((r) => this.addItemAfter(r)) },
+      { id: 'item-up', label: 'Move up', group: 'Structure', keys: 'Alt ↑', when: (c) => c.inItem || c.inBlock, contextual: true, run: () => this.inRun((r) => this.moveFrom(r, -1, false)) },
+      { id: 'item-down', label: 'Move down', group: 'Structure', keys: 'Alt ↓', when: (c) => c.inItem || c.inBlock, contextual: true, run: () => this.inRun((r) => this.moveFrom(r, 1, false)) },
+      { id: 'block-up', label: 'Move section up', group: 'Structure', keys: 'Alt Shift ↑', when: (c) => c.inBlock, contextual: true, run: () => this.inRun((r) => this.moveFrom(r, -1, true)) },
+      { id: 'block-down', label: 'Move section down', group: 'Structure', keys: 'Alt Shift ↓', when: (c) => c.inBlock, contextual: true, run: () => this.inRun((r) => this.moveFrom(r, 1, true)) },
+      { id: 'pagebreak', label: 'Start section on a new page', group: 'Structure', when: (c) => c.inBlock, contextual: true, run: () => this.inRun((r) => { const nav = this.navFor(r, true); if (nav) this.togglePageBreak(Number(nav.dataset.index)); }) },
+      { id: 'remove-item', label: 'Remove this one', group: 'Structure', when: (c) => c.inItem, contextual: true, run: () => this.inRun((r) => this.removeFrom(r, false)) },
+      { id: 'remove-block', label: 'Remove section', group: 'Structure', when: (c) => c.inBlock, contextual: true, run: () => this.inRun((r) => this.removeFrom(r, true)) },
+      ...ADDABLE.map<Command>((a) => ({ id: `add-${a.value}`, label: a.label, group: 'Insert', when: (c) => c.hasDocument, run: () => this.addBlock(a.value) })),
+      ...(doc ? doc.blocks.map<Command>((b, i) => ({ id: `goto-${i}`, label: this.blockTitle(b, i, doc), group: 'Go to', run: () => this.gotoBlock(i) })) : []),
+      { id: 'new-cv', label: 'New curriculum vitae', group: 'Document', run: () => this.addDocument('cv') },
+      { id: 'new-criteria', label: 'New criteria response', group: 'Document', run: () => this.addDocument('criteria') },
+      { id: 'new-letter', label: 'New cover letter', group: 'Document', run: () => this.addDocument('letter') },
+      { id: 'design', label: 'Design: colour, type, margins', group: 'Document', run: () => this.openPanel('panel-design', $('#design')) },
+      { id: 'running', label: 'Header and footer', group: 'Document', when: (c) => c.hasDocument, run: () => this.openPanel('panel-running', $('#running')) },
+      { id: 'doc-settings', label: 'Document: title, word limits, numbering', group: 'Document', when: (c) => c.hasDocument, run: () => this.openPanel('panel-doc', $('#doc-menu')) },
+      { id: 'copy-text', label: 'Copy document as plain text', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toPlainText(this.doc), 'Plain text copied.'); } },
+      { id: 'copy-md', label: 'Copy document as Markdown', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toMarkdown(this.doc), 'Markdown copied.'); } },
+      { id: 'next-flag', label: 'Go to the next flag', group: 'Document', when: () => this.sheet.querySelectorAll('.flag').length > 0, run: () => this.nextFlag() },
+      { id: 'print', label: 'Print or save as PDF', group: 'File', keys: 'Ctrl P', run: () => this.print() },
+      { id: 'save', label: 'Save file', group: 'File', keys: 'Ctrl S', run: () => this.saveFile() },
+      { id: 'open', label: 'Open file', group: 'File', keys: 'Ctrl O', run: () => $('#open-file').click() },
+      { id: 'versions', label: 'Versions', group: 'File', run: () => this.openPanel('panel-versions', $('#file')) },
+      { id: 'undo', label: 'Undo', group: 'File', keys: 'Ctrl Z', when: () => this.past.length > 0, run: () => this.undo() },
+      { id: 'redo', label: 'Redo', group: 'File', keys: 'Ctrl Shift Z', when: () => this.future.length > 0, run: () => this.redo() },
+      { id: 'shortcuts', label: 'Keyboard shortcuts', group: 'File', keys: '?', run: () => $('#help').click() },
+    ];
+    return list;
+  }
+  private gotoBlock(index: number): void {
+    const el = this.sheet.querySelector<HTMLElement>(`.ctl[data-list="blocks"][data-index="${index}"]`)?.parentElement;
+    el?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    el?.querySelector<HTMLElement>('[contenteditable]')?.focus({ preventScroll: true });
+  }
+
+  /* ---------- Selection toolbar ---------- */
+
+  private updateBubble(): void {
+    const bubble = $('#bubble');
+    const sel = getSelection();
+    const run = this.currentRun();
+    if (!run || !sel || sel.rangeCount === 0 || (sel.isCollapsed && !flagAtSelection()) || this.openPanelId !== null) { bubble.hidden = true; return; }
+    const ctx = this.context(run);
+    bubble.querySelector<HTMLElement>('[data-command="bold"]')!.hidden = !ctx.hasSelection;
+    bubble.querySelector<HTMLElement>('[data-command="italic"]')!.hidden = !ctx.hasSelection;
+    bubble.querySelector<HTMLElement>('.bubble-sep')!.hidden = !ctx.hasSelection;
+    bubble.querySelector<HTMLElement>('[data-command="flag"]')!.hidden = ctx.inFlag;
+    bubble.querySelector<HTMLElement>('[data-command="unflag"]')!.hidden = !ctx.inFlag;
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) { bubble.hidden = true; return; }
+    bubble.hidden = false;
+    const w = bubble.offsetWidth;
+    bubble.style.left = `${Math.max(8, Math.min(rect.left + rect.width / 2 - w / 2, window.innerWidth - w - 8))}px`;
+    bubble.style.top = `${Math.max(8, rect.top - bubble.offsetHeight - 8)}px`;
+  }
+
+  /* ---------- Right-click menu ---------- */
+
+  private openContextMenu(e: MouseEvent): void {
+    const target = e.target as HTMLElement;
+    const run = target.closest<HTMLElement>('#sheet [data-path]');
+    if (!run || e.shiftKey) return;   /* Shift keeps the browser's own menu, with spelling suggestions */
+    e.preventDefault();
+    this.closePanels();
+    this.hideMenus();
+    const sel = getSelection();
+    if (sel && (sel.isCollapsed || !run.contains(sel.anchorNode))) {
+      const range = document.caretRangeFromPoint?.(e.clientX, e.clientY);
+      if (range && run.contains(range.startContainer)) { sel.removeAllRanges(); sel.addRange(range); }
+    }
+    this.saveSelection();
+    const menu = $('#context');
+    menu.innerHTML = '';
+    const items = applicable(this.commands(), this.context(run)).filter((c) => c.contextual);
+    let group = '';
+    for (const c of items) {
+      if (c.group !== group) { if (group) menu.append(h('span', 'menu-sep')); group = c.group; }
+      const b = h('button', null, h('span', null, c.label), c.keys ? h('kbd', null, c.keys) : null);
+      b.type = 'button'; b.role = 'menuitem'; b.dataset.command = c.id;
+      b.addEventListener('click', () => { menu.hidden = true; c.run(); });
+      menu.append(b);
+    }
+    menu.hidden = false;
+    const w = menu.offsetWidth, hgt = menu.offsetHeight;
+    menu.style.left = `${Math.min(e.clientX, window.innerWidth - w - 8)}px`;
+    menu.style.top = `${Math.min(e.clientY, window.innerHeight - hgt - 8)}px`;
+    menu.querySelector<HTMLElement>('button')?.focus();
+  }
+
+  /* ---------- Command palette ---------- */
+
+  private togglePalette(): void {
+    const pal = $('#palette');
+    if (!pal.hidden) { this.closePalette(); return; }
+    this.saveSelection();
+    this.closePanels();
+    this.hideMenus();
+    $('#bubble').hidden = true;
+    const input = $<HTMLInputElement>('#palette-input');
+    input.value = '';
+    pal.hidden = false;
+    this.renderPalette('');
+    input.focus();
+  }
+  private closePalette(): void {
+    $('#palette').hidden = true;
+  }
+  private renderPalette(query: string): void {
+    const list = $('#palette-list');
+    list.innerHTML = '';
+    this.paletteItems = matchCommands(applicable(this.commands(), this.context(this.savedRun())), query).slice(0, 40);
+    this.paletteIndex = 0;
+    if (this.paletteItems.length === 0) { list.append(h('li', 'empty', 'Nothing matches. Try a section name, a block heading or an action.')); return; }
+    this.paletteItems.forEach((c, i) => {
+      const li = h('li', i === 0 ? 'active' : null, h('span', 'group', c.group), h('span', 'label', c.label), c.keys ? h('kbd', null, c.keys) : null);
+      li.role = 'option'; li.dataset.index = String(i);
+      li.addEventListener('mouseenter', () => this.setPaletteIndex(i));
+      li.addEventListener('click', () => this.runPalette(i));
+      list.append(li);
+    });
+  }
+  private savedRun(): HTMLElement | null {
+    const node = this.savedRange?.commonAncestorContainer;
+    const el = node instanceof HTMLElement ? node : node?.parentElement;
+    return el?.closest<HTMLElement>('#sheet [data-path]') ?? null;
+  }
+  private setPaletteIndex(i: number): void {
+    this.paletteIndex = Math.max(0, Math.min(i, this.paletteItems.length - 1));
+    $('#palette-list').querySelectorAll('li').forEach((li, k) => li.classList.toggle('active', k === this.paletteIndex));
+    $('#palette-list').querySelector<HTMLElement>('li.active')?.scrollIntoView({ block: 'nearest' });
+  }
+  private runPalette(i: number): void {
+    const c = this.paletteItems[i];
+    this.closePalette();
+    if (c) c.run();
   }
 
   private onSheetClick(e: MouseEvent): void {
@@ -1024,7 +1255,8 @@ export class Editor {
   private onGlobalKey(e: KeyboardEvent): void {
     const mod = e.ctrlKey || e.metaKey;
     const inText = !!(e.target as HTMLElement).closest('[contenteditable], input, select, textarea');
-    if (e.key === 'Escape') { this.closePanels(); this.hideMenus(); return; }
+    if (e.key === 'Escape') { this.closePanels(); this.hideMenus(); this.closePalette(); $('#context').hidden = true; $('#bubble').hidden = true; return; }
+    if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); this.togglePalette(); return; }
     if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); this.saveFile(); return; }
     if (mod && e.key.toLowerCase() === 'p') { e.preventDefault(); this.print(); return; }
     if (mod && e.key.toLowerCase() === 'o') { e.preventDefault(); $('#open-file').click(); return; }

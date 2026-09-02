@@ -1,0 +1,662 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-02T10:41:42.411Z",
+  "title": "Design System: Quire",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Accent (Eucalyptus default)",
+        "canonical": "oklch(43.1% 0.067 173.8)",
+        "tonalRamp": [
+          "oklch(15.0% 0.067 173.8)",
+          "oklch(26.4% 0.067 173.8)",
+          "oklch(37.9% 0.067 173.8)",
+          "oklch(49.3% 0.067 173.8)",
+          "oklch(60.7% 0.067 173.8)",
+          "oklch(72.1% 0.067 173.8)",
+          "oklch(83.6% 0.067 173.8)",
+          "oklch(95.0% 0.067 173.8)"
+        ]
+      },
+      "eucalyptus": {
+        "role": "primary",
+        "displayName": "Eucalyptus",
+        "canonical": "oklch(43.1% 0.067 173.8)",
+        "tonalRamp": [
+          "oklch(15.0% 0.067 173.8)",
+          "oklch(26.4% 0.067 173.8)",
+          "oklch(37.9% 0.067 173.8)",
+          "oklch(49.3% 0.067 173.8)",
+          "oklch(60.7% 0.067 173.8)",
+          "oklch(72.1% 0.067 173.8)",
+          "oklch(83.6% 0.067 173.8)",
+          "oklch(95.0% 0.067 173.8)"
+        ]
+      },
+      "slate": {
+        "role": "primary",
+        "displayName": "Slate",
+        "canonical": "oklch(41.7% 0.093 258.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.093 258.5)",
+          "oklch(26.4% 0.093 258.5)",
+          "oklch(37.9% 0.093 258.5)",
+          "oklch(49.3% 0.093 258.5)",
+          "oklch(60.7% 0.093 258.5)",
+          "oklch(72.1% 0.093 258.5)",
+          "oklch(83.6% 0.093 258.5)",
+          "oklch(95.0% 0.093 258.5)"
+        ]
+      },
+      "oxblood": {
+        "role": "primary",
+        "displayName": "Oxblood",
+        "canonical": "oklch(41.0% 0.107 23.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.107 23.0)",
+          "oklch(26.4% 0.107 23.0)",
+          "oklch(37.9% 0.107 23.0)",
+          "oklch(49.3% 0.107 23.0)",
+          "oklch(60.7% 0.107 23.0)",
+          "oklch(72.1% 0.107 23.0)",
+          "oklch(83.6% 0.107 23.0)",
+          "oklch(95.0% 0.107 23.0)"
+        ]
+      },
+      "charcoal": {
+        "role": "primary",
+        "displayName": "Charcoal",
+        "canonical": "oklch(34.4% 0.014 244.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 244.0)",
+          "oklch(26.4% 0.014 244.0)",
+          "oklch(37.9% 0.014 244.0)",
+          "oklch(49.3% 0.014 244.0)",
+          "oklch(60.7% 0.014 244.0)",
+          "oklch(72.1% 0.014 244.0)",
+          "oklch(83.6% 0.014 244.0)",
+          "oklch(95.0% 0.014 244.0)"
+        ]
+      },
+      "ochre": {
+        "role": "primary",
+        "displayName": "Ochre",
+        "canonical": "oklch(50.9% 0.103 70.8)",
+        "tonalRamp": [
+          "oklch(15.0% 0.103 70.8)",
+          "oklch(26.4% 0.103 70.8)",
+          "oklch(37.9% 0.103 70.8)",
+          "oklch(49.3% 0.103 70.8)",
+          "oklch(60.7% 0.103 70.8)",
+          "oklch(72.1% 0.103 70.8)",
+          "oklch(83.6% 0.103 70.8)",
+          "oklch(95.0% 0.103 70.8)"
+        ]
+      },
+      "plum": {
+        "role": "primary",
+        "displayName": "Plum",
+        "canonical": "oklch(41.0% 0.092 312.2)",
+        "tonalRamp": [
+          "oklch(15.0% 0.092 312.2)",
+          "oklch(26.4% 0.092 312.2)",
+          "oklch(37.9% 0.092 312.2)",
+          "oklch(49.3% 0.092 312.2)",
+          "oklch(60.7% 0.092 312.2)",
+          "oklch(72.1% 0.092 312.2)",
+          "oklch(83.6% 0.092 312.2)",
+          "oklch(95.0% 0.092 312.2)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(24.1% 0.010 248.2)",
+        "tonalRamp": [
+          "oklch(15.0% 0.010 248.2)",
+          "oklch(26.4% 0.010 248.2)",
+          "oklch(37.9% 0.010 248.2)",
+          "oklch(49.3% 0.010 248.2)",
+          "oklch(60.7% 0.010 248.2)",
+          "oklch(72.1% 0.010 248.2)",
+          "oklch(83.6% 0.010 248.2)",
+          "oklch(95.0% 0.010 248.2)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "oklch(37.2% 0.015 248.2)",
+        "tonalRamp": [
+          "oklch(15.0% 0.015 248.2)",
+          "oklch(26.4% 0.015 248.2)",
+          "oklch(37.9% 0.015 248.2)",
+          "oklch(49.3% 0.015 248.2)",
+          "oklch(60.7% 0.015 248.2)",
+          "oklch(72.1% 0.015 248.2)",
+          "oklch(83.6% 0.015 248.2)",
+          "oklch(95.0% 0.015 248.2)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "oklch(54.5% 0.014 248.1)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 248.1)",
+          "oklch(26.4% 0.014 248.1)",
+          "oklch(37.9% 0.014 248.1)",
+          "oklch(49.3% 0.014 248.1)",
+          "oklch(60.7% 0.014 248.1)",
+          "oklch(72.1% 0.014 248.1)",
+          "oklch(83.6% 0.014 248.1)",
+          "oklch(95.0% 0.014 248.1)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "oklch(87.6% 0.008 241.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.008 241.7)",
+          "oklch(26.4% 0.008 241.7)",
+          "oklch(37.9% 0.008 241.7)",
+          "oklch(49.3% 0.008 241.7)",
+          "oklch(60.7% 0.008 241.7)",
+          "oklch(72.1% 0.008 241.7)",
+          "oklch(83.6% 0.008 241.7)",
+          "oklch(95.0% 0.008 241.7)"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Rule strong",
+        "canonical": "oklch(71.0% 0.014 241.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 241.0)",
+          "oklch(26.4% 0.014 241.0)",
+          "oklch(37.9% 0.014 241.0)",
+          "oklch(49.3% 0.014 241.0)",
+          "oklch(60.7% 0.014 241.0)",
+          "oklch(72.1% 0.014 241.0)",
+          "oklch(83.6% 0.014 241.0)",
+          "oklch(95.0% 0.014 241.0)"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet",
+        "canonical": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(26.4% 0.000 0)",
+          "oklch(37.9% 0.000 0)",
+          "oklch(49.3% 0.000 0)",
+          "oklch(60.7% 0.000 0)",
+          "oklch(72.1% 0.000 0)",
+          "oklch(83.6% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "canonical": "oklch(93.3% 0.005 247.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 247.9)",
+          "oklch(26.4% 0.005 247.9)",
+          "oklch(37.9% 0.005 247.9)",
+          "oklch(49.3% 0.005 247.9)",
+          "oklch(60.7% 0.005 247.9)",
+          "oklch(72.1% 0.005 247.9)",
+          "oklch(83.6% 0.005 247.9)",
+          "oklch(95.0% 0.005 247.9)"
+        ]
+      },
+      "bar": {
+        "role": "neutral",
+        "displayName": "Bar",
+        "canonical": "oklch(98.8% 0.001 0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.001 0)",
+          "oklch(26.4% 0.001 0)",
+          "oklch(37.9% 0.001 0)",
+          "oklch(49.3% 0.001 0)",
+          "oklch(60.7% 0.001 0)",
+          "oklch(72.1% 0.001 0)",
+          "oklch(83.6% 0.001 0)",
+          "oklch(95.0% 0.001 0)"
+        ]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "Rail",
+        "canonical": "oklch(96.3% 0.003 247.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 247.9)",
+          "oklch(26.4% 0.003 247.9)",
+          "oklch(37.9% 0.003 247.9)",
+          "oklch(49.3% 0.003 247.9)",
+          "oklch(60.7% 0.003 247.9)",
+          "oklch(72.1% 0.003 247.9)",
+          "oklch(83.6% 0.003 247.9)",
+          "oklch(95.0% 0.003 247.9)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "oklch(89.6% 0.007 247.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.007 247.9)",
+          "oklch(26.4% 0.007 247.9)",
+          "oklch(37.9% 0.007 247.9)",
+          "oklch(49.3% 0.007 247.9)",
+          "oklch(60.7% 0.007 247.9)",
+          "oklch(72.1% 0.007 247.9)",
+          "oklch(83.6% 0.007 247.9)",
+          "oklch(95.0% 0.007 247.9)"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line strong",
+        "canonical": "oklch(83.3% 0.010 242.9)",
+        "tonalRamp": [
+          "oklch(15.0% 0.010 242.9)",
+          "oklch(26.4% 0.010 242.9)",
+          "oklch(37.9% 0.010 242.9)",
+          "oklch(49.3% 0.010 242.9)",
+          "oklch(60.7% 0.010 242.9)",
+          "oklch(72.1% 0.010 242.9)",
+          "oklch(83.6% 0.010 242.9)",
+          "oklch(95.0% 0.010 242.9)"
+        ]
+      },
+      "chrome-muted": {
+        "role": "neutral",
+        "displayName": "Chrome muted",
+        "canonical": "oklch(51.7% 0.014 248.1)",
+        "tonalRamp": [
+          "oklch(15.0% 0.014 248.1)",
+          "oklch(26.4% 0.014 248.1)",
+          "oklch(37.9% 0.014 248.1)",
+          "oklch(49.3% 0.014 248.1)",
+          "oklch(60.7% 0.014 248.1)",
+          "oklch(72.1% 0.014 248.1)",
+          "oklch(83.6% 0.014 248.1)",
+          "oklch(95.0% 0.014 248.1)"
+        ]
+      },
+      "chrome-quiet": {
+        "role": "neutral",
+        "displayName": "Chrome quiet",
+        "canonical": "oklch(54.1% 0.017 251.3)",
+        "tonalRamp": [
+          "oklch(15.0% 0.017 251.3)",
+          "oklch(26.4% 0.017 251.3)",
+          "oklch(37.9% 0.017 251.3)",
+          "oklch(49.3% 0.017 251.3)",
+          "oklch(60.7% 0.017 251.3)",
+          "oklch(72.1% 0.017 251.3)",
+          "oklch(83.6% 0.017 251.3)",
+          "oklch(95.0% 0.017 251.3)"
+        ]
+      },
+      "flag": {
+        "role": "semantic",
+        "displayName": "Flag",
+        "canonical": "oklch(50.3% 0.127 53.2)",
+        "tonalRamp": [
+          "oklch(15.0% 0.127 53.2)",
+          "oklch(26.4% 0.127 53.2)",
+          "oklch(37.9% 0.127 53.2)",
+          "oklch(49.3% 0.127 53.2)",
+          "oklch(60.7% 0.127 53.2)",
+          "oklch(72.1% 0.127 53.2)",
+          "oklch(83.6% 0.127 53.2)",
+          "oklch(95.0% 0.127 53.2)"
+        ]
+      },
+      "flag-bg": {
+        "role": "semantic",
+        "displayName": "Flag background",
+        "canonical": "oklch(96.4% 0.032 78.2)",
+        "tonalRamp": [
+          "oklch(15.0% 0.032 78.2)",
+          "oklch(26.4% 0.032 78.2)",
+          "oklch(37.9% 0.032 78.2)",
+          "oklch(49.3% 0.032 78.2)",
+          "oklch(60.7% 0.032 78.2)",
+          "oklch(72.1% 0.032 78.2)",
+          "oklch(83.6% 0.032 78.2)",
+          "oklch(95.0% 0.032 78.2)"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Danger",
+        "canonical": "oklch(47.3% 0.162 28.6)",
+        "tonalRamp": [
+          "oklch(15.0% 0.162 28.6)",
+          "oklch(26.4% 0.162 28.6)",
+          "oklch(37.9% 0.162 28.6)",
+          "oklch(49.3% 0.162 28.6)",
+          "oklch(60.7% 0.162 28.6)",
+          "oklch(72.1% 0.162 28.6)",
+          "oklch(83.6% 0.162 28.6)",
+          "oklch(95.0% 0.162 28.6)"
+        ]
+      },
+      "accent-soft": {
+        "role": "derived",
+        "displayName": "Accent soft",
+        "canonical": "color-mix(in srgb, var(--accent) 9%, white)",
+        "tonalRamp": [
+          "oklch(15.0% 0.067 173.8)",
+          "oklch(26.4% 0.067 173.8)",
+          "oklch(37.9% 0.067 173.8)",
+          "oklch(49.3% 0.067 173.8)",
+          "oklch(60.7% 0.067 173.8)",
+          "oklch(72.1% 0.067 173.8)",
+          "oklch(83.6% 0.067 173.8)",
+          "oklch(95.0% 0.067 173.8)"
+        ]
+      },
+      "accent-ring": {
+        "role": "derived",
+        "displayName": "Accent ring",
+        "canonical": "color-mix(in srgb, var(--accent) 35%, transparent)",
+        "tonalRamp": [
+          "oklch(15.0% 0.067 173.8)",
+          "oklch(26.4% 0.067 173.8)",
+          "oklch(37.9% 0.067 173.8)",
+          "oklch(49.3% 0.067 173.8)",
+          "oklch(60.7% 0.067 173.8)",
+          "oklch(72.1% 0.067 173.8)",
+          "oklch(83.6% 0.067 173.8)",
+          "oklch(95.0% 0.067 173.8)"
+        ]
+      },
+      "accent-selection": {
+        "role": "derived",
+        "displayName": "Accent selection",
+        "canonical": "color-mix(in srgb, var(--accent) 22%, white)",
+        "tonalRamp": [
+          "oklch(15.0% 0.067 173.8)",
+          "oklch(26.4% 0.067 173.8)",
+          "oklch(37.9% 0.067 173.8)",
+          "oklch(49.3% 0.067 173.8)",
+          "oklch(60.7% 0.067 173.8)",
+          "oklch(72.1% 0.067 173.8)",
+          "oklch(83.6% 0.067 173.8)",
+          "oklch(95.0% 0.067 173.8)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The author's name in the CV masthead."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Document title in the criteria response and letter masthead; the criterion number in the accent."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Role title of a career entry."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Profile prose. Criterion responses and opening paragraphs rise to 1rem and 1.04rem."
+      },
+      "list": {
+        "displayName": "List",
+        "purpose": "Achievements and entry bullets. Two-column items and referees drop to 0.86rem."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Contact block, organisation line, sub-lines, document subtitle and letter date, in muted."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Section headings in accent uppercase, followed by a hairline to the right edge."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Every button, tab, select, menu item and input in the chrome."
+      },
+      "rail": {
+        "displayName": "Rail",
+        "purpose": "Structure rail rows and the toolbar status line."
+      },
+      "badge": {
+        "displayName": "Badge",
+        "purpose": "Menu group headings, the rail heading and panel sub-headings."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-sheet",
+        "value": "0 1px 2px rgba(22, 30, 38, 0.06), 0 16px 40px -8px rgba(22, 30, 38, 0.18)",
+        "purpose": "The A4 sheet on the desk. Nothing else uses it."
+      },
+      {
+        "name": "shadow-panel",
+        "value": "0 12px 32px -12px rgba(22, 30, 38, 0.28), 0 2px 6px rgba(22, 30, 38, 0.08)",
+        "purpose": "Floating panels, menus and toasts."
+      },
+      {
+        "name": "shadow-lift",
+        "value": "0 1px 2px rgba(22, 30, 38, 0.06)",
+        "purpose": "A hovered rail row on the rail; margin control buttons use 0.08."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "The one easing curve for every transition and animation."
+      },
+      {
+        "name": "rise",
+        "value": "160ms, opacity 0 to 1, translateY(-4px) to 0",
+        "purpose": "Panels and menus appearing."
+      },
+      {
+        "name": "rise-up",
+        "value": "160ms, opacity 0 to 1, translateY(6px) to 0",
+        "purpose": "The toast appearing from below."
+      },
+      {
+        "name": "hover-fade",
+        "value": "120ms on border-color, background-color, color, opacity, box-shadow",
+        "purpose": "Every hover and reveal in the chrome and on editable runs."
+      },
+      {
+        "name": "settle",
+        "value": "600ms, background from accent-soft to transparent",
+        "purpose": "A block that has just been moved."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "rail-hidden",
+        "value": "1100px",
+        "purpose": "Below this the structure rail is removed."
+      },
+      {
+        "name": "compact",
+        "value": "760px",
+        "purpose": "Below this the toolbar tiers wrap to 130px, the sheet zooms to 60%, and margin controls and counts are hidden."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled action: Print in the toolbar, the confirming action in a panel.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:16px;height:16px;flex:none\"><path d=\"M214.67,72H200V40a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8V72H41.33C27.36,72,16,82.77,16,96v80a8,8,0,0,0,8,8H56v32a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V184h32a8,8,0,0,0,8-8V96C240,82.77,228.64,72,214.67,72ZM72,48H184V72H72ZM184,208H72V160H184Zm40-40H200V152a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v16H32V96c0-4.41,4.19-8,9.33-8H214.67c5.14,0,9.33,3.59,9.33,8Zm-24-52a12,12,0,1,1-12-12A12,12,0,0,1,200,116Z\"/></svg><span>Print</span></button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;font:500 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;border-radius:6px;cursor:pointer;white-space:nowrap;transition:border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);color:#fff;background:var(--accent, #1f5c4d);border:1px solid var(--accent, #1f5c4d);}.ds-btn-primary:hover{filter:brightness(0.92);}.ds-btn-primary:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}"
+    },
+    {
+      "name": "Default button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "A bordered white control. Hover turns the border to the accent; an open menu button takes the soft accent wash.",
+      "html": "<button class=\"ds-btn\" type=\"button\">Design</button> <button class=\"ds-btn\" type=\"button\" aria-expanded=\"true\">Document</button> <button class=\"ds-btn\" type=\"button\" disabled>Redo</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;font:500 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;border-radius:6px;cursor:pointer;white-space:nowrap;transition:border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);color:#1c2024;background:#fff;border:1px solid #c3c9ce;}.ds-btn:hover{border-color:var(--accent, #1f5c4d);}.ds-btn[aria-expanded=\"true\"]{background:color-mix(in srgb, var(--accent, #1f5c4d) 9%, white);border-color:var(--accent, #1f5c4d);}.ds-btn:disabled{color:#687079;border-color:#d9dde1;background:transparent;cursor:default;}.ds-btn:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}"
+    },
+    {
+      "name": "Quiet button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "No border at rest. New, File and the rail toggle in the toolbar.",
+      "html": "<button class=\"ds-btn-quiet\" type=\"button\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:16px;height:16px;flex:none\"><path d=\"M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z\"/></svg><span>New</span></button> <button class=\"ds-btn-quiet\" type=\"button\">File</button>",
+      "css": ".ds-btn-quiet{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;font:500 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;border-radius:6px;cursor:pointer;white-space:nowrap;transition:border-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1),color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);color:#3a4148;background:transparent;border:1px solid transparent;}.ds-btn-quiet:hover{background:color-mix(in srgb, var(--accent, #1f5c4d) 9%, white);color:#1c2024;}.ds-btn-quiet:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}"
+    },
+    {
+      "name": "Document tabs",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "The documents of one application, on the upper toolbar tier. The active tab draws a 2px accent underline on the tier line.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\" type=\"button\">Curriculum vitae</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" type=\"button\">Response to selection criteria</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" type=\"button\">Cover letter</button></div>",
+      "css": ".ds-tabs{display:flex;align-items:stretch;gap:2px;height:44px;background:#fbfbfc;border-bottom:1px solid #d9dde1;font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;}.ds-tab{position:relative;font:500 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#626970;background:none;border:0;padding:0 12px;cursor:pointer;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;}.ds-tab:hover,.ds-tab[aria-selected=\"true\"]{color:#1c2024;}.ds-tab[aria-selected=\"true\"]::after{content:\"\";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;background:var(--accent, #1f5c4d);}.ds-tab:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:-4px;border-radius:4px;}"
+    },
+    {
+      "name": "Structure rail row",
+      "kind": "nav",
+      "refersTo": "rail-row",
+      "description": "One block of the document as a table-of-contents row: grip, type icon, title, tabular count. The current row takes the soft accent wash.",
+      "html": "<div class=\"ds-rail\"><div class=\"ds-rail-row ds-current\"><span class=\"ds-grip\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:12px;height:12px;flex:none\"><path d=\"M108,60A16,16,0,1,1,92,44,16,16,0,0,1,108,60Zm56,16a16,16,0,1,0-16-16A16,16,0,0,0,164,76ZM92,112a16,16,0,1,0,16,16A16,16,0,0,0,92,112Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,112ZM92,180a16,16,0,1,0,16,16A16,16,0,0,0,92,180Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,180Z\"/></svg></span><span class=\"ds-type\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:15px;height:15px;flex:none\"><path d=\"M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z\"/></svg></span><button class=\"ds-rail-title\" type=\"button\"><span class=\"ds-t\">Selected achievements</span><span class=\"ds-n\">142</span></button></div><div class=\"ds-rail-row\"><span class=\"ds-grip\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:12px;height:12px;flex:none\"><path d=\"M108,60A16,16,0,1,1,92,44,16,16,0,0,1,108,60Zm56,16a16,16,0,1,0-16-16A16,16,0,0,0,164,76ZM92,112a16,16,0,1,0,16,16A16,16,0,0,0,92,112Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,112ZM92,180a16,16,0,1,0,16,16A16,16,0,0,0,92,180Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,180Z\"/></svg></span><span class=\"ds-type\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:15px;height:15px;flex:none\"><path d=\"M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z\"/></svg></span><button class=\"ds-rail-title\" type=\"button\"><span class=\"ds-t\">Career history</span><span class=\"ds-n\">418</span></button></div></div>",
+      "css": ".ds-rail{width:284px;padding:6px 10px;background:#f1f3f5;border-right:1px solid #d9dde1;display:flex;flex-direction:column;gap:1px;font:500 12.5px/1.3 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#3a4148;}.ds-rail-row{display:grid;grid-template-columns:14px 16px 1fr;align-items:center;gap:6px;height:32px;padding:0 6px 0 4px;border-radius:6px;transition:background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);}.ds-rail-row:hover,.ds-rail-row:focus-within{background:#fff;box-shadow:0 1px 2px rgba(22,30,38,0.06);}.ds-rail-row.ds-current{background:color-mix(in srgb, var(--accent, #1f5c4d) 9%, white);}.ds-grip{display:inline-flex;color:#9aa3aa;opacity:0;transition:opacity 120ms cubic-bezier(0.2, 0.8, 0.2, 1);}.ds-rail-row:hover .ds-grip{opacity:1;}.ds-type{display:inline-flex;color:#626970;}.ds-current .ds-type,.ds-current .ds-rail-title{color:var(--accent, #1f5c4d);}.ds-rail-title{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;min-width:0;height:100%;}.ds-rail-title .ds-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.ds-rail-title .ds-n{color:#626970;font-size:11px;font-variant-numeric:tabular-nums;flex:none;}.ds-rail-title:hover .ds-t{color:var(--accent, #1f5c4d);}.ds-rail-title:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}"
+    },
+    {
+      "name": "Menu",
+      "kind": "custom",
+      "refersTo": "menu",
+      "description": "A floating list under its anchor: white, hairline border, 8px corners, panel shadow, rising over 160ms.",
+      "html": "<div class=\"ds-menu\" role=\"menu\"><button type=\"button\" role=\"menuitem\">Save file <kbd>Ctrl S</kbd></button><button type=\"button\" role=\"menuitem\">Open file <kbd>Ctrl O</kbd></button><button type=\"button\" role=\"menuitem\">Versions</button><span class=\"ds-menu-sep\" role=\"separator\"></span><button type=\"button\" role=\"menuitem\" class=\"ds-danger\">Reset to sample</button></div>",
+      "css": "@keyframes ds-rise{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}.ds-menu{display:flex;flex-direction:column;min-width:220px;padding:6px;background:#fff;border:1px solid #d9dde1;border-radius:8px;box-shadow:0 12px 32px -12px rgba(22,30,38,0.28),0 2px 6px rgba(22,30,38,0.08);animation:ds-rise 160ms cubic-bezier(0.2, 0.8, 0.2, 1);font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;}.ds-menu button{display:flex;justify-content:space-between;align-items:center;gap:16px;text-align:left;font:500 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#1c2024;background:none;border:0;border-radius:5px;padding:9px 10px;cursor:pointer;}.ds-menu button:hover,.ds-menu button:focus-visible{background:color-mix(in srgb, var(--accent, #1f5c4d) 9%, white);outline:none;}.ds-menu kbd{color:#687079;background:none;border:0;padding:0;font:400 11px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;}.ds-menu-sep{height:1px;background:#d9dde1;margin:5px 4px;}.ds-menu .ds-danger:hover{color:#a3271f;}"
+    },
+    {
+      "name": "Panel field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A labelled input or select inside a panel. Border to the accent on hover, 2px accent outline on focus.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-f-label\" for=\"ds-in-1\">Word limit</label><input class=\"ds-input\" id=\"ds-in-1\" type=\"text\" placeholder=\"None\" value=\"500\"><p class=\"ds-f-hint\">Per criterion. The margin count turns amber when over.</p></div>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:5px;max-width:368px;font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;}.ds-f-label{font:500 12px/1.2 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#3a4148;}.ds-input{height:32px;padding:0 9px;font:400 13px/1 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#1c2024;background:#fff;border:1px solid #c3c9ce;border-radius:6px;width:100%;}.ds-input:hover{border-color:var(--accent, #1f5c4d);}.ds-input::placeholder{color:#687079;}.ds-input:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}.ds-f-hint{margin:0;color:#626970;font-size:12px;}"
+    },
+    {
+      "name": "Scheme swatches",
+      "kind": "chip",
+      "refersTo": "input",
+      "description": "The six scheme accents as 22px circles. The selected swatch takes a 2px ink ring.",
+      "html": "<div class=\"ds-swatches\" role=\"group\" aria-label=\"Colour scheme\"><button class=\"ds-swatch ds-on\" type=\"button\" aria-label=\"Eucalyptus scheme\" style=\"--sw:#1f5c4d\"></button><button class=\"ds-swatch\" type=\"button\" aria-label=\"Slate scheme\" style=\"--sw:#2b4c7e\"></button><button class=\"ds-swatch\" type=\"button\" aria-label=\"Oxblood scheme\" style=\"--sw:#7a2e2e\"></button><button class=\"ds-swatch\" type=\"button\" aria-label=\"Charcoal scheme\" style=\"--sw:#333a40\"></button><button class=\"ds-swatch\" type=\"button\" aria-label=\"Ochre scheme\" style=\"--sw:#8a5a12\"></button><button class=\"ds-swatch\" type=\"button\" aria-label=\"Plum scheme\" style=\"--sw:#5b3a6e\"></button></div>",
+      "css": ".ds-swatches{display:flex;align-items:center;gap:6px;}.ds-swatch{width:22px;height:22px;border-radius:50%;background:var(--sw);border:2px solid #fff;box-shadow:0 0 0 1px #c3c9ce;cursor:pointer;padding:0;}.ds-swatch:hover{box-shadow:0 0 0 1px #3a4148;}.ds-swatch.ds-on{box-shadow:0 0 0 2px #1c2024;}.ds-swatch:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}"
+    },
+    {
+      "name": "Block controls",
+      "kind": "custom",
+      "refersTo": "block-control",
+      "description": "The proof-reader's marks in the sheet's right margin: move up, move down, page break, remove. Shown on hover or focus-within of the block.",
+      "html": "<div class=\"ds-blk\"><p class=\"ds-run\" contenteditable=\"true\" spellcheck=\"false\">Led the program office for a $48m facilities renewal, reporting to the Deputy Director-General.</p><div class=\"ds-ctl\"><button type=\"button\" aria-label=\"Move up\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:14px;height:14px;flex:none\"><path d=\"M205.66,117.66a8,8,0,0,1-11.32,0L136,59.31V216a8,8,0,0,1-16,0V59.31L61.66,117.66a8,8,0,0,1-11.32-11.32l72-72a8,8,0,0,1,11.32,0l72,72A8,8,0,0,1,205.66,117.66Z\"/></svg></button><button type=\"button\" aria-label=\"Move down\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:14px;height:14px;flex:none\"><path d=\"M205.66,149.66l-72,72a8,8,0,0,1-11.32,0l-72-72a8,8,0,0,1,11.32-11.32L120,196.69V40a8,8,0,0,1,16,0V196.69l58.34-58.35a8,8,0,0,1,11.32,11.32Z\"/></svg></button><button type=\"button\" class=\"ds-on\" aria-label=\"Start a new page\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:14px;height:14px;flex:none\"><path d=\"M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z\"/></svg></button><button type=\"button\" data-act=\"remove\" aria-label=\"Remove\"><svg class=\"ds-icon\" aria-hidden=\"true\" viewBox=\"0 0 256 256\" fill=\"currentColor\" style=\"width:14px;height:14px;flex:none\"><path d=\"M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z\"/></svg></button></div><span class=\"ds-wc\">17</span></div>",
+      "css": ".ds-blk{position:relative;width:360px;padding:8px 0;font-family:\"XCharter\",\"Source Serif 4\",Charter,Georgia,serif;font-size:13px;line-height:1.44;color:#1c2024;}.ds-run{margin:0;border-radius:2px;outline:none;transition:box-shadow 120ms cubic-bezier(0.2, 0.8, 0.2, 1),background-color 120ms cubic-bezier(0.2, 0.8, 0.2, 1);}.ds-run:hover{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent, #1f5c4d) 35%, transparent);}.ds-run:focus{box-shadow:0 0 0 1.5px var(--accent, #1f5c4d);background:color-mix(in srgb, var(--accent, #1f5c4d) 4%, transparent);}.ds-ctl{position:absolute;top:-2px;right:-40px;display:flex;flex-direction:column;gap:2px;opacity:0;pointer-events:none;transition:opacity 120ms cubic-bezier(0.2, 0.8, 0.2, 1);}.ds-blk:hover>.ds-ctl,.ds-blk:focus-within>.ds-ctl,.ds-ctl:hover{opacity:1;pointer-events:auto;}.ds-ctl button{width:24px;height:24px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#3a4148;border:1px solid #c3c9ce;border-radius:5px;cursor:pointer;box-shadow:0 1px 2px rgba(22,30,38,0.08);}.ds-ctl button:hover{border-color:var(--accent, #1f5c4d);color:var(--accent, #1f5c4d);}.ds-ctl button[data-act=\"remove\"]:hover{border-color:#a3271f;color:#a3271f;}.ds-ctl button.ds-on{background:color-mix(in srgb, var(--accent, #1f5c4d) 9%, white);color:var(--accent, #1f5c4d);border-color:var(--accent, #1f5c4d);}.ds-ctl button:focus-visible{outline:2px solid var(--accent, #1f5c4d);outline-offset:2px;}.ds-wc{position:absolute;right:-40px;bottom:0;width:36px;text-align:right;font:500 10.5px/1.2 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;color:#687079;font-variant-numeric:tabular-nums;pointer-events:none;}"
+    },
+    {
+      "name": "Flag",
+      "kind": "chip",
+      "refersTo": "flag",
+      "description": "An unresolved fact inline in the text: amber on cream, cloned across line breaks, printed as-is.",
+      "html": "<p class=\"ds-prose\">Delivered the works <span class=\"ds-flag\">CONFIRM: three weeks</span> ahead of the contracted date.</p>",
+      "css": ".ds-prose{margin:0;font:400 13px/1.44 \"XCharter\",\"Source Serif 4\",Charter,Georgia,serif;color:#1c2024;max-width:360px;}.ds-flag{font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;font-weight:500;font-size:0.82em;color:#9a4b00;background:#fff1dc;padding:0.5px 3px;border-radius:2px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}"
+    },
+    {
+      "name": "Section heading",
+      "kind": "custom",
+      "refersTo": "sheet",
+      "description": "A sheet section heading: accent uppercase label followed by a hairline to the right edge, then serif body.",
+      "html": "<section class=\"ds-sheet\"><h2 class=\"ds-h2\">Selected achievements</h2><ul class=\"ds-ach\"><li><strong>Program recovery.</strong> Brought a stalled $48m renewal back to schedule within two quarters.</li><li><strong>Governance.</strong> Established the board's assurance framework, adopted across the portfolio.</li></ul></section>",
+      "css": ".ds-sheet{width:360px;padding:12px 16px;background:#fff;color:#1c2024;font:400 13px/1.42 \"XCharter\",\"Source Serif 4\",Charter,Georgia,serif;font-feature-settings:\"kern\" 1,\"tnum\" 1;box-shadow:0 1px 2px rgba(22,30,38,0.06),0 16px 40px -8px rgba(22,30,38,0.18);}.ds-h2{display:flex;align-items:center;gap:8px;font:600 0.76em/1.2 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent, #1f5c4d);margin:0 0 6px;}.ds-h2::after{content:\"\";flex:1;border-top:0.5pt solid #d2d7db;}.ds-ach{margin:0;padding:0;list-style:none;}.ds-ach li{position:relative;padding-left:11px;margin-bottom:3px;font-size:0.92em;line-height:1.4;}.ds-ach li::before{content:\"\";position:absolute;left:0;top:0.55em;width:6px;height:0.6pt;background:var(--accent, #1f5c4d);}.ds-ach strong{font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;font-weight:600;font-size:0.98em;color:#1c2024;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Drafting Table",
+    "overview": "Quire is one white A4 sheet on a cool grey desk. The sheet is the finished document: serif body, sans labels, one accent, a hanging date column and hairline rules, the print design the author confirmed on 2 September 2026. Everything around the sheet is furniture. The toolbar, the structure rail, the margin controls and the panels are set in one family (Inter) at one control size (13px), in cool neutrals that borrow no colour of their own. The only colour the chrome carries is the document's accent, and it carries it in exactly four places: the active tab, the focus ring, the text selection and the primary action.\n\nThe system is an expansion of an established print world, not a new one. The document stylesheet came first and is normative; the editor stylesheet extends it. Every size inside the sheet is a rem on a root of 9 to 11pt so the Design panel can scale the whole page, and every vertical gap is multiplied by a density factor. The chrome measures in pixels and never enters the sheet. At print, the chrome is erased and the sheet's editing affordances are stripped, so paper shows the document and nothing else.\n\nDensity is editorial rather than dense: the sheet holds a full A4 page of 10pt text, the rail holds a table of contents at 32px per row, and controls appear only where the pointer or focus is. Confirmed rejections: no cards, no decorative gradients, no ribbons or rulers, no floating page, no OpenForte colours or marks.",
+    "keyCharacteristics": [
+      "One user-chosen accent, applied through a single custom property to both the printed document and the editing chrome.",
+      "Serif body (Charter, then Source Serif 4) with Inter for every label, date, heading and control.",
+      "Hairline rules: 0.5pt on the sheet, 1px in the chrome, and one 1.6pt accent bar at the masthead.",
+      "Two shadows only: the sheet's soft offset shadow and the lifted shadow under panels, menus and toasts.",
+      "Controls in the sheet's right margin, shown on hover or focus, like a proof-reader's marks.",
+      "Flags are amber on screen and on paper; the same amber marks an over-limit word count.",
+      "Phosphor regular icons, inlined as SVG, one stroke weight throughout."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "One accent, chosen by the user, written once to `--accent` and read by both stylesheets. The chrome never carries a hue the document does not.",
+        "section": "colors"
+      },
+      {
+        "name": "The Four Places Rule",
+        "body": "In the chrome the accent appears on the active tab, the focus ring, the selection and the primary action, plus the current item in the rail and margin. Everything else is neutral.",
+        "section": "colors"
+      },
+      {
+        "name": "The Amber Flag Rule",
+        "body": "Anything unresolved is amber on cream, on screen and on paper. The same pair marks a count over its limit. No other warning colour exists.",
+        "section": "colors"
+      },
+      {
+        "name": "The Base Rule",
+        "body": "Inside the sheet, every size is a rem of `--base` and every vertical gap is a millimetre value multiplied by `--density`. No pixel enters the sheet.",
+        "section": "typography"
+      },
+      {
+        "name": "The Serif Sentence Rule",
+        "body": "Text the author wrote is serif. Text the tool set (headings, dates, organisations, labels, counts, controls) is Inter. A user may swap either face, but never mix a third.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Numbers in the sheet, the toolbar status and the rail counts are tabular (`tnum`), so a moving count does not shift its neighbours.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Shadows Rule",
+        "body": "Only the sheet and floating surfaces cast a shadow. A control is flat, and a hairline border says where it ends.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Rise Rule",
+        "body": "A floating surface rises: opacity 0 to 1 and 4px upward over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`. A toast rises from below over 6px. Hover changes fade over 120ms on the same curve. A moved block settles from the soft accent wash to transparent over 600ms. Nothing else moves.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do write a colour once to `--accent` and let both stylesheets read it; the chrome shows it only on the active tab, focus ring, selection, primary action and current item.",
+      "Do size everything inside the sheet in rem of `--base` and multiply every vertical gap by `--density`.",
+      "Do set the author's words in the body serif and the tool's labels in Inter, at 400, 500 or 600 only.",
+      "Do draw rules as hairlines: 0.5pt on the sheet, 1px in the chrome, in rule, rule strong, line or line strong.",
+      "Do show a control on hover or focus-within, fading over 120ms, in the sheet's right margin at 16.5mm.",
+      "Do mark anything unresolved in flag amber on flag cream, on screen and on paper.",
+      "Do inline Phosphor regular icons as SVG at 16px in the toolbar, 15px in the rail, 14px on margin controls and 12px on grips and adders.",
+      "Do rise floating surfaces over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)` and remove them all at print."
+    ],
+    "donts": [
+      "Don't use cards, ribbons, rulers or a floating page; the sheet is the only lifted surface at rest.",
+      "Don't use a gradient for decoration; the only gradient is the 14px mask behind rail controls.",
+      "Don't add a shadow to a button, input, tab or the toolbar; a hairline border bounds a flat control.",
+      "Don't put a pixel size or a pixel gap inside the sheet, or let a chrome colour or font enter it.",
+      "Don't add a second accent, a second warning colour or any OpenForte colour, font or mark.",
+      "Don't use disc bullets on the sheet; a bullet is a short horizontal stroke.",
+      "Don't use Lucide or any icon set other than Phosphor, and don't ship an icon-only control without a `title` and `aria-label`.",
+      "Don't write an em dash or an exclamation mark in any string, on the sheet or in the chrome."
+    ]
+  }
+}
