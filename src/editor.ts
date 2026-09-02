@@ -165,7 +165,7 @@ export class Editor {
   }
   /** The mark on an accent tile, so the tab icon follows the chosen scheme. */
   private updateFavicon(accent: string): void {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${accent}"/><g fill="none" stroke="#fff" stroke-linecap="round"><rect x="8" y="7" width="16" height="18" rx="2.5" stroke-width="1.9"/><path d="M12 12h5.5" stroke-width="2.8"/><path d="M12 16.5h8.5M12 20h8.5" stroke-width="1.6"/></g></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${accent}"/><g fill="none" stroke="#fff" stroke-linecap="round"><rect x="7.5" y="6.5" width="17" height="19" rx="3" stroke-width="2.4"/><path d="M12 12h6" stroke-width="3.4"/><path d="M12 17h8.5M12 21h8.5" stroke-width="2.2"/></g></svg>`;
     const link = document.getElementById('favicon');
     if (link instanceof HTMLLinkElement) link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }
