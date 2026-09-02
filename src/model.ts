@@ -262,7 +262,7 @@ export function blockForPicker(value: string): Block {
 }
 
 export function newDocument(kind: DocKind, id?: string): QDocument {
-  const base = { id: id ?? uniqueId(kind), kind, numbering: 'both' as Numbering, wordLimit: null, blockWordLimit: null, running: defaultRunning() };
+  const base = { id: id ?? uniqueId(kind), kind, numbering: 'number' as Numbering, wordLimit: null, blockWordLimit: null, running: defaultRunning() };
   switch (kind) {
     case 'cv':
       return { ...base, title: 'Curriculum vitae', blocks: [newBlock('masthead'), newSection('prose'), newSection('achievements'), newSection('entries'), newSection('columns')] };

@@ -53,7 +53,7 @@
           "entries": [
             {
               "dates": "Mar 2022 – present",
-              "org": "Department of Transport and Main Roads\nInfrastructure Investment Branch\nCanberra",
+              "org": "Example Transport Directorate\nInfrastructure Investment Branch\nCanberra",
               "title": "Director, Major Projects",
               "context": "Client-side lead for a $180 million portfolio of transport projects from investment case to benefits realisation. Acts for the Executive Director; leads a section of nine.",
               "bullets": [
@@ -64,7 +64,7 @@
             },
             {
               "dates": "Jul 2019 – Mar 2022",
-              "org": "Department of Transport and Main Roads\nCanberra",
+              "org": "Example Transport Directorate\nCanberra",
               "title": "Senior Project Manager, Northside Depot",
               "context": "Client-side project manager for a $40 million bus depot delivered while the existing depot kept operating.",
               "bullets": [
@@ -75,7 +75,7 @@
             },
             {
               "dates": "Feb 2016 – Jul 2019",
-              "org": "Regional Water Corporation\nWagga Wagga NSW",
+              "org": "Example Water Corporation\nWagga Wagga NSW",
               "title": "Project Engineer, Treatment Plant Renewals",
               "context": "Owner's engineer for a rolling program of treatment plant and network renewals worth about $12 million a year.",
               "bullets": [
@@ -86,7 +86,7 @@
             },
             {
               "dates": "Jan 2013 – Feb 2016",
-              "org": "Bridgewater Consulting\nSydney",
+              "org": "Example Consulting\nSydney",
               "title": "Graduate to Project Engineer, Civil Infrastructure",
               "context": "",
               "bullets": [
@@ -96,7 +96,7 @@
             },
             {
               "dates": "Nov 2011 – Dec 2012",
-              "org": "State Rail\nSydney",
+              "org": "Example Rail\nSydney",
               "title": "Undergraduate Engineer, Signalling Renewals",
               "context": "",
               "bullets": [
@@ -140,7 +140,7 @@
       "id": "criteria",
       "title": "Response to selection criteria",
       "kind": "criteria",
-      "numbering": "both",
+      "numbering": "number",
       "wordLimit": null,
       "blockWordLimit": 350,
       "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "Page {page} of {pages}", "right": "" }, "firstPage": false },
@@ -164,7 +164,7 @@
           "heading": "High level conceptual, strategic planning and policy skills.",
           "paragraphs": [
             "Strategic planning in my work means deciding what an asset must do over its life, what it will cost to own and what evidence a decision-maker needs before committing public money. For the Northside Depot I wrote the investment logic and the business case that set out the problem, the options, the whole-of-life consequences of each and a recommended approach. It passed the Budget gate at the first attempt and funded a $40 million build.",
-            "I have also planned at portfolio scale. At Regional Water I moved a $12 million a year renewals program from reactive repair to a five-year forward plan built on condition data, which changed how the corporation set its capital budget for the following decade.",
+            "I have also planned at portfolio scale. At Example Water I moved a $12 million a year renewals program from reactive repair to a five-year forward plan built on condition data, which changed how the corporation set its capital budget for the following decade.",
             "On policy, I own the design standards that define what a depot or interchange must provide. I have rewritten two of them from the operational evidence of completed projects, and I brief the Executive Director and the Minister's office on asset development matters each quarter. **The frameworks differ between jurisdictions; the discipline of an evidence-based case that survives a gate does not.**"
           ]
         },
@@ -191,7 +191,7 @@
           "heading": "Highly developed knowledge and experience in Government procurement processes.",
           "paragraphs": [
             "I have run the full procurement cycle for major capital works under state and Commonwealth rules: strategy, market approach, evaluation, negotiation, award and contract management.",
-            "For the depot I wrote the request for tender, chaired the evaluation panel under a probity plan, authored the evaluation report and negotiated the contract to award on schedule and inside the approved envelope. At Regional Water I tendered twenty-six renewal packages through open and select processes and administered every one of them to completion. I have sat on three evaluation panels as the technical member for other agencies' projects.",
+            "For the depot I wrote the request for tender, chaired the evaluation panel under a probity plan, authored the evaluation report and negotiated the contract to award on schedule and inside the approved envelope. At Example Water I tendered twenty-six renewal packages through open and select processes and administered every one of them to completion. I have sat on three evaluation panels as the technical member for other agencies' projects.",
             "Every process I have run has been auditable: conflicts declared, criteria fixed before tenders opened, and records kept to a standard that survives an Auditor-General's question."
           ]
         },

@@ -178,7 +178,7 @@ test.describe('criteria document', () => {
     expect(nums.startsWith('123')).toBe(true);
     await page.selectOption('#doc-numbering', 'none');
     expect(await page.locator('.crit .num').first().evaluate((el) => getComputedStyle(el).display)).toBe('none');
-    await page.selectOption('#doc-numbering', 'both');
+    await page.selectOption('#doc-numbering', 'number');
     await page.keyboard.press('Escape');
     const count = await page.locator('.crit').count();
     await removeBlock(page, '.crit >> nth=-1');
@@ -267,7 +267,7 @@ test.describe('documents', () => {
     expect(ws.documents).toHaveLength(docs0);
     const plain = await page.evaluate(() => window.Quire.toPlainText(window.Quire.state.workspace.documents.find((d) => d.id === 'criteria')!));
     expect(plain).not.toMatch(/\*\*|\[\[/);
-    expect(plain).toMatch(/Criterion 1\./);
+    expect(plain).toMatch(/^1\. /m);
     const legacy = JSON.stringify({
       cv: { id: 'cv', title: 'Legacy CV', blocks: [{ type: 'masthead', name: 'Legacy Person', creds: '', tagline: '', contact: [] }] },
       criteria: { id: 'criteria', title: 'Legacy Criteria', blocks: [{ type: 'docmast', kicker: '', title: 'T', sub: '', contact: [] }] },

@@ -87,6 +87,7 @@ describe('migration', () => {
     expect(ws.design.accent).toBe(defaultDesign().accent);
     expect(ws.documents[0]!.kind).toBe('blank');
     expect(ws.documents[0]!.numbering).toBe('both');
+    expect(newDocument('criteria').numbering).toBe('number');
   });
 
   test('rejects shapes that are not a workspace', () => {
@@ -162,7 +163,7 @@ describe('page rule', () => {
 });
 
 describe('exports', () => {
-  const d: QDocument = { ...newDocument('criteria', 'c'), title: 'Criteria', blocks: [
+  const d: QDocument = { ...newDocument('criteria', 'c'), title: 'Criteria', numbering: 'both', blocks: [
     { type: 'docmast', kicker: 'Response', title: 'Role', sub: 'P1', contact: ['Name'] },
     { type: 'opening', paragraphs: ['Hello **there**.'] },
     { type: 'criterion', heading: 'Criterion wording.', paragraphs: ['Body _one_.', 'Body two [[CONFIRM: x]].'] },
