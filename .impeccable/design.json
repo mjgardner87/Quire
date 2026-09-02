@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-02T10:51:39.448Z",
+  "generatedAt": "2026-09-02T10:59:10.905Z",
   "title": "Design System: Quire",
   "extensions": {
     "colorMeta": {
@@ -349,6 +349,21 @@
           "oklch(95.0% 0.162 28.6)"
         ]
       },
+      "brand": {
+        "role": "brand",
+        "displayName": "Quire indigo",
+        "canonical": "oklch(45.3% 0.180 268.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.180 268.7)",
+          "oklch(26.4% 0.180 268.7)",
+          "oklch(37.9% 0.180 268.7)",
+          "oklch(49.3% 0.180 268.7)",
+          "oklch(60.7% 0.180 268.7)",
+          "oklch(72.1% 0.180 268.7)",
+          "oklch(83.6% 0.180 268.7)",
+          "oklch(95.0% 0.180 268.7)"
+        ]
+      },
       "accent-soft": {
         "role": "derived",
         "displayName": "Accent soft",
@@ -600,6 +615,14 @@
       "css": ".ds-prose{margin:0;font:400 13px/1.44 \"XCharter\",\"Source Serif 4\",Charter,Georgia,serif;color:#1c2024;max-width:360px;}.ds-flag{font-family:\"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;font-weight:500;font-size:0.82em;color:#9a4b00;background:#fff1dc;padding:0.5px 3px;border-radius:2px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}"
     },
     {
+      "name": "Quire mark",
+      "kind": "custom",
+      "refersTo": "sheet",
+      "description": "The authored glyph: three nested folded sheets on a baseline, in fixed brand indigo, 18px beside the ink wordmark. Never a control, never the document accent.",
+      "html": "<span class=\"ds-wordmark\" aria-label=\"Quire\"><svg class=\"ds-mark\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2.1\"><path d=\"M4 20V7.5a3.5 3.5 0 0 1 3.5-3.5H20v13\"/><path d=\"M8 20V11a3 3 0 0 1 3-3h9\"/><path d=\"M12 20v-5a2.5 2.5 0 0 1 2.5-2.5H20\"/><path d=\"M4 20h16\"/></svg><span>Quire</span></span> <svg class=\"ds-favicon\" aria-label=\"Quire favicon\" viewBox=\"0 0 32 32\" width=\"32\" height=\"32\"><rect width=\"32\" height=\"32\" rx=\"7\" fill=\"#2f47b8\"/><g fill=\"none\" stroke=\"#fff\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2.4\"><path d=\"M8 24V11.5A3.5 3.5 0 0 1 11.5 8H24v13\"/><path d=\"M12.5 24v-9a3 3 0 0 1 3-3H24\"/><path d=\"M17 24v-4.5a2.5 2.5 0 0 1 2.5-2.5H24\"/><path d=\"M8 24h16\"/></g></svg>",
+      "css": ".ds-wordmark{display:inline-flex;align-items:center;gap:7px;font:600 15px/1.2 \"Inter\", system-ui, -apple-system, \"Segoe UI\", sans-serif;letter-spacing:-0.01em;color:#1c2024;padding:0 12px 0 4px;border-right:1px solid #d9dde1;margin-right:12px;vertical-align:middle;}.ds-mark{width:18px;height:18px;flex:none;color:var(--brand, #2f47b8);}.ds-favicon{vertical-align:middle;}"
+    },
+    {
       "name": "Section heading",
       "kind": "custom",
       "refersTo": "sheet",
@@ -618,12 +641,13 @@
       "Two shadows only: the sheet's soft offset shadow and the lifted shadow under panels, menus and toasts.",
       "Controls in the sheet's right margin, shown on hover or focus, like a proof-reader's marks.",
       "Flags are amber on screen and on paper; the same amber marks an over-limit word count.",
-      "Phosphor regular icons, inlined as SVG, one stroke weight throughout."
+      "Phosphor regular icons, inlined as SVG, one stroke weight throughout.",
+      "One fixed brand colour, indigo, on the Quire mark alone; every other hue in the chrome is the document's."
     ],
     "rules": [
       {
         "name": "The One Accent Rule",
-        "body": "One accent, chosen by the user, written once to `--accent` and read by both stylesheets. The chrome never carries a hue the document does not.",
+        "body": "One accent, chosen by the user, written once to `--accent` and read by both stylesheets. The chrome never carries a hue the document does not, with one exception: the brand indigo on the Quire mark, which is never a control.",
         "section": "colors"
       },
       {
@@ -677,7 +701,7 @@
       "Don't use a gradient for decoration; the only gradient is the 14px mask behind rail controls.",
       "Don't add a shadow to a button, input, tab or the toolbar; a hairline border bounds a flat control.",
       "Don't put a pixel size or a pixel gap inside the sheet, or let a chrome colour or font enter it.",
-      "Don't add a second accent, a second warning colour or any OpenForte colour, font or mark.",
+      "Don't add a second accent, a second warning colour or any OpenForte colour, font or mark; the brand indigo stays on the Quire mark and the favicon tile.",
       "Don't use disc bullets on the sheet; a bullet is a short horizontal stroke.",
       "Don't use Lucide or any icon set other than Phosphor, and don't ship an icon-only control without a `title` and `aria-label`.",
       "Don't write an em dash or an exclamation mark in any string, on the sheet or in the chrome."

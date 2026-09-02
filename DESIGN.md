@@ -25,6 +25,7 @@ colors:
   flag: "#9a4b00"
   flag-bg: "#fff1dc"
   danger: "#a3271f"
+  brand: "#2f47b8"
 typography:
   display:
     fontFamily: "Inter Display, Inter, system-ui, sans-serif"
@@ -251,15 +252,19 @@ Density is editorial rather than dense: the sheet holds a full A4 page of 10pt t
 - Controls in the sheet's right margin, shown on hover or focus, like a proof-reader's marks.
 - Flags are amber on screen and on paper; the same amber marks an over-limit word count.
 - Phosphor regular icons, inlined as SVG, one stroke weight throughout.
+- One fixed brand colour, indigo, on the Quire mark alone; every other hue in the chrome is the document's.
 
 ## Colors
 
 A restrained palette: cool blue-grey neutrals, one accent chosen from six schemes or set by hand, amber for anything unresolved, and a single red for destructive actions.
 
 ### Primary
-- **Accent** (default Eucalyptus, `#1f5c4d`): The document's own colour. On the sheet it draws the masthead bar, section headings, credentials line, criterion numbers, achievement dashes and skill separators. In the chrome it draws the wordmark, the active tab's underline, every focus ring, the caret, the primary Print button and the current rail row. The user picks it in the Design panel; the tool writes it to `--accent` on the root and nothing else changes.
+- **Accent** (default Eucalyptus, `#1f5c4d`): The document's own colour. On the sheet it draws the masthead bar, section headings, credentials line, criterion numbers, achievement dashes and skill separators. In the chrome it draws the active tab's underline, every focus ring, the caret, the primary Print button and the current rail row. The user picks it in the Design panel; the tool writes it to `--accent` on the root and nothing else changes.
 - **Schemes** (Eucalyptus `#1f5c4d`, Slate `#2b4c7e`, Oxblood `#7a2e2e`, Charcoal `#333a40`, Ochre `#8a5a12`, Plum `#5b3a6e`): The six presets. Each is a dark, low-chroma tone that holds AA contrast as text on white. A seventh choice, Custom, takes any colour from a colour input.
 - **Accent tints** (derived, never stored): Soft, `color-mix(in srgb, var(--accent) 9%, white)`, is the hover and current-row wash in the chrome. Ring, `color-mix(in srgb, var(--accent) 35%, transparent)`, is the hover outline on an editable run and the current-block bar. Selection, `color-mix(in srgb, var(--accent) 22%, white)`, is the text selection on the sheet. Focus wash, 4% of the accent over transparent, sits behind a focused run.
+
+### Brand
+- **Quire indigo** (`#2f47b8`): The mark only. It colours the folded-sheets glyph beside the wordmark and fills the favicon tile, and nothing else: never a control, never text, never the sheet. It is fixed and independent of the document scheme, so the tool keeps one identity while the author's documents take any accent.
 
 ### Neutral
 - **Ink** (`#1c2024`): Body text on the sheet and control text in the chrome. Also the toast background.
@@ -278,7 +283,7 @@ A restrained palette: cool blue-grey neutrals, one accent chosen from six scheme
 - **Danger** (`#a3271f`): Remove and reset actions on hover, and the error toast. It never appears at rest.
 
 ### Named Rules
-**The One Accent Rule.** One accent, chosen by the user, written once to `--accent` and read by both stylesheets. The chrome never carries a hue the document does not.
+**The One Accent Rule.** One accent, chosen by the user, written once to `--accent` and read by both stylesheets. The chrome never carries a hue the document does not, with one exception: the brand indigo on the Quire mark, which is never a control.
 
 **The Four Places Rule.** In the chrome the accent appears on the active tab, the focus ring, the selection and the primary action, plus the current item in the rail and margin. Everything else is neutral.
 
@@ -306,7 +311,7 @@ Sizes on the sheet are rem on a root of `--base`, default 10pt, chosen from 9, 9
 - **Caption** (400, 0.77 to 0.86rem, line-height 1.4 to 1.55, muted): Contact block, organisation line, sub-lines, document subtitle and letter date. Dates in the hanging column are 600 at 0.84rem in ink.
 - **Label** (600, 0.76rem, tracking 0.16em, uppercase, accent): Section headings, followed by a hairline that runs to the right edge. The credentials line under the name is the same device at 500 and 0.8rem with tracking 0.13em; the criterion label above a heading is 500, 0.74rem, 0.14em, muted. A new criteria document numbers its criteria with the numeral only; the label, both together, or neither remain per-document options.
 - **Running header and footer** (400, 7.6pt, tracking 0.02em, muted): Set through `@page` margin boxes in the label face.
-- **Control** (500, 13px, line-height 1): Every button, tab, select, menu item and input in the chrome. The wordmark is 600 at 15px with tracking -0.01em, in the accent.
+- **Control** (500, 13px, line-height 1): Every button, tab, select, menu item and input in the chrome. The wordmark is 600 at 15px with tracking -0.01em, in ink, with the mark 7px to its left.
 - **Rail** (500, 12.5px, line-height 1.3): Rail rows and the status line. The current document's title in the rail is 600 at 13px; its meta line is 11.5px.
 - **Badge** (600, 10.5 to 11px, tracking 0.08em, uppercase, chrome muted): Menu group headings, the rail heading, panel sub-headings. Word counts in the margin are 500 at 10.5px, tabular, in chrome quiet; page-break and guide tags are 500 at 10px.
 
@@ -414,6 +419,9 @@ Inline, cloned across line breaks: Inter 500 at 0.82rem, flag amber on flag crea
 ### Toast
 Ink background, white 13px Inter at 500, 8px corners, panel shadow, centred 22px above the bottom edge, rising from below. An error toast is danger red.
 
+### Quire mark (signature)
+The one authored glyph: three nested folded sheets meeting at a rounded spine corner, standing on a baseline. A 24-unit viewBox, no fill, a 2.1 stroke with round caps and joins, in brand indigo through `currentColor`. It sits at 18px beside the ink wordmark in the toolbar, separated by a 7px gap, and at 40px above the empty-sheet start text. The favicon is the same mark in white at a 2.4 stroke on an indigo tile, 32 units square with a 7-unit corner, written as a data URI. The mark never takes the document accent and never appears on a control or on paper.
+
 ### Document mastheads (signature)
 The CV masthead: a 16mm by 1.6pt accent bar, then the name in display, the credentials line in accent small caps, the tagline in ink 2 serif, and a right-aligned contact block in muted Inter, closed by a 0.5pt rule-strong hairline. The document masthead for the criteria response and letter: the same bar, the title in headline, a subtitle in muted Inter, the same contact column and the same closing hairline.
 
@@ -434,7 +442,7 @@ The CV masthead: a 16mm by 1.6pt accent bar, then the name in display, the crede
 - **Don't** use a gradient for decoration; the only gradient is the 14px mask behind rail controls.
 - **Don't** add a shadow to a button, input, tab or the toolbar; a hairline border bounds a flat control.
 - **Don't** put a pixel size or a pixel gap inside the sheet, or let a chrome colour or font enter it.
-- **Don't** add a second accent, a second warning colour or any OpenForte colour, font or mark.
+- **Don't** add a second accent, a second warning colour or any OpenForte colour, font or mark; the brand indigo stays on the Quire mark and the favicon tile.
 - **Don't** use disc bullets on the sheet; a bullet is a short horizontal stroke.
 - **Don't** use Lucide or any icon set other than Phosphor, and don't ship an icon-only control without a `title` and `aria-label`.
 - **Don't** write an em dash or an exclamation mark in any string, on the sheet or in the chrome.
