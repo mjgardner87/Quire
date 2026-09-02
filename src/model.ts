@@ -269,7 +269,7 @@ export function newDocument(kind: DocKind, id?: string): QDocument {
     case 'criteria':
       return { ...base, title: 'Response to selection criteria', blocks: [newBlock('docmast'), newBlock('opening'), newBlock('criterion'), newBlock('criterion'), newBlock('criterion'), newBlock('closing')] };
     case 'letter':
-      return { ...base, title: 'Cover letter', blocks: [newBlock('docmast'), newBlock('letterhead'), { type: 'opening', paragraphs: ['Dear [name],', ''] }, newBlock('signoff')] };
+      return { ...base, title: 'Cover letter', blocks: [{ ...newBlock('docmast'), kicker: '' } as Block, newBlock('letterhead'), { type: 'opening', paragraphs: ['Dear [name],', ''] }, newBlock('signoff')] };
     case 'blank':
       return { ...base, title: 'Untitled document', blocks: [newBlock('docmast')] };
   }

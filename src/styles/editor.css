@@ -4,7 +4,8 @@
 :root {
   --c-ink: #1c2024;
   --c-ink-2: #3a4148;
-  --c-muted: #6a7178;
+  --c-muted: #626970;
+  --c-quiet: #687079;
   --c-faint: #9aa3aa;
   --c-desk: #e6e9ec;
   --c-bar: #fbfbfc;
@@ -25,6 +26,7 @@
 }
 
 @media screen {
+  *, *::before, *::after { box-sizing: border-box; }
   html { background: var(--c-desk); }
   body { margin: 0; color: var(--c-ink); }
   [hidden] { display: none !important; }
@@ -85,7 +87,7 @@
   }
   .tb-btn:hover, .tb-select:hover { border-color: var(--accent); }
   .tb-btn[aria-expanded="true"] { background: var(--c-accent-soft); border-color: var(--accent); }
-  .tb-btn:disabled { color: var(--c-faint); border-color: var(--c-line); background: transparent; cursor: default; }
+  .tb-btn:disabled { color: var(--c-quiet); border-color: var(--c-line); background: transparent; cursor: default; }
   .tb-btn.quiet { border-color: transparent; background: transparent; color: var(--c-ink-2); }
   .tb-btn.quiet:hover { background: var(--c-accent-soft); color: var(--c-ink); }
   .tb-btn.icon-only { width: 32px; padding: 0; justify-content: center; }
@@ -137,9 +139,9 @@
   .menu button:hover, .menu button:focus-visible, .menu .menu-item:hover, .menu .menu-item:focus-visible { background: var(--c-accent-soft); outline: none; }
   .menu .with-icon { justify-content: flex-start; gap: 10px; }
   .menu .with-icon .icon { width: 15px; height: 15px; color: var(--c-muted); }
-  .menu kbd { color: var(--c-faint); background: none; border: 0; padding: 0; font-weight: 400; font-size: 11px; }
+  .menu kbd { color: var(--c-quiet); background: none; border: 0; padding: 0; font-weight: 400; font-size: 11px; }
   .menu .menu-sep { height: 1px; background: var(--c-line); margin: 5px 4px; }
-  .menu .menu-group { font: 600 10.5px/1 var(--ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-faint); padding: 8px 10px 4px; }
+  .menu .menu-group { font: 600 10.5px/1 var(--ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-quiet); padding: 8px 10px 4px; }
   .menu .danger:hover { color: var(--c-danger); }
 
   /* ---------- Workbench ---------- */
@@ -163,7 +165,7 @@
   .rail-doc .rail-doc-title { font: 600 13px/1.3 var(--ui); color: var(--c-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rail-doc .rail-doc-meta { color: var(--c-muted); font-size: 11.5px; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .rail-head { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 8px 4px; color: var(--c-muted); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .rail-hint { text-transform: none; letter-spacing: 0; color: var(--c-faint); font-weight: 400; font-size: 11px; }
+  .rail-hint { text-transform: none; letter-spacing: 0; color: var(--c-muted); font-weight: 400; font-size: 11px; }
   .rail-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
   .rail-row {
     display: grid; grid-template-columns: 14px 16px 1fr; align-items: center; gap: 6px;
@@ -194,7 +196,7 @@
     min-width: 0; height: 100%;
   }
   .rail-title .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .rail-title .n { color: var(--c-faint); font-size: 11px; font-variant-numeric: tabular-nums; flex: none; }
+  .rail-title .n { color: var(--c-muted); font-size: 11px; font-variant-numeric: tabular-nums; flex: none; }
   .rail-title:hover .t { color: var(--accent); }
   .rail-ctl {
     position: absolute; right: 4px; top: 3px;
@@ -253,7 +255,7 @@
   .sheet [contenteditable] { border-radius: 2px; outline: none; transition: box-shadow 120ms var(--ease), background-color 120ms var(--ease); }
   .sheet [contenteditable]:hover { box-shadow: 0 0 0 1px var(--c-accent-ring); }
   .sheet [contenteditable]:focus { box-shadow: 0 0 0 1.5px var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
-  .sheet [contenteditable]:empty::before { content: attr(data-placeholder); color: var(--c-faint); font-style: italic; font-family: var(--ui); font-size: 0.9em; font-weight: 400; letter-spacing: 0; text-transform: none; }
+  .sheet [contenteditable]:empty::before { content: attr(data-placeholder); color: var(--c-quiet); font-style: italic; font-family: var(--ui); font-size: 0.9em; font-weight: 400; letter-spacing: 0; text-transform: none; }
   .sheet .blk.current-block::before { content: ""; position: absolute; left: -6mm; top: 0; bottom: 0; width: 2px; background: var(--c-accent-ring); border-radius: 1px; }
 
   /* ---------- Block controls: right margin, visible on hover or focus, no gap to cross ---------- */
@@ -293,7 +295,7 @@
   .wc {
     position: absolute; right: -16.5mm; bottom: 0;
     width: 15mm; text-align: right;
-    font: 500 10.5px/1.2 var(--ui); color: var(--c-faint);
+    font: 500 10.5px/1.2 var(--ui); color: var(--c-quiet);
     font-variant-numeric: tabular-nums;
     pointer-events: none;
   }

@@ -376,6 +376,8 @@ html { font-size: var(--base); }
 
 /* ---------- Page breaks ---------- */
 
+.doc-kicker:empty { display: none; }
+
 @media print {
   .pb { break-before: page; }
   .sheet .context:empty,

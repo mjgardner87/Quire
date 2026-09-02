@@ -118,7 +118,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
     }
     case 'docmast': {
       const left = h('div', null,
-        ed('p', 'doc-kicker', [...path, 'kicker'], b.kicker, 'single', 'Kicker, for example Response to selection criteria'),
+        ed('p', 'doc-kicker', [...path, 'kicker'], b.kicker, 'single', 'Document type, for example Response to selection criteria. Leave empty for none.'),
         ed('h1', 'doc-title', [...path, 'title'], b.title, 'single', 'Title'),
         ed('p', 'doc-sub', [...path, 'sub'], b.sub, 'lines', 'Position number and organisation'));
       const el = h('header', 'doc-mast blk', left, lineList('contact', [...path, 'contact'], b.contact, 'Contact line'));
