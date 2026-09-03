@@ -1,0 +1,27 @@
+name: Change request
+description: Propose a change to what Quire does.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: The task an applicant cannot finish today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The change
+      description: What Quire would do instead. State it as behaviour, not as an implementation.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This keeps Quire one offline file with no server and no account.
+          required: true
