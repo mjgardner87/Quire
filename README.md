@@ -83,8 +83,11 @@ npm run build      # dist/index.html, one self-contained file
 npm test           # typecheck, unit tests, build, drift check, browser tests
 ```
 
-Node 24 or later. Fonts: Inter and Source Serif 4 load from Google Fonts. If XCharter is
-installed on the machine, the body uses it.
+Node 24 or later. The browser suite reads the printed PDF with `pdfinfo` and `pdftotext`, so it
+needs poppler-utils (`sudo dnf install poppler-utils`, or `sudo apt install poppler-utils`).
+
+Fonts: Inter and Source Serif 4 load from Google Fonts. If XCharter is installed on the machine,
+the body uses it.
 
 `dist/index.html` is committed. `npm run check` fails when it differs from a fresh build, so
 rebuild before you commit a change under `src/`.
