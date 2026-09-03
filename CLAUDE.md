@@ -8,8 +8,10 @@ file says how to work here. Global rules live in `~/.claude/CLAUDE.md`; workspac
 ## Repository
 
 - GitHub `mjgardner87/Quire`, public. Personal, not an OpenForte product: no OpenForte marks.
-- Base branch `main`. Small changes commit to `main`; larger work goes through a branch and a
-  rebase merge.
+- Base branch `main`, protected: no direct pushes, including by the owner. Every change lands
+  as a pull request that passes CI and that the owner merges with a rebase merge.
+- `.github/` holds the CI gate, Dependabot, the templates and `CODEOWNERS`. `CONTRIBUTING.md`
+  states the contributor workflow; `SECURITY.md` states the reporting path and threat model.
 - The shipped artefact is `dist/index.html`, committed. `npm run check` fails when it differs
   from a fresh build, so rebuild before you commit.
 - No personal data in the repository. The seed is fictional. Real applications keep their

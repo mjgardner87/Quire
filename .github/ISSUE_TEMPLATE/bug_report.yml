@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in the editor or the printed page behaves incorrectly.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not paste a real application. Reproduce the fault on the sample workspace.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Open `dist/index.html`.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chromium 141 on Fedora 44
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where it happens
+      options:
+        - On screen, in the editor
+        - In the printed PDF
+        - Both
+    validations:
+      required: true
