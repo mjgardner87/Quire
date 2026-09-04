@@ -39,6 +39,9 @@ Do not add tests for coverage.
 
 ## Rules that came from incidents
 
+- `vite.config.ts` takes `defineConfig` from `vitest/config`, never from `vite`. The `test`
+  key is Vitest's. Vitest 3 added it to Vite's own config type, Vitest 4 and Vite 8 do not, so
+  the `vite` import fails the typecheck on any of those bumps.
 - An element with `hidden` still shows if a class sets `display`. `editor.css` carries
   `[hidden] { display: none !important }`; keep it.
 - Chromium cannot split a CSS grid row across pages, so career entries use a float layout.
