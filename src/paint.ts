@@ -16,7 +16,6 @@ import facesJSON from './fonts/faces.json';
 const MM = 96 / 25.4;
 /** CSS pixels to PostScript points. A CSS pixel is 1/96in and a point is 1/72in. */
 const PT = 72 / 96;
-const GAP = 80;
 const SERIF = 'Quire Serif';
 const SANS = 'Quire Sans';
 /** Chrome that never belongs on paper. The print stylesheet hides it; the clone drops it. */
@@ -105,49 +104,62 @@ function linesOf(node: Text, style: CSSStyleDeclaration): Line[] {
   return out;
 }
 
-/** Which column a box sits in, and its position inside that column. */
-function place(rect: DOMRect, origin: DOMRect, geo: Geometry): { page: number; x: number; y: number } {
-  const x = rect.left - origin.left;
-  // Columns start at k * (width + gap). Floor, never round: rounding sends everything past the
-  // half-way mark of a column, such as a right-aligned contact block, to the next page. The
-  // pitch is fractional, so a column's own left edge can measure a hair under k * pitch and
-  // floor it back to the page before. One pixel of tolerance costs nothing against an 80px gap.
-  const pitch = geo.contentW + GAP;
-  const page = Math.max(0, Math.floor((x + 1) / pitch));
-  return { page, x: x - page * pitch, y: rect.top - origin.top };
+/** A mark on the sheet, with the strip of the flow it occupies, before any page is chosen. */
+interface Mark {
+  readonly draw: (offset: number) => Item;
+  readonly top: number;
+  readonly bottom: number;
+  /** Marks sharing a group are never split across a page break. */
+  group: number;
+}
+
+/** The nearest block that has to stay whole: a career entry, a bullet, a kept run. */
+const ATOMIC = '.entry, .keep, li, .crit .head, .entry .head';
+
+function atomicGroup(el: Element | null, root: HTMLElement, ids: Map<Element, number>, next: () => number): number {
+  for (let at = el; at && at !== root; at = at.parentElement) {
+    if (!at.matches(ATOMIC)) continue;
+    let id = ids.get(at);
+    if (id === undefined) { id = next(); ids.set(at, id); }
+    return id;
+  }
+  return next();
 }
 
 /** Every filled box the document draws: backgrounds, and each visible border edge. */
-function boxItems(el: Element, origin: DOMRect, geo: Geometry, pages: Item[][]): void {
+function boxMarks(el: Element, origin: DOMRect, geo: Geometry, group: number, out: Mark[]): void {
   const style = getComputedStyle(el);
-  const rects = [...el.getClientRects()];
-  if (!rects.length) return;
   const bg = toColour(style.backgroundColor);
-  const edges: readonly [string, string][] = [
-    ['borderTopWidth', 'borderTopColor'], ['borderRightWidth', 'borderRightColor'],
-    ['borderBottomWidth', 'borderBottomColor'], ['borderLeftWidth', 'borderLeftColor'],
+  const edges: readonly [number, string, string][] = [
+    [0, 'border-top-width', 'border-top-color'], [1, 'border-right-width', 'border-right-color'],
+    [2, 'border-bottom-width', 'border-bottom-color'], [3, 'border-left-width', 'border-left-color'],
   ];
-  for (const rect of rects) {
-    const at = place(rect, origin, geo);
-    const target = pages[at.page];
-    if (!target) continue;
-    const toPdf = (x: number, y: number, w: number, h: number, rgb: Colour): Item => ({
-      kind: 'rect',
-      x: (geo.marginSide + x) * PT,
-      y: (geo.marginTop + geo.contentH - y - h) * PT,
-      w: w * PT, h: h * PT, colour: rgb,
-    });
-    if (bg.alpha > 0.01) target.push(toPdf(at.x, at.y, rect.width, rect.height, bg.rgb));
-    edges.forEach(([widthProp, colourProp], i) => {
-      const w = parseFloat(style.getPropertyValue(widthProp.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())));
-      if (!w) return;
-      const c = toColour(style.getPropertyValue(colourProp.replace(/[A-Z]/g, (ch) => '-' + ch.toLowerCase())));
-      if (c.alpha < 0.01) return;
-      if (i === 0) target.push(toPdf(at.x, at.y, rect.width, w, c.rgb));
-      if (i === 1) target.push(toPdf(at.x + rect.width - w, at.y, w, rect.height, c.rgb));
-      if (i === 2) target.push(toPdf(at.x, at.y + rect.height - w, rect.width, w, c.rgb));
-      if (i === 3) target.push(toPdf(at.x, at.y, w, rect.height, c.rgb));
-    });
+  for (const rect of el.getClientRects()) {
+    const x = rect.left - origin.left;
+    const top = rect.top - origin.top;
+    const push = (dx: number, dy: number, w: number, h: number, rgb: Colour): void => {
+      if (w <= 0 || h <= 0) return;
+      out.push({
+        top: top + dy, bottom: top + dy + h, group,
+        draw: (offset) => ({
+          kind: 'rect',
+          x: (geo.marginSide + x + dx) * PT,
+          y: (geo.marginTop + geo.contentH - (top + dy - offset) - h) * PT,
+          w: w * PT, h: h * PT, colour: rgb,
+        }),
+      });
+    };
+    if (bg.alpha > 0.01) push(0, 0, rect.width, rect.height, bg.rgb);
+    for (const [i, widthProp, colourProp] of edges) {
+      const w = parseFloat(style.getPropertyValue(widthProp));
+      if (!w) continue;
+      const c = toColour(style.getPropertyValue(colourProp));
+      if (c.alpha < 0.01) continue;
+      if (i === 0) push(0, 0, rect.width, w, c.rgb);
+      if (i === 1) push(rect.width - w, 0, w, rect.height, c.rgb);
+      if (i === 2) push(0, rect.height - w, rect.width, w, c.rgb);
+      if (i === 3) push(0, 0, w, rect.height, c.rgb);
+    }
   }
 }
 
@@ -159,11 +171,8 @@ export function transformed(text: string, transform: string): string {
   return text;
 }
 
-/** Draw one laid-out line at the baseline the browser put it on. */
-function textItem(line: Line, origin: DOMRect, geo: Geometry, pages: Item[][]): void {
-  const at = place(line.rect, origin, geo);
-  const target = pages[at.page];
-  if (!target) return;
+/** One laid-out line, to be drawn at the baseline the browser put it on. */
+function textMark(line: Line, origin: DOMRect, geo: Geometry, group: number, out: Mark[]): void {
   const size = parseFloat(line.style.fontSize);
   const weight = parseInt(line.style.fontWeight, 10) || 400;
   const face = faceFor(line.style.fontFamily.split(',')[0] ?? '', weight, line.style.fontStyle === 'italic');
@@ -171,15 +180,21 @@ function textItem(line: Line, origin: DOMRect, geo: Geometry, pages: Item[][]): 
   const ascent = metrics.ascent / (metrics.ascent - metrics.descent);
   const tracking = parseFloat(line.style.letterSpacing) || 0;
   const colour = toColour(line.style.color);
-  target.push({
-    kind: 'text',
-    x: (geo.marginSide + at.x) * PT,
-    y: (geo.marginTop + geo.contentH - at.y - line.rect.height * ascent) * PT,
-    size: size * PT,
-    face,
-    colour: colour.rgb,
-    text: transformed(line.text, line.style.textTransform),
-    tracking: tracking * PT,
+  const x = line.rect.left - origin.left;
+  const top = line.rect.top - origin.top;
+  const text = transformed(line.text, line.style.textTransform);
+  out.push({
+    top, bottom: top + line.rect.height, group,
+    draw: (offset) => ({
+      kind: 'text',
+      x: (geo.marginSide + x) * PT,
+      y: (geo.marginTop + geo.contentH - (top - offset) - line.rect.height * ascent) * PT,
+      size: size * PT,
+      face,
+      colour: colour.rgb,
+      text,
+      tracking: tracking * PT,
+    }),
   });
 }
 
@@ -208,10 +223,9 @@ function runningItems(doc: QDocument, date: string, geo: Geometry, pages: Item[]
         const text = slotText(set[slot], doc, date, i + 1, pages.length);
         if (!text.trim()) continue;
         const w = textWidth(text, 'sans', size, tracking);
-        const boxW = geo.contentW * PT;
         items.push({
           kind: 'text', face: 'sans', size, colour, text, tracking,
-          x: geo.marginSide * PT + (boxW - w) * align,
+          x: geo.marginSide * PT + (geo.contentW * PT - w) * align,
           y,
         });
       }
@@ -226,7 +240,6 @@ function runningItems(doc: QDocument, date: string, geo: Geometry, pages: Item[]
  */
 function materialisePseudos(root: HTMLElement, suppress: HTMLStyleElement): void {
   const planned: { el: Element; which: '::before' | '::after'; span: HTMLSpanElement }[] = [];
-  // Read every pseudo before changing anything: inserting one element re-lays-out the next.
   for (const el of [...root.querySelectorAll('*')]) {
     for (const which of ['::before', '::after'] as const) {
       const pseudo = getComputedStyle(el, which);
@@ -250,15 +263,11 @@ function materialisePseudos(root: HTMLElement, suppress: HTMLStyleElement): void
 }
 
 /**
- * A career entry lays its date column out as a float. Chromium does not break a float cleanly at
- * a column edge: it overflows the column instead, and `break-inside: avoid` on the entry does not
- * stop it. The exporter keeps an entry whole, so the float is not needed and a grid can take its
- * place, which also stops a heading being orphaned from its bullets. An entry taller than most of
- * a page keeps the float and is allowed to break.
+ * A career entry lays its date column out as a float. A float makes the entry's marks overlap in
+ * the flow in ways that are awkward to keep whole, and a grid says the same thing plainly.
  */
-function squareEntries(root: HTMLElement, geo: Geometry): void {
+function squareEntries(root: HTMLElement): void {
   for (const entry of root.querySelectorAll<HTMLElement>('.entry')) {
-    if (entry.offsetHeight >= geo.contentH * 0.7) continue;
     const when = entry.querySelector<HTMLElement>(':scope > .when');
     const what = entry.querySelector<HTMLElement>(':scope > .what');
     if (!when || !what) continue;
@@ -267,7 +276,6 @@ function squareEntries(root: HTMLElement, geo: Geometry): void {
     entry.style.display = 'grid';
     entry.style.gridTemplateColumns = `${width} 1fr`;
     entry.style.columnGap = `${Math.max(0, indent)}px`;
-    entry.style.breakInside = 'avoid';
     when.style.float = 'none';
     when.style.width = 'auto';
     what.style.marginLeft = '0';
@@ -276,29 +284,52 @@ function squareEntries(root: HTMLElement, geo: Geometry): void {
   }
 }
 
-/** Build the offscreen clone the browser paginates for us, and hand back its column count. */
-function paginate(sheet: HTMLElement, geo: Geometry): { holder: HTMLElement; suppress: HTMLStyleElement; columns: number; origin: DOMRect } {
-  const holder = document.createElement('div');
-  holder.className = sheet.className;
-  holder.setAttribute('data-quire-export', '');
-  holder.style.cssText = `position:fixed;left:-99999px;top:0;margin:0;padding:0;border:0;box-shadow:none;`
-    + `width:${geo.contentW}px;height:${geo.contentH}px;column-width:${geo.contentW}px;column-gap:${GAP}px;`
-    + `column-fill:auto;overflow:visible;`;
-  // Typeset the clone in the faces the PDF embeds. The sheet may be set in XCharter or in a
-  // fallback the machine happens to have, and text measured in one face and drawn in another
-  // collides. This also makes the exported PDF identical on every machine.
-  holder.style.setProperty('--font-body', `"${SERIF}", serif`);
-  holder.style.setProperty('--font-label', `"${SANS}", sans-serif`);
-  for (const child of [...sheet.children]) holder.append(child.cloneNode(true));
-  document.body.append(holder);
-  holder.querySelectorAll(CHROME).forEach((el) => el.remove());
-  holder.querySelectorAll<HTMLElement>('.pb').forEach((el) => { el.style.breakBefore = 'column'; });
-  const suppress = document.createElement('style');
-  document.head.append(suppress);
-  materialisePseudos(holder, suppress);
-  squareEntries(holder, geo);
-  const columns = Math.max(1, Math.round((holder.scrollWidth + GAP) / (geo.contentW + GAP)));
-  return { holder, suppress, columns, origin: holder.getBoundingClientRect() };
+/**
+ * Pack the marks into pages.
+ *
+ * Quire does its own page breaks rather than ask the browser for them. CSS multi-column looked
+ * like a free paginator, but neither engine keeps every fragment inside its column: Chromium
+ * overflows rather than break a float, Gecko overflows too and ignores a forced column break, and
+ * an overflowing line is not moved to the next page, it is drawn off the foot of this one and
+ * lost. Laying the document out in one flow and cutting it here is the same in every browser.
+ */
+export function packPages(marks: readonly Mark[], contentH: number): Item[][] {
+  if (!marks.length) return [[]];
+  // Marks that overlap in the flow belong together: a name and the contact block beside it, or
+  // the two halves of a two-column block, cannot be split by a horizontal cut.
+  const order = [...marks].sort((a, b) => a.top - b.top || a.bottom - b.bottom);
+  const spans = new Map<number, { top: number; bottom: number }>();
+  for (const mark of order) {
+    const span = spans.get(mark.group);
+    if (span) { span.top = Math.min(span.top, mark.top); span.bottom = Math.max(span.bottom, mark.bottom); }
+    else spans.set(mark.group, { top: mark.top, bottom: mark.bottom });
+  }
+  const units: { top: number; bottom: number; groups: Set<number> }[] = [];
+  for (const [group, span] of [...spans.entries()].sort((a, b) => a[1].top - b[1].top)) {
+    const last = units[units.length - 1];
+    if (last && span.top < last.bottom - 0.5) {
+      last.bottom = Math.max(last.bottom, span.bottom);
+      last.groups.add(group);
+    } else units.push({ top: span.top, bottom: span.bottom, groups: new Set([group]) });
+  }
+  const offsetOf = new Map<number, number>();
+  const pageOf = new Map<number, number>();
+  let page = 0;
+  let offset = 0;
+  for (const unit of units) {
+    // A unit taller than the sheet has to run on; anything else that will not fit starts a page.
+    if (unit.bottom - offset > contentH && unit.top - offset > 0.5 && unit.bottom - unit.top <= contentH) {
+      page += 1;
+      offset = unit.top;
+    }
+    for (const group of unit.groups) { offsetOf.set(group, offset); pageOf.set(group, page); }
+  }
+  const pages: Item[][] = Array.from({ length: page + 1 }, () => []);
+  for (const mark of order) {
+    const at = pageOf.get(mark.group) ?? 0;
+    pages[at]?.push(mark.draw(offsetOf.get(mark.group) ?? 0));
+  }
+  return pages;
 }
 
 /** The whole document as PDF bytes, laid out exactly as the sheet on screen. */
@@ -311,18 +342,44 @@ export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocume
     contentW: (210 - 2 * design.marginSide) * MM,
     contentH: (297 - 2 * design.marginTop) * MM,
   };
-  const { holder, suppress, columns, origin } = paginate(sheet, geo);
+  const holder = document.createElement('div');
+  holder.className = sheet.className;
+  holder.setAttribute('data-quire-export', '');
+  holder.style.cssText = 'position:fixed;left:-99999px;top:0;margin:0;padding:0;border:0;'
+    + `box-shadow:none;width:${geo.contentW}px;height:auto;overflow:visible;`;
+  // Typeset the clone in the faces the PDF embeds. The sheet may be set in XCharter or in a
+  // fallback the machine happens to have, and text measured in one face and drawn in another
+  // collides. This also makes the exported PDF identical on every machine.
+  holder.style.setProperty('--font-body', `"${SERIF}", serif`);
+  holder.style.setProperty('--font-label', `"${SANS}", sans-serif`);
+  for (const child of [...sheet.children]) holder.append(child.cloneNode(true));
+  document.body.append(holder);
+  const suppress = document.createElement('style');
+  document.head.append(suppress);
   try {
-    const pages: Item[][] = Array.from({ length: columns }, () => []);
+    holder.querySelectorAll(CHROME).forEach((el) => el.remove());
+    materialisePseudos(holder, suppress);
+    squareEntries(holder);
+    const origin = holder.getBoundingClientRect();
+    const marks: Mark[] = [];
+    const ids = new Map<Element, number>();
+    let counter = 0;
+    const next = (): number => ++counter;
     const walker = document.createTreeWalker(holder, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      if (node.nodeType === Node.ELEMENT_NODE) { boxItems(node as Element, origin, geo, pages); continue; }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as Element;
+        boxMarks(el, origin, geo, atomicGroup(el, holder, ids, next), marks);
+        continue;
+      }
       const text = node as Text;
       if (!text.data.trim() || !text.parentElement) continue;
       const style = getComputedStyle(text.parentElement);
       if (style.visibility === 'hidden' || style.display === 'none') continue;
-      for (const line of linesOf(text, style)) textItem(line, origin, geo, pages);
+      const group = atomicGroup(text.parentElement, holder, ids, next);
+      for (const line of linesOf(text, style)) textMark(line, origin, geo, group, marks);
     }
+    const pages = packPages(marks, geo.contentH);
     runningItems(doc, date, geo, pages);
     return writePdf(pages.map((items): Page => ({ items })), A4);
   } finally {

@@ -270,6 +270,17 @@ export function blockForPicker(value: string): Block {
   return newBlock(value as BlockType);
 }
 
+/**
+ * A workspace saved before Quire had running defaults carries six empty slots, which was the old
+ * default and not a choice anyone could make. Fill them, and leave the set alone the moment one
+ * slot carries text.
+ */
+function completeRunning(running: Running): Running {
+  const set = [running.header, running.footer];
+  const used = set.some((s) => s.left.trim() || s.centre.trim() || s.right.trim());
+  return used ? running : { ...defaultRunning(), firstPage: running.firstPage };
+}
+
 export function newDocument(kind: DocKind, id?: string): QDocument {
   const base = { id: id ?? uniqueId(kind), kind, numbering: 'number' as Numbering, wordLimit: null, blockWordLimit: null, running: defaultRunning() };
   switch (kind) {
@@ -318,7 +329,7 @@ function completeDocument(raw: Raw, taken: string[]): QDocument {
     numbering: (['both', 'number', 'label', 'none'] as const).includes(raw.numbering as Numbering) ? (raw.numbering as Numbering) : 'both',
     wordLimit: typeof raw.wordLimit === 'number' ? raw.wordLimit : null,
     blockWordLimit: typeof raw.blockWordLimit === 'number' ? raw.blockWordLimit : null,
-    running: { header: slots(running.header), footer: slots(running.footer), firstPage: typeof running.firstPage === 'boolean' ? running.firstPage : false },
+    running: completeRunning({ header: slots(running.header), footer: slots(running.footer), firstPage: typeof running.firstPage === 'boolean' ? running.firstPage : false }),
     blocks: Array.isArray(raw.blocks) ? (raw.blocks as Block[]) : [],
   };
 }
