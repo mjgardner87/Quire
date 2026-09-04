@@ -350,4 +350,20 @@ test.describe('print', () => {
     expect(await page.locator('.wc').first().evaluate((el) => getComputedStyle(el).display)).toBe('none');
     expect(pdfPages(await page.pdf({ preferCSSPageSize: true, printBackground: true }), 'cv')).toBe(2);
   });
+
+  // Chrome's print dialog ships with "Headers and footers" ticked, which stamps the file:// URL,
+  // the date and the page title on every sheet. The document's own margin boxes take those edges.
+  test("the browser's own header and footer never print", async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    await page.emulateMedia({ media: 'print' });
+    const buf = await page.pdf({ preferCSSPageSize: true, printBackground: true, displayHeaderFooter: true });
+    const pages = pdfPages(buf, 'cv-browser-furniture');
+    for (let n = 1; n <= pages; n++) {
+      const text = pdfPageText('cv-browser-furniture', n);
+      expect(text).not.toMatch(/file:\/\//);
+      expect(text).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/);
+      expect(text).not.toMatch(/^\s*\d+\/\d+\s*$/m);
+    }
+  });
 });

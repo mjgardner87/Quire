@@ -149,9 +149,22 @@ describe('page rule', () => {
     expect(css).toMatch(/@top-right\s*\{\s*content:\s*"Curriculum vitae"/);
     expect(css).toMatch(/@bottom-left\s*\{\s*content:\s*"Jordan Example"/);
     expect(css).toMatch(/@bottom-right\s*\{\s*content:\s*"Page " counter\(page\) " of " counter\(pages\)/);
-    expect(css).toMatch(/@page :first\s*\{[\s\S]*@top-right\s*\{\s*content:\s*none/);
-    expect(css).toMatch(/@page :first\s*\{[\s\S]*@bottom-right\s*\{\s*content:\s*none/);
-    expect(css).not.toMatch(/@top-left/);
+    expect(css).toMatch(/@page :first\s*\{[\s\S]*@top-right\s*\{\s*content:\s*""/);
+    expect(css).toMatch(/@page :first\s*\{[\s\S]*@bottom-right\s*\{\s*content:\s*""/);
+    expect(css).toMatch(/@top-left\s*\{\s*content:\s*""/);
+  });
+
+  // Chromium prints its own date, page title, file URL and page number in any page margin the
+  // document leaves undeclared, per edge. A declared box with empty content takes the edge back.
+  test('declares all six margin boxes so the browser prints no URL or date of its own', () => {
+    const bare: QDocument = newDocument('blank', 'x');
+    for (const css of [pageRuleCSS(defaultDesign(), bare, { date: '2 September 2026' }),
+                       pageRuleCSS(defaultDesign(), undefined, { date: '2 September 2026' })]) {
+      for (const box of ['@top-left', '@top-center', '@top-right', '@bottom-left', '@bottom-center', '@bottom-right']) {
+        expect(css).toContain(box);
+      }
+      expect(css).not.toMatch(/content:\s*none/);
+    }
   });
 
   test('expands {date} and emits no :first rule when the first page shows the running text', () => {
