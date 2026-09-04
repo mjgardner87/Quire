@@ -22,6 +22,12 @@ const pdfPages = (buffer: Buffer, name: string): number => {
 };
 const pdfPageText = (name: string, page: number): string =>
   execFileSync('pdftotext', ['-f', String(page), '-l', String(page), join(ART, name + '.pdf'), '-'], { encoding: 'utf8' });
+/** Every word on one sheet with its box, in points down from the top of the page. */
+const pdfWords = (file: string, page: number): { text: string; top: number; bottom: number }[] => {
+  const xml = execFileSync('pdftotext', ['-bbox', '-f', String(page), '-l', String(page), file, '-'], { encoding: 'utf8' });
+  return [...xml.matchAll(/<word[^>]*yMin="([\d.]+)"[^>]*yMax="([\d.]+)"[^>]*>([^<]*)<\/word>/g)]
+    .map((m) => ({ text: m[3]!, top: Number(m[1]), bottom: Number(m[2]) }));
+};
 const printPdf = async (page: Page, name: string): Promise<number> => {
   await page.evaluate(() => document.fonts.ready);
   await page.emulateMedia({ media: 'print' });
@@ -438,6 +444,33 @@ test.describe('print', () => {
     expect(second).toMatch(/Jordan Example/);
     expect(second).toMatch(/Curriculum vitae/);
     expect(second).toMatch(/Page 2 of 2/);
+  });
+
+  // The exporter drew the header 4.5pt below the top content edge and the footer 1.4pt above the
+  // bottom one, so on a full sheet the header printed across the first line of the document. Both
+  // lines belong in the margin band, where the print stylesheet's @page boxes put them.
+  test('the exported running header and footer sit in the margin, clear of the content', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.click('#running');
+    await page.fill('#run-header-left', 'HEADERMARK');
+    await page.dispatchEvent('#run-header-left', 'change');
+    await page.fill('#run-footer-left', 'FOOTERMARK');
+    await page.dispatchEvent('#run-footer-left', 'change');
+    await page.check('#run-first');
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => document.fonts.ready);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-running.pdf');
+    await download.saveAs(file);
+    const margin = 14 / 25.4 * 72;
+    const sheet = 297 / 25.4 * 72;
+    const words = pdfWords(file, 1);
+    const header = words.find((w) => w.text === 'HEADERMARK');
+    const footer = words.find((w) => w.text === 'FOOTERMARK');
+    expect(header, 'the header prints').toBeDefined();
+    expect(footer, 'the footer prints').toBeDefined();
+    expect(header!.bottom).toBeLessThanOrEqual(margin);
+    expect(footer!.top).toBeGreaterThanOrEqual(sheet - margin);
   });
 
   test("the browser's own header and footer never print", async ({ page }) => {
