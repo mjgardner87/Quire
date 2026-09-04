@@ -41,8 +41,8 @@ A quire is a gathering of sheets.
    Header and footer. Set word limits and criterion numbering under Document.
 5. Choose File, then Save file, to keep a `.quire.json` file with the application it belongs to.
    Edits also autosave in the browser.
-6. Click Export PDF. The browser's print dialog opens. Choose Save as PDF as the destination,
-   then Save.
+6. Click Export PDF. Quire writes the PDF itself and your browser saves it. No print dialog, and
+   the same file in every browser.
 
 ### Flags
 
@@ -80,9 +80,9 @@ Each document has three header slots and three footer slots. They accept `{page}
 `{name}`, `{title}` and `{date}`. Chromium 131 and later print them through CSS page margin
 boxes. Other browsers print the page without them.
 
-The exported PDF carries nothing but your document. Quire declares all six margin boxes, empty
-ones included, so the browser never stamps its own date, page title, file URL or page number on
-the sheet. That holds whether or not "Headers and footers" is ticked in the print dialog.
+The exported PDF carries nothing but your document. Quire lays out the pages and writes the file
+itself, so nothing stamps a date, a page title or a `file://` URL on your sheets, and the running
+header and footer print in every browser, Firefox included.
 
 ## Build it
 
@@ -93,11 +93,16 @@ npm run build      # dist/index.html, one self-contained file
 npm test           # typecheck, unit tests, build, drift check, browser tests
 ```
 
-Node 24 or later. The browser suite reads the printed PDF with `pdfinfo` and `pdftotext`, so it
-needs poppler-utils (`sudo dnf install poppler-utils`, or `sudo apt install poppler-utils`).
+Node 24 or later. The browser suite reads the printed PDF with `pdfinfo`, `pdftotext` and
+`pdftoppm`, so it needs poppler-utils (`sudo dnf install poppler-utils`, or
+`sudo apt install poppler-utils`).
 
-Fonts: Inter and Source Serif 4 load from Google Fonts. If XCharter is installed on the machine,
-the body uses it.
+`npm run fonts` subsets the vendored faces in `src/fonts/` and writes `src/fonts/faces.json`,
+which the build inlines. `npm run build` and `npm test` run it first.
+
+Fonts on screen: Inter and Source Serif 4 load from Google Fonts, and the body uses XCharter if
+the machine has it. The exported PDF always embeds Quire's own subsets of Source Serif 4 and
+Inter, so the file reads the same everywhere.
 
 `dist/index.html` is committed. `npm run check` fails when it differs from a fresh build, so
 rebuild before you commit a change under `src/`.
@@ -113,6 +118,18 @@ cp dist/index.html "/path/to/application/Application Editor.html"
 ```
 
 Edits in that copy autosave under its own path in the browser. Save a file before you move it.
+
+### How the export works
+
+Quire clones the sheet into a box one page wide and one page tall with CSS multi-column, so the
+browser breaks the document under the same rules the print stylesheet declares. Each column is a
+page. Every position is then read back from that laid-out clone and written into the PDF, which
+is why the file matches the screen. The clone is typeset in the embedded faces, so what is
+measured is what is drawn.
+
+`src/pdf.ts` writes the PDF: pages, text, filled rectangles and the embedded fonts. It has no
+dependency and knows nothing about the DOM. `src/paint.ts` reads the DOM and produces the items
+it draws.
 
 ### Render a PDF without a browser window
 
@@ -133,6 +150,9 @@ a workspace from a file beside the page.
 | `src/render.ts` | Document to DOM, with editing controls. |
 | `src/editor.ts` | State, storage, history, panels, structure rail, events. |
 | `src/text.ts` | Model text to editable DOM and back. Bold, italic and flags are plain markers in the model. |
+| `src/pdf.ts` | Writes the PDF: pages, text, rectangles, embedded fonts. No DOM, unit tested. |
+| `src/paint.ts` | Reads the laid-out document and produces the items the writer draws. |
+| `scripts/fonts.mjs` | Subsets the vendored faces and records their widths for the writer. |
 | `src/styles/document.css` | The printed design. Sizes are relative to `--base`, spacing to `--density`. |
 | `src/styles/editor.css` | Editor chrome. Screen only. |
 | `src/seed.json` | The fictional sample workspace. |
@@ -172,4 +192,5 @@ Report a vulnerability privately. Read [SECURITY.md](SECURITY.md); do not open a
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE). Icons are Phosphor Icons, MIT.
+MIT. See [LICENSE](LICENSE). Icons are Phosphor Icons, MIT. The embedded faces are Source Serif 4
+and Inter, both under the SIL Open Font Licence 1.1: see `src/fonts/`.
