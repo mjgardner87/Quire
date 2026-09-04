@@ -516,3 +516,67 @@ function render(doc: QDocument, mode: 'plain' | 'md'): string {
 export function formatDateAU(d: Date): string {
   return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+/* ------------------------------------------------------------------ */
+/* Before export                                                        */
+/* ------------------------------------------------------------------ */
+
+export interface OverBlock { heading: string; words: number; limit: number }
+export interface ExportCheck {
+  flags: number;
+  overBlocks: OverBlock[];
+  overDocument: { words: number; limit: number } | null;
+}
+
+/** Every string an author can type in a block. Flags can sit in any of them. */
+function blockTexts(b: Block): string[] {
+  switch (b.type) {
+    case 'masthead': return [b.name, b.creds, b.tagline, ...b.contact];
+    case 'docmast': return [b.kicker, b.title, b.sub, ...b.contact];
+    case 'section': return [
+      b.heading,
+      ...(b.paragraphs ?? []),
+      ...(b.items ?? []).flatMap((it) => [it.lead, it.text]),
+      ...(b.entries ?? []).flatMap((e) => [e.dates, e.org, e.title, e.context, ...e.bullets]),
+      ...(b.columns ?? []).flatMap((c) => [c.heading, ...c.items.flatMap((it) => [it.text, it.sub])]),
+      ...(b.skills ?? []),
+    ];
+    case 'opening': return b.paragraphs;
+    case 'criterion': return [b.heading, ...b.paragraphs];
+    case 'closing': return [...b.paragraphs, ...b.referees.flatMap((r) => [r.label, r.name, r.sub])];
+    case 'letterhead': return [b.date, ...b.recipient, b.subject];
+    case 'signoff': return [b.closing, b.name];
+  }
+}
+
+const blockFlags = (b: Block): number =>
+  blockTexts(b).reduce((n, s) => n + tokenise(s).filter((t) => t.kind === 'flag').length, 0);
+
+/**
+ * What the author has not settled: flags still in the text, and counts past a limit. The word
+ * counts are the printed ones, so a heading the panel wrote never pushes a criterion over.
+ */
+export function checkBeforeExport(doc: QDocument): ExportCheck {
+  const flags = doc.blocks.reduce((n, b) => n + blockFlags(b), 0);
+  const overBlocks: OverBlock[] = [];
+  const limit = doc.blockWordLimit;
+  if (limit) {
+    for (const b of doc.blocks) {
+      if (b.type !== 'criterion') continue;
+      const words = blockWords(b);
+      if (words > limit) overBlocks.push({ heading: b.heading, words, limit });
+    }
+  }
+  const words = documentWords(doc);
+  const overDocument = doc.wordLimit && words > doc.wordLimit ? { words, limit: doc.wordLimit } : null;
+  return { flags, overBlocks, overDocument };
+}
+
+/** One line per unresolved thing, or null when the document is ready to send. */
+export function exportWarning(check: ExportCheck): string | null {
+  const lines: string[] = [];
+  if (check.flags) lines.push(`${check.flags} flag${check.flags === 1 ? ' is' : 's are'} still unresolved.`);
+  for (const b of check.overBlocks) lines.push(`${b.heading} is ${b.words} words against a limit of ${b.limit}.`);
+  if (check.overDocument) lines.push(`The document is ${check.overDocument.words} words against a limit of ${check.overDocument.limit}.`);
+  return lines.length ? lines.join('\n') : null;
+}

@@ -364,6 +364,7 @@ test.describe('print', () => {
   test('Export PDF writes the file itself, with every page and no browser furniture', async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);
+    page.once('dialog', (d) => d.accept());
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
     const file = join(ART, 'export-cv.pdf');
     await download.saveAs(file);
@@ -390,6 +391,7 @@ test.describe('print', () => {
   test('nothing is printed in the outer edge of the sheet', async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);
+    page.once('dialog', (d) => d.accept());
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
     const file = join(ART, 'export-edges.pdf');
     await download.saveAs(file);
@@ -419,6 +421,7 @@ test.describe('print', () => {
   test('a criteria response exports with its numbering and its limits intact', async ({ page }) => {
     await page.goto(url('#criteria'));
     await page.evaluate(() => document.fonts.ready);
+    page.once('dialog', (d) => d.accept());
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
     const file = join(ART, 'export-criteria.pdf');
     await download.saveAs(file);
@@ -485,5 +488,53 @@ test.describe('print', () => {
       expect(text).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/);
       expect(text).not.toMatch(/^\s*\d+\/\d+\s*$/m);
     }
+  });
+
+  // The last gate before the application leaves the tool. It names what is unsettled and lets the
+  // author go on; cancelling writes nothing.
+  test('Export PDF names an unresolved flag and cancelling writes nothing', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+
+    let message = '';
+    page.once('dialog', (d) => { message = d.message(); void d.dismiss(); });
+    await page.click('#print');
+    await expect.poll(() => message).toContain('1 flag is still unresolved.');
+
+    let downloaded = false;
+    page.once('download', () => { downloaded = true; });
+    await page.waitForTimeout(600);
+    expect(downloaded).toBe(false);
+
+    // Remove the flag and the gate stays out of the way.
+    await page.evaluate(() => {
+      window.Quire.importJSON(window.Quire.exportJSON().replace(/\[\[[\s\S]*?\]\]/g, 'confirmed'));
+    });
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  });
+
+  // A keyboard user must never land on a control they cannot see. The reveal is a 120ms opacity
+  // transition, so a stop that reads as hidden is re-read once it has settled before it counts.
+  test('a Tab walk never lands on an invisible control', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    const look = (): Promise<string | null> => page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el || el === document.body) return null;
+      const cs = getComputedStyle(el);
+      const box = el.getBoundingClientRect();
+      if (Number(cs.opacity) >= 0.05 && cs.visibility !== 'hidden' && box.width > 0 && box.height > 0) return null;
+      return `${el.tagName.toLowerCase()}.${el.className} "${(el.textContent ?? '').trim().slice(0, 20)}" opacity=${cs.opacity}`;
+    });
+    const invisible: string[] = [];
+    for (let i = 0; i < 200; i++) {
+      await page.keyboard.press('Tab');
+      if (await look() === null) continue;
+      await page.waitForTimeout(200);
+      const settled = await look();
+      if (settled) invisible.push(settled);
+    }
+    expect(invisible).toEqual([]);
   });
 });

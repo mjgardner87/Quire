@@ -42,6 +42,11 @@ Do not add tests for coverage.
 - `vite.config.ts` takes `defineConfig` from `vitest/config`, never from `vite`. The `test`
   key is Vitest's. Vitest 3 added it to Vite's own config type, Vitest 4 and Vite 8 do not, so
   the `vite` import fails the typecheck on any of those bumps.
+- A control revealed by a transition reads as hidden if you measure it at once. The margin
+  controls and the adders fade in over 120ms, so `getComputedStyle(el).opacity` straight after
+  `Tab` returns the value the transition started from, not the one it lands on. An audit read it
+  that way and reported eight focusable invisible controls that do not exist. Let the transition
+  settle, then read.
 - An element with `hidden` still shows if a class sets `display`. `editor.css` carries
   `[hidden] { display: none !important }`; keep it.
 - Chromium cannot split a CSS grid row across pages, so career entries use a float layout.

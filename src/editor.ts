@@ -9,6 +9,7 @@ import {
   get, migrate, newAchievement, newColumn, newColumnItem, newDocument, newEntry, newReferee,
   pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
   type Block, type Design, type DocKind, type Numbering, type QDocument, type Workspace,
+  checkBeforeExport, exportWarning,
 } from './model';
 import { exportPdf } from './paint';
 import { h, renderDocument } from './render';
@@ -1286,6 +1287,10 @@ export class Editor {
     this.sheet.querySelectorAll('.guide').forEach((g) => g.remove());
     const doc = this.doc;
     if (!doc) { this.notify('Add a document first.', true); return; }
+    // The last gate before the application leaves the tool. The author still owns every word, so
+    // this reports what is unsettled and lets them go on; it never refuses.
+    const warning = exportWarning(checkBeforeExport(doc));
+    if (warning && !confirm(`${warning}\n\nExport the PDF anyway?`)) return;
     this.notify('Writing the PDF...');
     try {
       const bytes = await exportPdf(this.sheet, this.state.workspace.design, doc, formatDateAU(new Date()));
