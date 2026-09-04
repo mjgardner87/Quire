@@ -71,6 +71,11 @@ Ctrl+K opens a command palette with every action, every section type and a jump 
 
 ### Headers and footers
 
+Every document ships with a running header and footer, because a multi-page application is read
+on paper and gets separated. Page two onward carries the document title top right, the applicant's
+name bottom left and `Page 2 of 2` bottom centre. Page one carries its own masthead, so it stays
+clear. Tick "Show on the first page" under Header and footer to change that.
+
 Each document has three header slots and three footer slots. They accept `{page}`, `{pages}`,
 `{name}`, `{title}` and `{date}`. Chromium 131 and later print them through CSS page margin
 boxes. Other browsers print the page without them.

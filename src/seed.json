@@ -18,14 +18,30 @@
       "numbering": "both",
       "wordLimit": null,
       "blockWordLimit": null,
-      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "", "right": "" }, "firstPage": false },
+      "running": {
+        "header": {
+          "left": "",
+          "centre": "",
+          "right": "{title}"
+        },
+        "footer": {
+          "left": "{name}",
+          "centre": "Page {page} of {pages}",
+          "right": ""
+        },
+        "firstPage": false
+      },
       "blocks": [
         {
           "type": "masthead",
           "name": "Jordan Example",
           "creds": "BEng (Hons) · CPEng · PMP",
           "tagline": "Chartered engineer and project director. Fourteen years on the client side of public infrastructure: business cases, procurement, delivery assurance and the measurement of what was built.",
-          "contact": ["Canberra ACT", "0400 000 000", "jordan@example.com.au"]
+          "contact": [
+            "Canberra ACT",
+            "0400 000 000",
+            "jordan@example.com.au"
+          ]
         },
         {
           "type": "section",
@@ -40,10 +56,22 @@
           "kind": "achievements",
           "heading": "Selected achievements",
           "items": [
-            { "lead": "Three investment gates passed.", "text": "Wrote the investment logic and business cases that secured Budget funding for a depot, a signalling renewal and a bus interchange, together worth $126 million." },
-            { "lead": "Full procurement cycle led.", "text": "Ran the market approach, evaluation and negotiation for the depot design-and-construct contract, awarded on schedule and within the approved envelope." },
-            { "lead": "Built around a live timetable.", "text": "Held the client position on a 22-month depot construction with no unplanned service cancellations attributed to the works." },
-            { "lead": "Benefits measured, not assumed.", "text": "Delivered the post-implementation review that showed the interchange cut average interchange time by 38 per cent, [[CONFIRM: check the final figure in the PIR]]." }
+            {
+              "lead": "Three investment gates passed.",
+              "text": "Wrote the investment logic and business cases that secured Budget funding for a depot, a signalling renewal and a bus interchange, together worth $126 million."
+            },
+            {
+              "lead": "Full procurement cycle led.",
+              "text": "Ran the market approach, evaluation and negotiation for the depot design-and-construct contract, awarded on schedule and within the approved envelope."
+            },
+            {
+              "lead": "Built around a live timetable.",
+              "text": "Held the client position on a 22-month depot construction with no unplanned service cancellations attributed to the works."
+            },
+            {
+              "lead": "Benefits measured, not assumed.",
+              "text": "Delivered the post-implementation review that showed the interchange cut average interchange time by 38 per cent, [[CONFIRM: check the final figure in the PIR]]."
+            }
           ]
         },
         {
@@ -109,7 +137,16 @@
           "type": "section",
           "kind": "skills",
           "heading": "Areas of practice",
-          "skills": ["Business cases and investment logic", "Government procurement", "Contract administration", "Project controls", "Stakeholder and community engagement", "Asset management", "WHS in construction", "Benefits realisation"]
+          "skills": [
+            "Business cases and investment logic",
+            "Government procurement",
+            "Contract administration",
+            "Project controls",
+            "Stakeholder and community engagement",
+            "Asset management",
+            "WHS in construction",
+            "Benefits realisation"
+          ]
         },
         {
           "type": "section",
@@ -119,17 +156,35 @@
             {
               "heading": "Qualifications",
               "items": [
-                { "text": "Bachelor of Engineering (Honours), Civil, University of Newcastle, 2012", "sub": "Engineers Australia accredited" },
-                { "text": "Project Management Professional (PMP), Project Management Institute", "sub": "Current" },
-                { "text": "Graduate Certificate in Public Sector Management, 2020", "sub": "" }
+                {
+                  "text": "Bachelor of Engineering (Honours), Civil, University of Newcastle, 2012",
+                  "sub": "Engineers Australia accredited"
+                },
+                {
+                  "text": "Project Management Professional (PMP), Project Management Institute",
+                  "sub": "Current"
+                },
+                {
+                  "text": "Graduate Certificate in Public Sector Management, 2020",
+                  "sub": ""
+                }
               ]
             },
             {
               "heading": "Registrations",
               "items": [
-                { "text": "Chartered Professional Engineer (CPEng), Civil and Project Management", "sub": "Engineers Australia" },
-                { "text": "General construction induction (white card)", "sub": "" },
-                { "text": "Working with Vulnerable People registration", "sub": "ACT, current" }
+                {
+                  "text": "Chartered Professional Engineer (CPEng), Civil and Project Management",
+                  "sub": "Engineers Australia"
+                },
+                {
+                  "text": "General construction induction (white card)",
+                  "sub": ""
+                },
+                {
+                  "text": "Working with Vulnerable People registration",
+                  "sub": "ACT, current"
+                }
               ]
             }
           ]
@@ -143,14 +198,31 @@
       "numbering": "number",
       "wordLimit": null,
       "blockWordLimit": 350,
-      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "Page {page} of {pages}", "right": "" }, "firstPage": false },
+      "running": {
+        "header": {
+          "left": "",
+          "centre": "",
+          "right": "{title}"
+        },
+        "footer": {
+          "left": "{name}",
+          "centre": "Page {page} of {pages}",
+          "right": ""
+        },
+        "firstPage": false
+      },
       "blocks": [
         {
           "type": "docmast",
           "kicker": "Response to selection criteria",
           "title": "Senior Director, Capital Works",
           "sub": "Position 00000 · Senior Officer Grade A\nInfrastructure Division, Example Directorate",
-          "contact": ["Jordan Example", "BEng (Hons) CPEng PMP", "0400 000 000", "jordan@example.com.au"]
+          "contact": [
+            "Jordan Example",
+            "BEng (Hons) CPEng PMP",
+            "0400 000 000",
+            "jordan@example.com.au"
+          ]
         },
         {
           "type": "opening",
@@ -212,19 +284,39 @@
       "numbering": "both",
       "wordLimit": 400,
       "blockWordLimit": null,
-      "running": { "header": { "left": "", "centre": "", "right": "" }, "footer": { "left": "", "centre": "", "right": "" }, "firstPage": false },
+      "running": {
+        "header": {
+          "left": "",
+          "centre": "",
+          "right": "{title}"
+        },
+        "footer": {
+          "left": "{name}",
+          "centre": "Page {page} of {pages}",
+          "right": ""
+        },
+        "firstPage": false
+      },
       "blocks": [
         {
           "type": "docmast",
           "kicker": "",
           "title": "Senior Director, Capital Works",
           "sub": "Position 00000 · Example Directorate",
-          "contact": ["Jordan Example", "0400 000 000", "jordan@example.com.au"]
+          "contact": [
+            "Jordan Example",
+            "0400 000 000",
+            "jordan@example.com.au"
+          ]
         },
         {
           "type": "letterhead",
           "date": "2 September 2026",
-          "recipient": ["Selection panel", "Infrastructure Division", "Example Directorate"],
+          "recipient": [
+            "Selection panel",
+            "Infrastructure Division",
+            "Example Directorate"
+          ],
           "subject": "Application for Senior Director, Capital Works, position 00000"
         },
         {
@@ -236,7 +328,11 @@
             "I would welcome the chance to discuss the role and the Division's current program with the panel."
           ]
         },
-        { "type": "signoff", "closing": "Yours sincerely", "name": "Jordan Example" }
+        {
+          "type": "signoff",
+          "closing": "Yours sincerely",
+          "name": "Jordan Example"
+        }
       ]
     }
   ]
