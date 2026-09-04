@@ -61,6 +61,13 @@ Do not add tests for coverage.
 - The column pitch is fractional, so a column's own left edge can measure a hair under
   `k * pitch`. Take the page index with a pixel of tolerance, never a bare floor, and never
   `Math.round`, which sends a right-aligned block to the next page.
-- Chromium does not break a float cleanly at a column edge: it overflows the column, and
-  `break-inside: avoid` does not stop it. The exporter lays a career entry out as a grid and
-  keeps it whole.
+- Quire does its own page breaks. CSS multi-column looked like a free paginator, but neither
+  engine keeps every fragment inside its column: Chromium overflows rather than break a float,
+  Gecko overflows too and ignores a forced column break. An overflowing line is not moved to the
+  next page, it is drawn off the foot of this one and lost. The exporter lays the document out in
+  one flow and cuts it in `packPages`, which is the same in every browser.
+- Marks that overlap in the flow cannot be split by a horizontal cut, so `packPages` merges them:
+  a name and the contact block beside it, or the two halves of a two-column block.
+- Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
+  test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
+  career entry hanging off the foot of the sheet were caught.

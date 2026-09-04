@@ -73,7 +73,7 @@ describe('migration', () => {
     expect(ws.format).toBe('quire/1');
     expect(ws.documents.map((d) => d.kind)).toEqual(['cv', 'criteria']);
     expect(ws.design).toEqual(defaultDesign());
-    expect(ws.documents[0]!.running.footer.centre).toBe('');
+    expect(ws.documents[0]!.running.footer.centre).toBe('Page {page} of {pages}');
   });
 
   test('accepts a single first-generation document', () => {
@@ -176,6 +176,22 @@ describe('page rule', () => {
     expect(r.footer.centre).toBe('Page {page} of {pages}');
     expect(r.firstPage).toBe(false);
     for (const kind of TEMPLATE_KINDS) expect(newDocument(kind).running).toEqual(r);
+  });
+
+  // Every workspace saved before Quire had running defaults carries six empty slots, which is
+  // the old default and not a choice anyone could have made. Fill them; leave a set alone the
+  // moment one slot has text in it.
+  test('migration fills running slots that are entirely empty and leaves a set with any text alone', () => {
+    const empty = { left: '', centre: '', right: '' };
+    const bare = migrate({ format: 'quire/1', documents: [
+      { id: 'cv', kind: 'cv', title: 'Curriculum vitae', blocks: [{ type: 'masthead', name: 'A', creds: '', tagline: '', contact: [] }],
+        running: { header: { ...empty }, footer: { ...empty }, firstPage: false } },
+      { id: 'two', kind: 'blank', title: 'Two', blocks: [],
+        running: { header: { ...empty }, footer: { left: 'Commercial in confidence', centre: '', right: '' }, firstPage: false } },
+    ] });
+    expect(bare.documents[0]!.running).toEqual(defaultRunning());
+    expect(bare.documents[1]!.running.footer.left).toBe('Commercial in confidence');
+    expect(bare.documents[1]!.running.header.right).toBe('');
   });
 
   test('expands {date} and emits no :first rule when the first page shows the running text', () => {
