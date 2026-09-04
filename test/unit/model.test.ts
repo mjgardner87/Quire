@@ -3,7 +3,7 @@ import {
   tokenise, countWords, blockWords, documentWords,
   migrate, validateWorkspace, defaultDesign, defaultRunning, SCHEMES,
   newDocument, newBlock, TEMPLATE_KINDS, BLOCK_TYPES, blockForPicker, ADDABLE,
-  pageRuleCSS, cssString,
+  pageRuleCSS, cssString, marginBoxWarning,
   toPlainText, toMarkdown,
   get, set, pparse, pstr,
   type QDocument, type Block,
@@ -176,6 +176,16 @@ describe('page rule', () => {
     expect(r.footer.centre).toBe('Page {page} of {pages}');
     expect(r.firstPage).toBe(false);
     for (const kind of TEMPLATE_KINDS) expect(newDocument(kind).running).toEqual(r);
+  });
+
+  // Gecko parses @page and drops every margin box, so Quire's running text cannot print and the
+  // browser stamps its own title, URL, page number and date on the edges instead.
+  test('warns when the browser cannot print margin boxes and says nothing when it can', () => {
+    expect(marginBoxWarning(true)).toBeNull();
+    const warning = marginBoxWarning(false);
+    expect(warning).toMatch(/Chrome or Chromium/);
+    expect(warning).toMatch(/blank/);
+    expect(warning).not.toMatch(/[!\u2014]/);
   });
 
   test('expands {date} and emits no :first rule when the first page shows the running text', () => {
