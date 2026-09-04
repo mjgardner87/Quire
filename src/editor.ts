@@ -1073,7 +1073,7 @@ export class Editor {
       { id: 'copy-text', label: 'Copy document as plain text', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toPlainText(this.doc), 'Plain text copied.'); } },
       { id: 'copy-md', label: 'Copy document as Markdown', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toMarkdown(this.doc), 'Markdown copied.'); } },
       { id: 'next-flag', label: 'Go to the next flag', group: 'Document', when: () => this.sheet.querySelectorAll('.flag').length > 0, run: () => this.nextFlag() },
-      { id: 'print', label: 'Print or save as PDF', group: 'File', keys: 'Ctrl P', run: () => this.print() },
+      { id: 'print', label: 'Export PDF', group: 'File', keys: 'Ctrl P', run: () => this.print() },
       { id: 'save', label: 'Save file', group: 'File', keys: 'Ctrl S', run: () => this.saveFile() },
       { id: 'open', label: 'Open file', group: 'File', keys: 'Ctrl O', run: () => $('#open-file').click() },
       { id: 'versions', label: 'Versions', group: 'File', run: () => this.openPanel('panel-versions', $('#file')) },

@@ -353,6 +353,12 @@ test.describe('print', () => {
 
   // Chrome's print dialog ships with "Headers and footers" ticked, which stamps the file:// URL,
   // the date and the page title on every sheet. The document's own margin boxes take those edges.
+  test('the primary action names the PDF it produces', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await expect(page.locator('#print')).toHaveText(/Export PDF/);
+    await expect(page.locator('#print')).toHaveAttribute('title', /Save as PDF/);
+  });
+
   test("the browser's own header and footer never print", async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);
