@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   tokenise, countWords, blockWords, documentWords,
-  migrate, validateWorkspace, defaultDesign, SCHEMES,
+  migrate, validateWorkspace, defaultDesign, defaultRunning, SCHEMES,
   newDocument, newBlock, TEMPLATE_KINDS, BLOCK_TYPES, blockForPicker, ADDABLE,
   pageRuleCSS, cssString,
   toPlainText, toMarkdown,
@@ -165,6 +165,17 @@ describe('page rule', () => {
       }
       expect(css).not.toMatch(/content:\s*none/);
     }
+  });
+
+  // A multi-page application is read on paper and gets separated. Every sheet after the first
+  // names its owner, its document and its place in the set.
+  test('a new document carries a running footer with the name, the title and the page number', () => {
+    const r = defaultRunning();
+    expect(r.header.right).toBe('{title}');
+    expect(r.footer.left).toBe('{name}');
+    expect(r.footer.centre).toBe('Page {page} of {pages}');
+    expect(r.firstPage).toBe(false);
+    for (const kind of TEMPLATE_KINDS) expect(newDocument(kind).running).toEqual(r);
   });
 
   test('expands {date} and emits no :first rule when the first page shows the running text', () => {

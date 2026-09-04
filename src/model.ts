@@ -133,8 +133,17 @@ export function defaultDesign(): Design {
   };
 }
 
+/**
+ * A multi-page application is read on paper and gets separated, so every sheet after the first
+ * names its owner, its document and its place in the set. The first page carries its own
+ * masthead, so it stays clear.
+ */
 export function defaultRunning(): Running {
-  return { header: { left: '', centre: '', right: '' }, footer: { left: '', centre: '', right: '' }, firstPage: false };
+  return {
+    header: { left: '', centre: '', right: '{title}' },
+    footer: { left: '{name}', centre: 'Page {page} of {pages}', right: '' },
+    firstPage: false,
+  };
 }
 
 /* ------------------------------------------------------------------ */

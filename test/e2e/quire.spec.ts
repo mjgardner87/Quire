@@ -359,6 +359,17 @@ test.describe('print', () => {
     await expect(page.locator('#print')).toHaveAttribute('title', /Save as PDF/);
   });
 
+  test('the sample CV prints a running footer on every sheet but the first', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const pages = await printPdf(page, 'cv-running-default');
+    expect(pages).toBe(2);
+    expect(pdfPageText('cv-running-default', 1)).not.toMatch(/Page 1 of/);
+    const second = pdfPageText('cv-running-default', 2);
+    expect(second).toMatch(/Jordan Example/);
+    expect(second).toMatch(/Curriculum vitae/);
+    expect(second).toMatch(/Page 2 of 2/);
+  });
+
   test("the browser's own header and footer never print", async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);
