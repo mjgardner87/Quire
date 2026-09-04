@@ -524,9 +524,17 @@ export function formatDateAU(d: Date): string {
 export interface OverBlock { heading: string; words: number; limit: number }
 export interface ExportCheck {
   flags: number;
+  placeholders: string[];
   overBlocks: OverBlock[];
   overDocument: { words: number; limit: number } | null;
 }
+
+/**
+ * A template placeholder the author has not replaced: [name], [role], [number]. Single brackets
+ * only, so a flag never counts twice, and a lower-case opening letter, so a bracketed year or a
+ * citation stays out of it.
+ */
+const PLACEHOLDER = /(?<!\[)\[[a-z][a-z ]*\](?!\])/g;
 
 /** Every string an author can type in a block. Flags can sit in any of them. */
 function blockTexts(b: Block): string[] {
@@ -558,6 +566,9 @@ const blockFlags = (b: Block): number =>
  */
 export function checkBeforeExport(doc: QDocument): ExportCheck {
   const flags = doc.blocks.reduce((n, b) => n + blockFlags(b), 0);
+  const placeholders = [...new Set(
+    doc.blocks.flatMap(blockTexts).flatMap((t) => [...t.matchAll(PLACEHOLDER)].map((m) => m[0])),
+  )];
   const overBlocks: OverBlock[] = [];
   const limit = doc.blockWordLimit;
   if (limit) {
@@ -569,13 +580,17 @@ export function checkBeforeExport(doc: QDocument): ExportCheck {
   }
   const words = documentWords(doc);
   const overDocument = doc.wordLimit && words > doc.wordLimit ? { words, limit: doc.wordLimit } : null;
-  return { flags, overBlocks, overDocument };
+  return { flags, placeholders, overBlocks, overDocument };
 }
 
 /** One line per unresolved thing, or null when the document is ready to send. */
 export function exportWarning(check: ExportCheck): string | null {
   const lines: string[] = [];
   if (check.flags) lines.push(`${check.flags} flag${check.flags === 1 ? ' is' : 's are'} still unresolved.`);
+  if (check.placeholders.length) {
+    const n = check.placeholders.length;
+    lines.push(`${n} placeholder${n === 1 ? ' is' : 's are'} still in the text: ${check.placeholders.join(', ')}.`);
+  }
   for (const b of check.overBlocks) lines.push(`${b.heading} is ${b.words} words against a limit of ${b.limit}.`);
   if (check.overDocument) lines.push(`The document is ${check.overDocument.words} words against a limit of ${check.overDocument.limit}.`);
   return lines.length ? lines.join('\n') : null;
