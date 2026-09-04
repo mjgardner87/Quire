@@ -6,6 +6,7 @@ import {
   pageRuleCSS, cssString,
   toPlainText, toMarkdown,
   get, set, pparse, pstr,
+  checkBeforeExport, exportWarning,
   type QDocument, type Block,
 } from '../../src/model';
 
@@ -234,5 +235,46 @@ describe('paths', () => {
     set(o, p, 'b');
     expect(o.blocks[0]!.items[0]!.text).toBe('b');
     expect(pstr(p)).toBe('blocks.0.items.0.text');
+  });
+});
+
+describe('before export', () => {
+  const doc = (): QDocument => {
+    const d = newDocument('criteria', 'c');
+    d.blockWordLimit = 50;
+    d.wordLimit = null;
+    return d;
+  };
+  const criterion = (heading: string, text: string): Block => ({ type: 'criterion', heading, paragraphs: [text] });
+
+  test('a document with nothing outstanding warns about nothing', () => {
+    const d = doc();
+    d.blocks = [criterion('First criterion.', 'Ten words here to stay well under the limit set.')];
+    expect(checkBeforeExport(d)).toEqual({ flags: 0, overBlocks: [], overDocument: null });
+    expect(exportWarning(checkBeforeExport(d))).toBeNull();
+  });
+
+  test('an unresolved flag is counted and named', () => {
+    const d = doc();
+    d.blocks = [criterion('First criterion.', 'I led the [[CONFIRM: how many]] team.')];
+    expect(checkBeforeExport(d).flags).toBe(1);
+    expect(exportWarning(checkBeforeExport(d))).toBe('1 flag is still unresolved.');
+  });
+
+  test('a criterion over its limit is named with its count', () => {
+    const d = doc();
+    d.blockWordLimit = 3;
+    d.blocks = [criterion('Strategic planning.', 'One two three four five')];
+    expect(checkBeforeExport(d).overBlocks).toEqual([{ heading: 'Strategic planning.', words: 5, limit: 3 }]);
+    expect(exportWarning(checkBeforeExport(d))).toBe('Strategic planning. is 5 words against a limit of 3.');
+  });
+
+  test('the whole document over its limit is reported with both counts', () => {
+    const d = doc();
+    d.blockWordLimit = null;
+    d.wordLimit = 4;
+    d.blocks = [criterion('First criterion.', 'One two three four five six')];
+    expect(checkBeforeExport(d).overDocument).toEqual({ words: 6, limit: 4 });
+    expect(exportWarning(checkBeforeExport(d))).toBe('The document is 6 words against a limit of 4.');
   });
 });
