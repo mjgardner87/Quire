@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+// defineConfig comes from vitest/config, not vite: the test key below is Vitest's own.
+import { defineConfig } from 'vitest/config';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 /**
