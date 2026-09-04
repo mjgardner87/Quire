@@ -370,6 +370,25 @@ test.describe('print', () => {
     expect(second).toMatch(/Page 2 of 2/);
   });
 
+  test('a browser without margin boxes is told, and one with them is not', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.click('#running');
+    await expect(page.locator('.f-hint')).toContainText('Runs along the top and bottom');
+    await expect(page.locator('.f-hint.warn')).toHaveCount(0);
+
+    // Gecko keeps the @page rule and drops its margin boxes. Reproduce that shape in Chromium.
+    await page.addInitScript(() => {
+      Object.defineProperty(CSSPageRule.prototype, 'cssRules', { get: () => [] as unknown as CSSRuleList });
+    });
+    await page.reload();
+    await page.click('#running');
+    await expect(page.locator('.f-hint.warn')).toContainText('Chrome or Chromium');
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => { window.print = () => undefined; });
+    await page.click('#print');
+    await expect(page.locator('#toast')).toContainText('Chrome or Chromium');
+  });
+
   test("the browser's own header and footer never print", async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);

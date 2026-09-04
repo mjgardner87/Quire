@@ -7,7 +7,7 @@ import {
   ADDABLE, BASE_SIZES, BODY_FONTS, LABEL_FONTS, SCHEMES, TEMPLATE_KINDS,
   blockForPicker, blockWords, defaultDesign, documentName, documentWords, fontStack, formatDateAU,
   get, migrate, newAchievement, newColumn, newColumnItem, newDocument, newEntry, newReferee,
-  pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
+  marginBoxWarning, pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
   type Block, type Design, type DocKind, type Numbering, type QDocument, type Workspace,
 } from './model';
 import { h, renderDocument } from './render';
@@ -38,6 +38,20 @@ const VERSIONS = `quire:versions:${location.pathname}`;
 const PAGE_MM = 297;
 const MM = 96 / 25.4;
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+/**
+ * True when the browser keeps the margin boxes inside an `@page` rule. Gecko parses the rule and
+ * drops them, so it can print neither a running header nor a running footer.
+ */
+function marginBoxesSupported(): boolean {
+  const style = document.createElement('style');
+  style.textContent = '@page { @top-left { content: "q"; } }';
+  document.head.append(style);
+  const sheet = style.sheet;
+  const rule = sheet ? [...sheet.cssRules].find((r): r is CSSPageRule => r instanceof CSSPageRule) : undefined;
+  const supported = (rule?.cssRules.length ?? 0) > 0;
+  style.remove();
+  return supported;
+}
 const $ = <T extends HTMLElement = HTMLElement>(sel: string): T => {
   const el = document.querySelector<T>(sel);
   if (!el) throw new Error(`missing element ${sel}`);
@@ -57,6 +71,7 @@ export class Editor {
   private panelOpener: HTMLElement | null = null;
   private drag: { list: string; index: number } | null = null;
   private savedRange: Range | null = null;
+  private readonly marginBoxes: boolean;
   private bubbleTimer = 0;
   private paletteItems: Command[] = [];
   private paletteIndex = 0;
@@ -67,6 +82,7 @@ export class Editor {
 
   constructor(seed: Workspace) {
     this.seed = seed;
+    this.marginBoxes = marginBoxesSupported();
     this.state = this.load() ?? { workspace: clone(seed), activeId: seed.documents[0]?.id ?? '' };
     const hashDoc = decodeURIComponent(location.hash.slice(1));
     if (hashDoc && this.state.workspace.documents.some((d) => d.id === hashDoc)) this.state.activeId = hashDoc;
@@ -678,7 +694,9 @@ export class Editor {
     const firstLab = h('label', 'check', first, ' Show on the first page too');
     firstLab.htmlFor = 'run-first';
     return [
-      h('p', 'f-hint', 'Runs along the top and bottom of every printed page. Use {page}, {pages}, {name}, {title} and {date}.'),
+      this.marginBoxes
+        ? h('p', 'f-hint', 'Runs along the top and bottom of every printed page. Use {page}, {pages}, {name}, {title} and {date}.')
+        : h('p', 'f-hint warn', marginBoxWarning(false) ?? ''),
       h('h3', 'panel-sub', 'Header'),
       h('div', 'field-row three', slot('header', 'left'), slot('header', 'centre'), slot('header', 'right')),
       h('h3', 'panel-sub', 'Footer'),
@@ -1279,6 +1297,8 @@ export class Editor {
   private print(): void {
     this.closePanels();
     this.sheet.querySelectorAll('.guide').forEach((g) => g.remove());
+    const warning = marginBoxWarning(this.marginBoxes);
+    if (warning) this.notify(warning, true);
     window.print();
   }
 

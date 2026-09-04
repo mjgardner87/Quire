@@ -354,6 +354,7 @@
   .field-row.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .f-label { font: 500 12px/1.2 var(--ui); color: var(--c-ink-2); }
   .f-hint { margin: 0; color: var(--c-muted); font-size: 12px; }
+  .f-hint.warn { color: var(--c-warn); background: var(--c-warn-bg); border-radius: 6px; padding: 7px 9px; }
   .panel input:not([type="checkbox"]):not([type="color"]), .panel select {
     height: 32px; padding: 0 9px;
     font: 400 13px/1 var(--ui); color: var(--c-ink);

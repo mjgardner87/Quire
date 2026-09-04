@@ -382,6 +382,18 @@ function slotContent(template: string, doc: QDocument, ctx: { date: string }): s
   return parts.map((p) => (p === '{page}' ? 'counter(page)' : p === '{pages}' ? 'counter(pages)' : cssString(p))).join(' ');
 }
 
+/**
+ * The message for a browser that cannot print CSS page margin boxes. Gecko parses `@page` and
+ * drops every margin box, so Quire's running header and footer cannot print, and the browser
+ * stamps its own title, URL, page number and date on those edges instead.
+ */
+export function marginBoxWarning(supported: boolean): string | null {
+  if (supported) return null;
+  return 'This browser cannot print a running header or footer, and prints its own instead. '
+    + 'Open the file in Chrome or Chromium for page numbers. '
+    + 'To drop the browser\'s own, set every header and footer to blank in the print dialog.';
+}
+
 /** A declared box with no text. It prints nothing and holds the edge against the browser. */
 const EMPTY_BOX = '""';
 
