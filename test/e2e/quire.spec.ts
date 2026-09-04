@@ -353,6 +353,76 @@ test.describe('print', () => {
 
   // Chrome's print dialog ships with "Headers and footers" ticked, which stamps the file:// URL,
   // the date and the page title on every sheet. The document's own margin boxes take those edges.
+  // The whole point of Export PDF: Quire writes the file, so no dialog paginates the document
+  // differently or stamps the browser's own header on it.
+  test('Export PDF writes the file itself, with every page and no browser furniture', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-cv.pdf');
+    await download.saveAs(file);
+    expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+
+    const info = execFileSync('pdfinfo', [file], { encoding: 'utf8' });
+    expect(info).toMatch(/^Pages:\s+2/m);
+    expect(info).toMatch(/595(\.\d+)? x 841(\.\d+)?/);
+
+    const all = execFileSync('pdftotext', [file, '-'], { encoding: 'utf8' });
+    expect(all).not.toMatch(/file:\/\//);
+    const page1 = execFileSync('pdftotext', ['-f', '1', '-l', '1', file, '-'], { encoding: 'utf8' });
+    expect(page1).toContain('Jordan Example');
+    expect(page1).toContain('SELECTED ACHIEVEMENTS');
+    expect(page1).not.toMatch(/Page 1 of/);
+    const page2 = execFileSync('pdftotext', ['-f', '2', '-l', '2', file, '-'], { encoding: 'utf8' });
+    expect(page2).toContain('Page 2 of 2');
+    expect(page2).toContain('Jordan Example');
+  });
+
+  // Nothing belongs outside the page box but the running header and footer, and those sit well
+  // inside it. Ink in the last 4mm means a fragment overflowed its column, which is how a float
+  // used to leave three lines of an entry hanging off the foot of the sheet.
+  test('nothing is printed in the outer edge of the sheet', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-edges.pdf');
+    await download.saveAs(file);
+    const ppm = execFileSync('pdftoppm', ['-r', '100', file], { maxBuffer: 1 << 28 });
+    const band = Math.round(4 / 25.4 * 100);
+    let sheets = 0;
+    for (let at = 0; at < ppm.length;) {
+      const head = ppm.subarray(at, at + 32).toString('latin1');
+      const m = /^P6\s+(\d+)\s+(\d+)\s+255\s/.exec(head);
+      if (!m) break;
+      const w = Number(m[1]);
+      const h = Number(m[2]);
+      const start = at + head.indexOf('255') + 4;
+      const dark = (x: number, y: number): boolean => ppm[start + (y * w + x) * 3]! < 250;
+      for (let x = 0; x < w; x++) {
+        for (const y of [0, band, h - 1 - band, h - 1]) expect(dark(x, y), `ink at ${x},${y}`).toBe(false);
+      }
+      for (let y = 0; y < h; y++) {
+        for (const x of [0, band, w - 1 - band, w - 1]) expect(dark(x, y), `ink at ${x},${y}`).toBe(false);
+      }
+      sheets++;
+      at = start + w * h * 3;
+    }
+    expect(sheets).toBe(2);
+  });
+
+  test('a criteria response exports with its numbering and its limits intact', async ({ page }) => {
+    await page.goto(url('#criteria'));
+    await page.evaluate(() => document.fonts.ready);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-criteria.pdf');
+    await download.saveAs(file);
+    const text = execFileSync('pdftotext', ['-layout', file, '-'], { encoding: 'utf8' });
+    expect(text).toContain('RESPONSE TO SELECTION CRITERIA');
+    expect(text).toMatch(/^\s*1\s+High level conceptual/m);
+    expect(text).not.toMatch(/file:\/\//);
+    expect(execFileSync('pdfinfo', [file], { encoding: 'utf8' })).toMatch(/^Pages:\s+[1-9]/m);
+  });
+
   test('the primary action names the PDF it produces', async ({ page }) => {
     await page.goto(url('#cv'));
     await expect(page.locator('#print')).toHaveText(/Export PDF/);
@@ -368,25 +438,6 @@ test.describe('print', () => {
     expect(second).toMatch(/Jordan Example/);
     expect(second).toMatch(/Curriculum vitae/);
     expect(second).toMatch(/Page 2 of 2/);
-  });
-
-  test('a browser without margin boxes is told, and one with them is not', async ({ page }) => {
-    await page.goto(url('#cv'));
-    await page.click('#running');
-    await expect(page.locator('.f-hint')).toContainText('Runs along the top and bottom');
-    await expect(page.locator('.f-hint.warn')).toHaveCount(0);
-
-    // Gecko keeps the @page rule and drops its margin boxes. Reproduce that shape in Chromium.
-    await page.addInitScript(() => {
-      Object.defineProperty(CSSPageRule.prototype, 'cssRules', { get: () => [] as unknown as CSSRuleList });
-    });
-    await page.reload();
-    await page.click('#running');
-    await expect(page.locator('.f-hint.warn')).toContainText('Chrome or Chromium');
-    await page.keyboard.press('Escape');
-    await page.evaluate(() => { window.print = () => undefined; });
-    await page.click('#print');
-    await expect(page.locator('#toast')).toContainText('Chrome or Chromium');
   });
 
   test("the browser's own header and footer never print", async ({ page }) => {

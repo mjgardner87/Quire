@@ -7,9 +7,10 @@ import {
   ADDABLE, BASE_SIZES, BODY_FONTS, LABEL_FONTS, SCHEMES, TEMPLATE_KINDS,
   blockForPicker, blockWords, defaultDesign, documentName, documentWords, fontStack, formatDateAU,
   get, migrate, newAchievement, newColumn, newColumnItem, newDocument, newEntry, newReferee,
-  marginBoxWarning, pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
+  pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
   type Block, type Design, type DocKind, type Numbering, type QDocument, type Workspace,
 } from './model';
+import { exportPdf } from './paint';
 import { h, renderDocument } from './render';
 import { caretAtStart, fill, flagAtSelection, flagSelection, placeCaret, readText, unflag } from './text';
 import { applicable, matchCommands, type Command, type CommandContext } from './commands';
@@ -38,20 +39,6 @@ const VERSIONS = `quire:versions:${location.pathname}`;
 const PAGE_MM = 297;
 const MM = 96 / 25.4;
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
-/**
- * True when the browser keeps the margin boxes inside an `@page` rule. Gecko parses the rule and
- * drops them, so it can print neither a running header nor a running footer.
- */
-function marginBoxesSupported(): boolean {
-  const style = document.createElement('style');
-  style.textContent = '@page { @top-left { content: "q"; } }';
-  document.head.append(style);
-  const sheet = style.sheet;
-  const rule = sheet ? [...sheet.cssRules].find((r): r is CSSPageRule => r instanceof CSSPageRule) : undefined;
-  const supported = (rule?.cssRules.length ?? 0) > 0;
-  style.remove();
-  return supported;
-}
 const $ = <T extends HTMLElement = HTMLElement>(sel: string): T => {
   const el = document.querySelector<T>(sel);
   if (!el) throw new Error(`missing element ${sel}`);
@@ -71,7 +58,6 @@ export class Editor {
   private panelOpener: HTMLElement | null = null;
   private drag: { list: string; index: number } | null = null;
   private savedRange: Range | null = null;
-  private readonly marginBoxes: boolean;
   private bubbleTimer = 0;
   private paletteItems: Command[] = [];
   private paletteIndex = 0;
@@ -82,7 +68,6 @@ export class Editor {
 
   constructor(seed: Workspace) {
     this.seed = seed;
-    this.marginBoxes = marginBoxesSupported();
     this.state = this.load() ?? { workspace: clone(seed), activeId: seed.documents[0]?.id ?? '' };
     const hashDoc = decodeURIComponent(location.hash.slice(1));
     if (hashDoc && this.state.workspace.documents.some((d) => d.id === hashDoc)) this.state.activeId = hashDoc;
@@ -694,9 +679,7 @@ export class Editor {
     const firstLab = h('label', 'check', first, ' Show on the first page too');
     firstLab.htmlFor = 'run-first';
     return [
-      this.marginBoxes
-        ? h('p', 'f-hint', 'Runs along the top and bottom of every printed page. Use {page}, {pages}, {name}, {title} and {date}.')
-        : h('p', 'f-hint warn', marginBoxWarning(false) ?? ''),
+      h('p', 'f-hint', 'Runs along the top and bottom of every printed page. Use {page}, {pages}, {name}, {title} and {date}.'),
       h('h3', 'panel-sub', 'Header'),
       h('div', 'field-row three', slot('header', 'left'), slot('header', 'centre'), slot('header', 'right')),
       h('h3', 'panel-sub', 'Footer'),
@@ -867,7 +850,7 @@ export class Editor {
       input.value = '';
     });
     $('#reset').addEventListener('click', () => { this.hideMenus(); this.reset(); });
-    $('#print').addEventListener('click', () => this.print());
+    $('#print').addEventListener('click', () => { void this.exportPdf(); });
     $('#flags').addEventListener('click', () => this.nextFlag());
     $('#help').addEventListener('click', () => { const s = $('#shortcuts'); const open = s.hidden; this.closePanels(); this.hideMenus(); s.hidden = !open; });
     $('#rail-toggle').addEventListener('click', (e) => {
@@ -1091,7 +1074,7 @@ export class Editor {
       { id: 'copy-text', label: 'Copy document as plain text', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toPlainText(this.doc), 'Plain text copied.'); } },
       { id: 'copy-md', label: 'Copy document as Markdown', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toMarkdown(this.doc), 'Markdown copied.'); } },
       { id: 'next-flag', label: 'Go to the next flag', group: 'Document', when: () => this.sheet.querySelectorAll('.flag').length > 0, run: () => this.nextFlag() },
-      { id: 'print', label: 'Export PDF', group: 'File', keys: 'Ctrl P', run: () => this.print() },
+      { id: 'print', label: 'Export PDF', group: 'File', keys: 'Ctrl P', run: () => { void this.exportPdf(); } },
       { id: 'save', label: 'Save file', group: 'File', keys: 'Ctrl S', run: () => this.saveFile() },
       { id: 'open', label: 'Open file', group: 'File', keys: 'Ctrl O', run: () => $('#open-file').click() },
       { id: 'versions', label: 'Versions', group: 'File', run: () => this.openPanel('panel-versions', $('#file')) },
@@ -1287,19 +1270,39 @@ export class Editor {
     if (e.key === 'Escape') { this.closePanels(); this.hideMenus(); this.closePalette(); $('#context').hidden = true; $('#bubble').hidden = true; return; }
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); this.togglePalette(); return; }
     if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); this.saveFile(); return; }
-    if (mod && e.key.toLowerCase() === 'p') { e.preventDefault(); this.print(); return; }
+    if (mod && e.key.toLowerCase() === 'p') { e.preventDefault(); void this.exportPdf(); return; }
     if (mod && e.key.toLowerCase() === 'o') { e.preventDefault(); $('#open-file').click(); return; }
     if (mod && e.key.toLowerCase() === 'z' && !inText) { e.preventDefault(); if (e.shiftKey) this.redo(); else this.undo(); return; }
     if (mod && e.key.toLowerCase() === 'y' && !inText) { e.preventDefault(); this.redo(); return; }
     if (e.key === '?' && !inText) { e.preventDefault(); $('#help').click(); }
   }
 
-  private print(): void {
+  /**
+   * Write the PDF here, in the page. The browser's print dialog paginates the document its own
+   * way, cannot draw a running header in Gecko, and stamps its own title and URL on every sheet.
+   */
+  private async exportPdf(): Promise<void> {
     this.closePanels();
     this.sheet.querySelectorAll('.guide').forEach((g) => g.remove());
-    const warning = marginBoxWarning(this.marginBoxes);
-    if (warning) this.notify(warning, true);
-    window.print();
+    const doc = this.doc;
+    if (!doc) { this.notify('Add a document first.', true); return; }
+    this.notify('Writing the PDF...');
+    try {
+      const bytes = await exportPdf(this.sheet, this.state.workspace.design, doc, formatDateAU(new Date()));
+      const name = (documentName(doc) || doc.title).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
+      const file = `${name || 'document'}-${doc.kind}.pdf`;
+      const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = file;
+      document.body.append(a);
+      a.click();
+      window.setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+      this.notify(`Saved ${file}.`);
+    } catch (error) {
+      this.notify(`The PDF could not be written: ${error instanceof Error ? error.message : String(error)}`, true);
+      throw error;
+    }
   }
 
   /* Test and scripting surface, exposed as window.Quire. */

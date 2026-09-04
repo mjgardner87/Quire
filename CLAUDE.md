@@ -31,6 +31,9 @@ Do not add tests for coverage.
 | Document rendering and controls | `src/render.ts` |
 | State, storage, history, panels, rail, events | `src/editor.ts` |
 | Text markers to and from DOM | `src/text.ts` |
+| PDF bytes: pages, text, rectangles, embedded fonts | `src/pdf.ts` (no DOM, unit tested) |
+| Reading the laid-out document into PDF items | `src/paint.ts` |
+| Subsetting the vendored faces and their widths | `scripts/fonts.mjs` (writes the generated `src/fonts/faces.json`) |
 | Print design | `src/styles/document.css` |
 | Chrome | `src/styles/editor.css` |
 
@@ -47,3 +50,17 @@ Do not add tests for coverage.
 - Controls never sit inside a `contenteditable` run; the model would read them back as text.
 - Storage keys include `location.pathname` so two copies of the file on one machine do not
   share a workspace.
+- Export PDF writes the file here, not through the print dialog. The dialog paginates its own
+  way, Gecko drops every `@page` margin box so a running header cannot print, and the browser
+  stamps its own title, URL and date on the sheet.
+- The export clone is typeset in the embedded faces. Text measured in one face and drawn in
+  another collides: the sheet may be set in XCharter or in whatever fallback a machine has.
+- A pseudo-element is not in the tree to be measured. The accent bar, the rule beside a heading
+  and the dash before a bullet are all `::before` or `::after`. The exporter gives each a real
+  element and switches the pseudos off first, or a heading draws its rule twice.
+- The column pitch is fractional, so a column's own left edge can measure a hair under
+  `k * pitch`. Take the page index with a pixel of tolerance, never a bare floor, and never
+  `Math.round`, which sends a right-aligned block to the next page.
+- Chromium does not break a float cleanly at a column edge: it overflows the column, and
+  `break-inside: avoid` does not stop it. The exporter lays a career entry out as a grid and
+  keeps it whole.
