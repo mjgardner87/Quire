@@ -373,6 +373,9 @@ function slotContent(template: string, doc: QDocument, ctx: { date: string }): s
   return parts.map((p) => (p === '{page}' ? 'counter(page)' : p === '{pages}' ? 'counter(pages)' : cssString(p))).join(' ');
 }
 
+/** A declared box with no text. It prints nothing and holds the edge against the browser. */
+const EMPTY_BOX = '""';
+
 const SLOT_NAMES: readonly [keyof Slots, string, string][] = [
   ['left', '@top-left', '@bottom-left'],
   ['centre', '@top-center', '@bottom-center'],
@@ -384,18 +387,22 @@ export function pageRuleCSS(design: Design, doc: QDocument | undefined, ctx: { d
     `  ${name} { content: ${content}; font-family: ${fontStack(LABEL_FONTS, design.labelFont)}; font-size: 7.6pt; color: #6a7178; letter-spacing: 0.02em; }\n`;
   let boxes = '';
   const used: string[] = [];
-  if (doc) {
-    for (const [slot, top, bottom] of SLOT_NAMES) {
-      const h = slotContent(doc.running.header[slot], doc, ctx);
-      if (h) { boxes += box(top, h); used.push(top); }
-      const f = slotContent(doc.running.footer[slot], doc, ctx);
-      if (f) { boxes += box(bottom, f); used.push(bottom); }
-    }
+  // Every box is declared, empty ones included. Chromium stamps its own date, page title, file
+  // URL and page number into any page margin edge the document leaves undeclared, so an empty
+  // box is what keeps a saved PDF clean.
+  for (const [slot, top, bottom] of SLOT_NAMES) {
+    const h = doc ? slotContent(doc.running.header[slot], doc, ctx) : '';
+    boxes += box(top, h || EMPTY_BOX);
+    if (h) used.push(top);
+    const f = doc ? slotContent(doc.running.footer[slot], doc, ctx) : '';
+    boxes += box(bottom, f || EMPTY_BOX);
+    if (f) used.push(bottom);
   }
   const m = `${design.marginTop}mm ${design.marginSide}mm ${design.marginTop}mm ${design.marginSide}mm`;
   let css = `@page {\n  size: A4;\n  margin: ${m};\n${boxes}}\n`;
   if (doc && !doc.running.firstPage && used.length) {
-    css += `@page :first {\n${used.map((u) => `  ${u} { content: none; }\n`).join('')}}\n`;
+    // Empty, never none: content: none removes the box and hands the edge back to the browser.
+    css += `@page :first {\n${used.map((u) => `  ${u} { content: ${EMPTY_BOX}; }\n`).join('')}}\n`;
   }
   return css;
 }

@@ -41,7 +41,8 @@ A quire is a gathering of sheets.
    Header and footer. Set word limits and criterion numbering under Document.
 5. Choose File, then Save file, to keep a `.quire.json` file with the application it belongs to.
    Edits also autosave in the browser.
-6. Click Print and choose Save as PDF.
+6. Click Export PDF. The browser's print dialog opens. Choose Save as PDF as the destination,
+   then Save.
 
 ### Flags
 
@@ -64,7 +65,7 @@ Ctrl+K opens a command palette with every action, every section type and a jump 
 | Alt+Up, Alt+Down | Move this bullet, paragraph or entry |
 | Alt+Shift+Up, Alt+Shift+Down | Move the whole section |
 | Ctrl+Z, Ctrl+Shift+Z | Undo, redo a structural change (outside text) |
-| Ctrl+S, Ctrl+O, Ctrl+P | Save file, open file, print |
+| Ctrl+S, Ctrl+O, Ctrl+P | Save file, open file, export PDF |
 | Esc | Close a panel |
 | ? | Show the shortcuts |
 
@@ -73,6 +74,10 @@ Ctrl+K opens a command palette with every action, every section type and a jump 
 Each document has three header slots and three footer slots. They accept `{page}`, `{pages}`,
 `{name}`, `{title}` and `{date}`. Chromium 131 and later print them through CSS page margin
 boxes. Other browsers print the page without them.
+
+The exported PDF carries nothing but your document. Quire declares all six margin boxes, empty
+ones included, so the browser never stamps its own date, page title, file URL or page number on
+the sheet. That holds whether or not "Headers and footers" is ticked in the print dialog.
 
 ## Build it
 
