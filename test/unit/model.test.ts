@@ -250,7 +250,7 @@ describe('before export', () => {
   test('a document with nothing outstanding warns about nothing', () => {
     const d = doc();
     d.blocks = [criterion('First criterion.', 'Ten words here to stay well under the limit set.')];
-    expect(checkBeforeExport(d)).toEqual({ flags: 0, overBlocks: [], overDocument: null });
+    expect(checkBeforeExport(d)).toEqual({ flags: 0, placeholders: [], overBlocks: [], overDocument: null });
     expect(exportWarning(checkBeforeExport(d))).toBeNull();
   });
 
@@ -267,6 +267,21 @@ describe('before export', () => {
     d.blocks = [criterion('Strategic planning.', 'One two three four five')];
     expect(checkBeforeExport(d).overBlocks).toEqual([{ heading: 'Strategic planning.', words: 5, limit: 3 }]);
     expect(exportWarning(checkBeforeExport(d))).toBe('Strategic planning. is 5 words against a limit of 3.');
+  });
+
+  test('a template placeholder still in the text is counted', () => {
+    const d = doc();
+    d.blocks = [{ type: 'opening', paragraphs: ['Dear [name],', 'I am applying for [role].'] }];
+    expect(checkBeforeExport(d).placeholders).toEqual(['[name]', '[role]']);
+    expect(exportWarning(checkBeforeExport(d))).toBe('2 placeholders are still in the text: [name], [role].');
+  });
+
+  test('a flag is not a placeholder and a bracketed year is neither', () => {
+    const d = doc();
+    d.blocks = [{ type: 'opening', paragraphs: ['In [2019] I led the [[CONFIRM: how many]] team.'] }];
+    const check = checkBeforeExport(d);
+    expect(check.placeholders).toEqual([]);
+    expect(check.flags).toBe(1);
   });
 
   test('the whole document over its limit is reported with both counts', () => {
