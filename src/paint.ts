@@ -208,15 +208,29 @@ export function slotText(template: string, doc: QDocument, date: string, page: n
     .replace(/\{pages\}/g, String(pages));
 }
 
+/**
+ * Draw the running header and footer.
+ *
+ * Each line is centred in its margin band, which is where the print stylesheet's `@page` margin
+ * boxes put it, so an exported sheet and a printed one read the same. Measuring the line from the
+ * content edge instead put the header 4.5pt inside the content box, on top of the first line of a
+ * full sheet, and the footer 1.4pt inside the foot of it.
+ */
 function runningItems(doc: QDocument, date: string, geo: Geometry, pages: Item[][]): void {
   const size = 7.6;
   const colour = toColour('#6a7178').rgb;
   const tracking = 0.02 * size;
+  const metrics = FACES.sans;
+  const em = metrics.ascent - metrics.descent;
+  /** The margin band, and the baseline measured down from the top of one, in points. */
+  const band = geo.marginTop * PT;
+  const baseline = (band - size * em / 1000) / 2 + size * metrics.ascent / 1000;
+  const sheet = (geo.marginTop * 2 + geo.contentH) * PT;
   pages.forEach((items, i) => {
     if (i === 0 && !doc.running.firstPage) return;
     const slots: readonly [Slots, number][] = [
-      [doc.running.header, (geo.marginTop - 6) * PT + geo.contentH * PT],
-      [doc.running.footer, (geo.marginTop - 8) * PT],
+      [doc.running.header, sheet - baseline],
+      [doc.running.footer, band - baseline],
     ];
     for (const [set, y] of slots) {
       for (const [slot, align] of [['left', 0], ['centre', 0.5], ['right', 1]] as const) {

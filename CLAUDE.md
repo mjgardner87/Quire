@@ -71,6 +71,9 @@ Do not add tests for coverage.
   one flow and cuts it in `packPages`, which is the same in every browser.
 - Marks that overlap in the flow cannot be split by a horizontal cut, so `packPages` merges them:
   a name and the contact block beside it, or the two halves of a two-column block.
+- The running header and footer sit in the margin band, and the exporter centres each line in its
+  own band. Measuring the line from the content edge instead drew the header 4.5pt inside the
+  content box, across the first line of a full sheet.
 - Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
   test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
   career entry hanging off the foot of the sheet were caught.
