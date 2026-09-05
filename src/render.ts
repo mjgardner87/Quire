@@ -29,29 +29,38 @@ export function ed(tag: keyof HTMLElementTagNameMap, cls: string | null, path: P
   return el;
 }
 
-function button(act: string, iconName: Parameters<typeof icon>[0], label: string): HTMLButtonElement {
+function button(act: string, iconName: Parameters<typeof icon>[0], label: string, disabled = false): HTMLButtonElement {
   const b = h('button', null, icon(iconName));
   b.type = 'button';
+  b.disabled = disabled;
   b.dataset.act = act;
   b.title = label;
   b.setAttribute('aria-label', label);
   return b;
 }
 
-/** Controls for a list member. Block-level controls also offer a page break. */
-export function ctl(listPath: Path, index: number, opts: { inline?: boolean; block?: boolean; pageBreak?: boolean } = {}): HTMLElement {
+/**
+ * Controls for a list member. Block-level controls also offer a page break.
+ *
+ * A control that cannot act is disabled, on the same rules the rail uses: the masthead is the
+ * first block and stays, nothing moves above it, and nothing moves past either end of its list.
+ * The model refuses those moves anyway, so a live button here was a control that did nothing.
+ */
+export function ctl(listPath: Path, index: number, opts: { inline?: boolean; block?: boolean; pageBreak?: boolean; count?: number } = {}): HTMLElement {
   const nav = h('nav', 'ctl' + (opts.inline ? ' inline' : ''));
   nav.dataset.list = pstr(listPath);
   nav.dataset.index = String(index);
   nav.setAttribute('aria-label', opts.inline ? 'Item controls' : 'Block controls');
   if (opts.inline) { nav.append(button('remove', 'x', 'Remove (move with Alt+Arrow)')); return nav; }
-  nav.append(button('up', 'arrowUp', 'Move up'), button('down', 'arrowDown', 'Move down'));
+  const last = (opts.count ?? 0) - 1;
+  const first = opts.block ? index <= 1 : index === 0;
+  nav.append(button('up', 'arrowUp', 'Move up', first), button('down', 'arrowDown', 'Move down', index === last || (opts.block && index === 0)));
   if (opts.block) {
-    const pb = button('pagebreak', 'arrowLineDown', opts.pageBreak ? 'Remove page break before this block' : 'Start this block on a new page');
+    const pb = button('pagebreak', 'arrowLineDown', opts.pageBreak ? 'Remove page break before this block' : 'Start this block on a new page', index === 0);
     if (opts.pageBreak) pb.classList.add('on');
     nav.append(pb);
   }
-  nav.append(button('remove', 'x', 'Remove'));
+  nav.append(button('remove', 'x', 'Remove', opts.block === true && index === 0));
   return nav;
 }
 
@@ -104,7 +113,7 @@ export function renderDocument(doc: QDocument): DocumentFragment {
 function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => number): HTMLElement {
   const blocks: Path = ['blocks'];
   const i = path[1] as number;
-  const blockCtl = (): HTMLElement => ctl(blocks, i, { block: true, pageBreak: b.pageBreak === true });
+  const blockCtl = (): HTMLElement => ctl(blocks, i, { block: true, pageBreak: b.pageBreak === true, count: doc.blocks.length });
 
   switch (b.type) {
     case 'masthead': {
@@ -162,7 +171,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
             en.bullets.forEach((t, j) => ul.append(bullet([...ep, 'bullets'], j, t)));
             const what = h('div', 'what', head, ul, adder([...ep, 'bullets'], 'Bullet', 'bullet'));
             const art = h('article', 'entry blk', when, what);
-            art.append(ctl([...path, 'entries'], k));
+            art.append(ctl([...path, 'entries'], k, { count: (b.entries ?? []).length }));
             body.append(art);
           });
           body.append(adder([...path, 'entries'], 'Entry', 'entry'));
@@ -181,7 +190,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
               ul.append(li);
             });
             const cdiv = h('div', 'col blk', ed('h4', null, [...cp, 'heading'], col.heading, 'single', 'Column heading'), ul, adder([...cp, 'items'], 'Item', 'colitem'));
-            cdiv.append(ctl([...path, 'columns'], k));
+            cdiv.append(ctl([...path, 'columns'], k, { count: (b.columns ?? []).length }));
             cols.append(cdiv);
           });
           body.append(cols);
@@ -231,7 +240,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
           ed('h4', null, [...rp, 'label'], r.label, 'single', 'Referee'),
           ed('strong', null, [...rp, 'name'], r.name, 'single', 'Name'),
           ed('span', 'sub', [...rp, 'sub'], r.sub, 'lines', 'Title, organisation, phone and email'));
-        div.append(ctl([...path, 'referees'], k));
+        div.append(ctl([...path, 'referees'], k, { count: b.referees.length }));
         refs.append(div);
       });
       wrap.append(adder([...path, 'paragraphs'], 'Paragraph', 'paragraph'), refs, adder([...path, 'referees'], 'Referee', 'referee'), blockCtl());

@@ -201,6 +201,81 @@ test.describe('sections', () => {
     await page.click('#redo');
     await expect(page.locator('section').nth(1)).toHaveClass(/\bpb\b/);
   });
+
+  // Switching documents used to empty the undo stack, so a tab click destroyed the whole history
+  // with no warning. History belongs to the workspace: an undo returns to the document the change
+  // was made in and reverts it there.
+  test('undo survives a switch between documents', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await hoverBlock(page, 'section >> nth=1');
+    await page.locator('section').nth(1).locator(':scope > .ctl [data-act="pagebreak"]').click();
+    await expect(page.locator('section').nth(1)).toHaveClass(/\bpb\b/);
+    await page.click('#tabs .tab[data-doc="criteria"]');
+    await expect(page.locator('#tabs .tab[aria-selected="true"]')).toHaveAttribute('data-doc', 'criteria');
+    await expect(page.locator('#undo')).toBeEnabled();
+    await page.click('#undo');
+    await expect(page.locator('#tabs .tab[aria-selected="true"]')).toHaveAttribute('data-doc', 'cv');
+    await expect(page.locator('section').nth(1)).not.toHaveClass(/\bpb\b/);
+    expect(await page.evaluate(() => location.hash)).toBe('#cv');
+  });
+});
+
+test.describe('storage', () => {
+  // Every edit lives in localStorage until the author saves a file. A private window, a full
+  // quota or a browser set to block site data all make that write throw, and the failure was
+  // swallowed: the tool looked as though it had kept the work. It now says so once, and holds
+  // the close, but only in that state.
+  test('the close is guarded only when the browser cannot store the work', async ({ page, context }) => {
+    const edit = async (p: Page): Promise<void> => {
+      await hoverBlock(p, 'section >> nth=1');
+      await p.locator('section').nth(1).locator(':scope > .ctl [data-act="pagebreak"]').click();
+    };
+    const guardsClose = (p: Page): Promise<boolean> => p.evaluate(() => {
+      const e = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(e);
+      return e.defaultPrevented;
+    });
+
+    await page.goto(url('#cv'));
+    await edit(page);
+    await page.waitForTimeout(250);
+    await expect(page.locator('#toast')).toBeHidden();
+    expect(await guardsClose(page), 'a browser that stores the work never holds the close').toBe(false);
+
+    const blocked = await context.newPage();
+    await blocked.addInitScript(() => {
+      Storage.prototype.setItem = function (): void { throw new DOMException('quota', 'QuotaExceededError'); };
+    });
+    await blocked.goto(url('#cv'));
+    await edit(blocked);
+    await expect(blocked.locator('#toast')).toBeVisible();
+    await expect(blocked.locator('#toast')).toHaveText(/will not store your work/i);
+    expect(await guardsClose(blocked), 'a browser that cannot store the work holds the close').toBe(true);
+  });
+});
+
+test.describe('controls', () => {
+  // The rail disabled the controls that cannot act; the same controls on the sheet stayed live and
+  // did nothing when clicked. A control that cannot act says so.
+  test('a control that cannot act is disabled, on the sheet as in the rail', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const acts = (sel: string): Promise<Record<string, boolean>> =>
+      page.locator(sel).evaluate((nav: HTMLElement) => Object.fromEntries(
+        [...nav.querySelectorAll('button')].map((b) => [b.dataset.act ?? '', b.disabled])));
+    const last = (await page.locator('#rail .rail-row').count()) - 1;
+    const stuck = { up: true, down: true, pagebreak: true, remove: true };
+
+    expect(await acts('#sheet .ctl[data-list="blocks"][data-index="0"]'), 'the masthead on the sheet').toEqual(stuck);
+    expect(await acts('#rail .rail-row[data-index="0"] .rail-ctl'), 'the masthead in the rail').toEqual(stuck);
+    expect(await acts('#sheet .ctl[data-list="blocks"][data-index="1"]'), 'the block under the masthead cannot move up').toEqual({ up: true, down: false, pagebreak: false, remove: false });
+    expect(await acts(`#sheet .ctl[data-list="blocks"][data-index="${last}"]`), 'the last block cannot move down').toEqual({ up: false, down: true, pagebreak: false, remove: false });
+
+    const entries = page.locator('#sheet .ctl[data-list="blocks.3.entries"]');
+    const n = await entries.count();
+    expect(n, 'the career section has several entries').toBeGreaterThan(1);
+    expect(await acts('#sheet .ctl[data-list="blocks.3.entries"][data-index="0"]'), 'the first entry cannot move up').toEqual({ up: true, down: false, remove: false });
+    expect(await acts(`#sheet .ctl[data-list="blocks.3.entries"][data-index="${n - 1}"]`), 'the last entry cannot move down').toEqual({ up: false, down: true, remove: false });
+  });
 });
 
 test.describe('criteria document', () => {
