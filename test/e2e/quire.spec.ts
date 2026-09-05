@@ -462,6 +462,7 @@ test.describe('print', () => {
     await page.check('#run-first');
     await page.keyboard.press('Escape');
     await page.evaluate(() => document.fonts.ready);
+    page.once('dialog', (d) => d.accept());
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
     const file = join(ART, 'export-running.pdf');
     await download.saveAs(file);
