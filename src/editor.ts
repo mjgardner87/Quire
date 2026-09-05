@@ -10,6 +10,7 @@ import {
   pageRuleCSS, pparse, pstr, set, toMarkdown, toPlainText, uniqueId, validateWorkspace,
   type Block, type Design, type DocKind, type Numbering, type QDocument, type Workspace,
   checkBeforeExport, exportWarning,
+  LAYOUT_CHOICES, type Layout,
 } from './model';
 import { exportPdf } from './paint';
 import { h, renderDocument } from './render';
@@ -625,6 +626,29 @@ export class Editor {
     s.addEventListener('change', () => onChange(s.value));
     return s;
   }
+  /**
+   * A segmented control: two or three mutually exclusive places, all visible, one click to change.
+   * A select would hide the alternative behind a menu, and four alignment buttons on every
+   * paragraph would be a word processor. Each choice names the outcome, never the CSS.
+   */
+  private layoutField<K extends keyof Layout>(doc: QDocument, key: K, label: string, hint = ''): HTMLElement {
+    const group = h('div', 'seg');
+    group.id = `layout-${key}`;
+    group.role = 'group';
+    group.setAttribute('aria-label', label);
+    for (const option of LAYOUT_CHOICES[key]) {
+      const on = doc.layout[key] === option.value;
+      const b = h('button', 'seg-btn' + (on ? ' on' : ''), option.label);
+      b.type = 'button';
+      b.dataset.value = option.value;
+      b.setAttribute('aria-pressed', String(on));
+      b.addEventListener('click', () => { if (!on) this.commit(() => { doc.layout[key] = option.value; }); });
+      group.append(b);
+    }
+    const field = h('div', 'field', h('p', 'f-label', label), group);
+    if (hint) field.append(h('p', 'f-hint', hint));
+    return field;
+  }
   private input(id: string, value: string, onChange: (v: string) => void, attrs: Partial<HTMLInputElement> = {}): HTMLInputElement {
     const i = h('input');
     i.id = id;
@@ -723,6 +747,7 @@ export class Editor {
         this.field('Word limit, whole document', limit('doc-word-limit', doc.wordLimit, (n) => this.commit(() => { doc.wordLimit = n; }))),
         this.field('Word limit, each criterion', limit('doc-block-limit', doc.blockWordLimit, (n) => this.commit(() => { doc.blockWordLimit = n; })))),
       this.field('Criterion numbering', this.select('doc-numbering', numbering, doc.numbering, (v) => this.commit(() => { doc.numbering = v as Numbering; }))),
+      ...this.layoutFields(doc),
       h('h3', 'panel-sub', 'Copy for a portal'),
       h('div', 'btn-row',
         btn('doc-copy-text', 'Copy as plain text', 'copy', () => this.copy(toPlainText(doc), 'Plain text copied.')),
@@ -734,6 +759,20 @@ export class Editor {
         btn('doc-duplicate', 'Duplicate', 'copy', () => { this.closePanels(); this.duplicateDocument(); }),
         btn('doc-delete', 'Delete', 'trash', () => { const p = this.openPanelId; this.deleteDocument(); if (this.doc && p) this.closePanels(); })),
     ];
+  }
+  /** Only the choices this document can act on. A CV has no letterhead date to place. */
+  private layoutFields(doc: QDocument): HTMLElement[] {
+    const rows: HTMLElement[] = [];
+    if (doc.blocks.some((b) => b.type === 'masthead' || b.type === 'docmast')) {
+      rows.push(this.layoutField(doc, 'contact', 'Contact details'));
+    }
+    if (doc.blocks.some((b) => b.type === 'letterhead')) {
+      rows.push(this.layoutField(doc, 'letterDate', 'Date'));
+    }
+    if (doc.blocks.some((b) => b.type === 'section' && b.kind === 'columns')) {
+      rows.push(this.layoutField(doc, 'columnDetail', 'Detail lines in columns'));
+    }
+    return rows.length === 0 ? [] : [h('h3', 'panel-sub', 'Layout'), ...rows];
   }
   private copy(text: string, done: string): void {
     navigator.clipboard?.writeText(text).then(() => this.notify(done), () => this.notify('The browser refused clipboard access. Save a file instead.', true));

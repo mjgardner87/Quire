@@ -334,6 +334,17 @@ Vertical rhythm on the sheet, at density 1: 3.6mm between sections, 2.2mm under 
 
 Below 760px the tiers wrap (the toolbar grows to 130px), the desk scrolls horizontally, the sheet zooms to 60%, and the margin controls and counts are hidden. Below 1100px the rail is gone.
 
+### Layout choices
+Three places where the convention genuinely differs, and no more. Each is a document setting in the Document panel, under Layout, shown only when the document holds a block it moves. Each default is what the system already did, so an older file renders unchanged.
+
+| Choice | Options | What moves |
+|---|---|---|
+| Contact details | Beside the name (default), Under the name | The masthead drops to one column and the contact lines read from the name's left edge, 2.4mm under the tagline |
+| Date | Left (default), Right | The letterhead date sets against the right margin |
+| Detail lines in columns | Under the item (default), Beside the item | A column item becomes a baseline-aligned row and its detail line ends at the column edge, as a leader column |
+
+**The Settled Alignment Rule.** The document decides alignment; the author decides these three places. There is no alignment control on a paragraph, no centred body text and no justification: neither engine hyphenates by default, so a justified measure opens rivers, and Quire cuts its own pages, which makes the last line of a column worse. Vertical alignment is not offered at all. The sheet is top-aligned throughout, because a first baseline that does not agree with the date column beside it reads as a mistake.
+
 ## Elevation & Depth
 
 Depth is nearly flat. Two shadows exist. The sheet casts a soft offset shadow onto the desk so it reads as paper lying on a surface. Panels, menus, the right-click menu, the selection toolbar, the command palette and toasts cast a lifted shadow because they float above the desk for a moment and then leave. Everything else, including the toolbar, the rail, buttons and inputs, is flat and bounded by a hairline. A hovered rail row and the margin control buttons carry a 1px hairline shadow that lifts them from the tinted rail or the white sheet by the least visible amount.
@@ -395,6 +406,9 @@ Ctrl K. A 560px white dialog centred at 96px from the top, 10px corners, 1px lin
 - **Style:** 32px tall, 9px side padding, white, 1px line-strong border, 6px corners, 13px Inter at 400. Selects are the same with a Phosphor caret inlined at 14px and a 160px minimum in the toolbar.
 - **Hover / Focus:** Border to the accent on hover; 2px accent outline offset 2px on focus. Placeholder in chrome quiet. Checkboxes take the accent through `accent-color`.
 - **Scheme swatches:** 22px circles of each scheme's accent, white 2px border, 1px line-strong ring. Hover darkens the ring to ink 2; the selected swatch takes a 2px ink ring. The custom colour input is the same circle.
+
+### Segmented control
+Two or three mutually exclusive places, all of them visible. One 32px row inside a 1px line-strong border with 6px corners, split by 1px line-strong dividers; each option is 12.5px Inter at 500 in ink 2 on white with 10px side padding. Hover takes the soft accent wash and accent text; the chosen option takes the same wash, accent text and 600. It carries `role="group"` with the field's label, and each option is a button with `aria-pressed`. Use it for a layout choice, never for a list: three options is the ceiling, and beyond that the control is a select.
 
 ### Navigation (structure rail)
 - **Style:** 284px, rail background, 1px line on its right, 12.5px Inter at 500 in ink 2, 14px top padding, 6px between groups.

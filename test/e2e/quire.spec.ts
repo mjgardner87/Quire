@@ -22,11 +22,11 @@ const pdfPages = (buffer: Buffer, name: string): number => {
 };
 const pdfPageText = (name: string, page: number): string =>
   execFileSync('pdftotext', ['-f', String(page), '-l', String(page), join(ART, name + '.pdf'), '-'], { encoding: 'utf8' });
-/** Every word on one sheet with its box, in points down from the top of the page. */
-const pdfWords = (file: string, page: number): { text: string; top: number; bottom: number }[] => {
+/** Every word on one sheet with its box, in points from the top and the left of the page. */
+const pdfWords = (file: string, page: number): { text: string; top: number; bottom: number; left: number; right: number }[] => {
   const xml = execFileSync('pdftotext', ['-bbox', '-f', String(page), '-l', String(page), file, '-'], { encoding: 'utf8' });
-  return [...xml.matchAll(/<word[^>]*yMin="([\d.]+)"[^>]*yMax="([\d.]+)"[^>]*>([^<]*)<\/word>/g)]
-    .map((m) => ({ text: m[3]!, top: Number(m[1]), bottom: Number(m[2]) }));
+  return [...xml.matchAll(/<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)"[^>]*>([^<]*)<\/word>/g)]
+    .map((m) => ({ text: m[5]!, top: Number(m[2]), bottom: Number(m[4]), left: Number(m[1]), right: Number(m[3]) }));
 };
 const printPdf = async (page: Page, name: string): Promise<number> => {
   await page.evaluate(() => document.fonts.ready);
@@ -321,6 +321,92 @@ test.describe('criteria document', () => {
     await page.keyboard.press('Escape');
     await printPdf(page, 'criteria-running-first');
     expect(pdfPageText('criteria-running-first', 1)).toMatch(/Page 1 of/);
+  });
+});
+
+test.describe('layout', () => {
+  /** The ink, not the box. A block-level run fills the measure whatever its alignment. */
+  const ink = (p: Page, sel: string): Promise<{ left: number; right: number; top: number; bottom: number }> =>
+    p.locator(sel).first().evaluate((el: HTMLElement) => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      const b = r.getBoundingClientRect();
+      return { left: b.left, right: b.right, top: b.top, bottom: b.bottom };
+    });
+  const choose = async (p: Page, field: string, value: string): Promise<void> => {
+    await p.click('#doc-menu');
+    await p.click(`#layout-${field} button[data-value="${value}"]`);
+    await p.keyboard.press('Escape');
+  };
+
+  test('each layout choice moves the text it names, and holds after a reload', async ({ page }) => {
+    await page.goto(url('#cv'));
+    const mast = await ink(page, '.mast .name');
+
+    const beside = await ink(page, '.mast .contact .contact-line');
+    expect(beside.left, 'the contact column starts right of the name').toBeGreaterThan(mast.right);
+    await choose(page, 'contact', 'under');
+    const under = await ink(page, '.mast .contact .contact-line');
+    expect(under.left, 'under the name it starts at the same left edge').toBeCloseTo(mast.left, 0);
+    expect(under.top, 'and below the name').toBeGreaterThan(beside.top);
+    await page.reload();
+    expect((await ink(page, '.mast .contact .contact-line')).left).toBeCloseTo(mast.left, 0);
+
+    const item = await ink(page, '.cols li .coltext');
+    const subUnder = await ink(page, '.cols li .sub');
+    expect(subUnder.top, 'the detail line starts below its item').toBeGreaterThanOrEqual(item.bottom - 1);
+    expect(subUnder.left, 'and at the same left edge').toBeCloseTo(item.left, 0);
+    await choose(page, 'columnDetail', 'beside');
+    const itemBeside = await ink(page, '.cols li .coltext');
+    const subBeside = await ink(page, '.cols li .sub');
+    const col = await page.locator('.cols .col').first().evaluate((el: HTMLElement) => el.getBoundingClientRect().right);
+    // The two runs are different sizes and sit on one baseline, so their tops differ by a pixel.
+    // Sharing the line is the claim: the detail line starts before the item's line ends.
+    expect(subBeside.top, 'beside the item it shares the line').toBeLessThan(itemBeside.bottom);
+    expect(subBeside.bottom, 'and does not drop below it').toBeLessThanOrEqual(itemBeside.bottom + 1);
+    expect(subBeside.right, 'and ends at the column edge').toBeCloseTo(col, 0);
+
+    await page.click('#tabs .tab[data-doc="letter"]');
+    const head = await page.locator('.letterhead').evaluate((el: HTMLElement) => el.getBoundingClientRect());
+    const left = await ink(page, '.letterhead .date');
+    expect(left.left, 'the date starts at the left margin').toBeCloseTo(head.left, 0);
+    await choose(page, 'letterDate', 'right');
+    const right = await ink(page, '.letterhead .date');
+    expect(right.right, 'moved right it ends at the right margin').toBeCloseTo(head.right, 0);
+    expect(right.left, 'and no longer starts at the left').toBeGreaterThan(head.left + 1);
+  });
+
+  // The exporter reads each line's box back from the laid-out document, so a layout choice should
+  // reach the PDF with no work in the painter. Should is not evidence: read the sheet back.
+  test('a layout choice reaches the exported PDF', async ({ page }) => {
+    await page.goto(url('#letter'));
+    await page.evaluate(() => {
+      const doc = window.Quire.state.workspace.documents.find((d) => d.id === 'letter');
+      const head = doc?.blocks.find((b) => b.type === 'letterhead');
+      if (head?.type === 'letterhead') head.date = 'DATEMARK';
+      window.Quire.render();
+    });
+    const dateAt = async (name: string): Promise<{ left: number; right: number }> => {
+      await page.evaluate(() => document.fonts.ready);
+      page.once('dialog', (d) => d.accept());
+      const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+      const file = join(ART, `${name}.pdf`);
+      await download.saveAs(file);
+      const word = pdfWords(file, 1).find((w) => w.text === 'DATEMARK');
+      expect(word, 'the date prints').toBeDefined();
+      return { left: word!.left, right: word!.right };
+    };
+
+    const left = await dateAt('export-date-left');
+    await page.click('#doc-menu');
+    await page.click('#layout-letterDate button[data-value="right"]');
+    await page.keyboard.press('Escape');
+    const right = await dateAt('export-date-right');
+
+    const contentRight = (210 - 17) / 25.4 * 72;
+    expect(left.left, 'left, it starts at the left margin').toBeCloseTo(17 / 25.4 * 72, 0);
+    expect(right.right, 'right, it ends at the right margin').toBeCloseTo(contentRight, 0);
+    expect(right.left, 'and the whole word moved right').toBeGreaterThan(left.right);
   });
 });
 

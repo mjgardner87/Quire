@@ -83,6 +83,13 @@ html { font-size: var(--base); }
   padding-top: 1.2mm;
 }
 .contact .contact-line:first-child { color: var(--ink); font-weight: 500; }
+/* Layout choice: the contact block under the name instead of beside it. One column, so the
+   contact lines fall under the tagline and read from the same left edge as the name. */
+.mast.contact-under, .doc-mast.contact-under { grid-template-columns: 1fr; }
+.mast.contact-under .contact, .doc-mast.contact-under .contact {
+  text-align: left;
+  padding-top: calc(2.4mm * var(--density));
+}
 
 /* ---------- Sections ---------- */
 
@@ -235,6 +242,20 @@ html { font-size: var(--base); }
   color: var(--muted);
   line-height: 1.4;
 }
+/* Layout choice: the detail line beside its item, ending at the column edge, which is how a
+   year or a date reads as a leader column. */
+.cols.detail-beside li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3mm;
+}
+.cols.detail-beside li .sub {
+  display: inline;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .referee { font-size: 0.86rem; line-height: 1.4; }
 .referee strong { font-family: var(--font-label); font-weight: 600; font-size: 0.86rem; }
 .referees { margin-top: 4mm; break-inside: avoid; }
@@ -355,6 +376,8 @@ html { font-size: var(--base); }
   line-height: 1.5;
 }
 .letterhead .date { font-family: var(--font-label); font-size: 0.86rem; color: var(--muted); margin-bottom: 3mm; }
+/* Layout choice: the date against the right margin, the other current convention. */
+.letterhead.date-right .date { text-align: right; }
 .letterhead .recipient p { margin: 0; }
 .letterhead .subject { margin-top: 3.5mm; font-family: var(--font-label); font-weight: 600; font-size: 0.96rem; }
 .signoff { margin-top: calc(7mm * var(--density)); font-size: 1rem; line-height: 1.5; }
