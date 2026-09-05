@@ -460,3 +460,4 @@ The CV masthead: a 16mm by 1.6pt accent bar, then the name in display, the crede
 - **Don't** use disc bullets on the sheet; a bullet is a short horizontal stroke.
 - **Don't** use Lucide or any icon set other than Phosphor, and don't ship an icon-only control without a `title` and `aria-label`.
 - **Don't** write an em dash or an exclamation mark in any string, on the sheet or in the chrome.
+- **Don't** grow the Word export into a second design. It carries the families, the relative sizes, the accent, the muted detail grey, the dash bullet and the flag amber, and nothing else: Word repaginates it, so its typesetting is Word's and only the PDF is the design.

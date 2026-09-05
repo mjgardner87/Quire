@@ -48,8 +48,9 @@ visible flags for unresolved facts, so the file is always one click from a submi
 - Australian public service and ACT Government applications ask for a CV, a response to numbered
   selection criteria (often with a word limit per criterion or a total limit), two referees, and
   sometimes a cover letter. Selection may run on the written application alone.
-- Output is a PDF per document, printed from Chromium's Save as PDF or rendered headlessly for a
-  reproducible build. Portals sometimes take the criteria response as pasted plain text.
+- Output is a PDF per document, written by Quire itself, or rendered headlessly for a reproducible
+  build. Portals sometimes take the criteria response as pasted plain text, and some will not take
+  a PDF at all, so a document also exports as a Word file.
 - The author edits on a desktop or laptop in Chromium or Chrome. Firefox is second.
 - Fonts: Inter and Source Serif 4 load from Google Fonts; XCharter is preferred for the body when
   installed locally. The print result must hold on a machine without the local font.
@@ -71,6 +72,10 @@ visible flags for unresolved facts, so the file is always one click from a submi
 - Running header and footer print through CSS page margin boxes with `{page}`, `{pages}`,
   `{name}`, `{title}` and `{date}` tokens. Chromium 131 and later support this; other browsers
   print without them.
+- A document exports as a PDF, which is how an application is sent, and as a Word file, which is
+  for a portal that refuses a PDF or a panel that wants to comment in the document. The Word file
+  carries the words, the structure, the emphasis, the flags and the running header and footer.
+  Word repaginates it, so it is not a second design and the PDF stays the finished artefact.
 - Edits autosave in the browser, scoped to the file's own location. Saved versions can be
   restored. The workspace can be saved to and opened from a JSON file, or opened from a URL
   parameter for headless rendering.
