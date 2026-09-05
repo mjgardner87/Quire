@@ -352,7 +352,9 @@
   .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .field-row.three { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .f-label { font: 500 12px/1.2 var(--ui); color: var(--c-ink-2); }
+  /* margin: 0 because a group's label is a <p>, and the chrome never resets paragraph margins.
+     Without it a segmented control sits 13px below its label instead of the field's 5px. */
+  .f-label { font: 500 12px/1.2 var(--ui); color: var(--c-ink-2); margin: 0; }
   .f-hint { margin: 0; color: var(--c-muted); font-size: 12px; }
   .f-hint.warn { color: var(--c-warn); background: var(--c-warn-bg); border-radius: 6px; padding: 7px 9px; }
   .panel input:not([type="checkbox"]):not([type="color"]), .panel select {
@@ -378,6 +380,18 @@
   .panel input[type="color"] { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
   .panel input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
   .panel input[type="color"]::-webkit-color-swatch { border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px var(--c-line-strong); }
+  /* Segmented control: every option visible, the chosen one filled. One click to change a
+     layout choice, where a select would hide the alternative behind a menu. */
+  .seg { display: flex; border: 1px solid var(--c-line-strong); border-radius: 6px; overflow: hidden; }
+  .seg-btn {
+    flex: 1; height: 32px; padding: 0 10px;
+    font: 500 12.5px/1 var(--ui); color: var(--c-ink-2);
+    background: #fff; border: 0; border-left: 1px solid var(--c-line-strong); cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .seg-btn:first-child { border-left: 0; }
+  .seg-btn:hover { color: var(--accent); background: var(--c-accent-soft); }
+  .seg-btn.on { color: var(--accent); background: var(--c-accent-soft); font-weight: 600; }
   .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .panel-btn {
     display: inline-flex; align-items: center; gap: 6px;

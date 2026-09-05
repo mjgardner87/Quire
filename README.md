@@ -38,7 +38,9 @@ A quire is a gathering of sheets.
 3. Use the structure rail on the left to reorder, remove or add sections. Drag a row, or use its
    buttons. Point at a block on the page to see the same controls in the right margin.
 4. Set the colour scheme, type and margins under Design. Set page headers and footers under
-   Header and footer. Set word limits and criterion numbering under Document.
+   Header and footer. Set word limits, criterion numbering and the layout choices under Document.
+   The layout choices place the contact block beside or under your name, the letterhead date left
+   or right, and a column's detail line under or beside its item. The design decides the rest.
 5. Choose File, then Save file, to keep a `.quire.json` file with the application it belongs to.
    Edits also autosave in the browser.
 6. Click Export PDF. Quire writes the PDF itself and your browser saves it. No print dialog, and

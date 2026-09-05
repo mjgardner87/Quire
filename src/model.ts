@@ -14,6 +14,28 @@ export type SectionKind = 'prose' | 'achievements' | 'entries' | 'columns' | 'sk
 export interface Slots { left: string; centre: string; right: string }
 export interface Running { header: Slots; footer: Slots; firstPage: boolean }
 
+export type ContactPlace = 'beside' | 'under';
+export type DatePlace = 'left' | 'right';
+export type DetailPlace = 'under' | 'beside';
+/**
+ * The layout choices a document owns. Each one is a place a convention genuinely differs, not a
+ * free alignment setting: the design system decides everything else, and every default here is
+ * what the system already does, so an older file renders exactly as it did.
+ */
+export interface Layout { contact: ContactPlace; letterDate: DatePlace; columnDetail: DetailPlace }
+
+/** The options a panel offers, in the order it offers them. The first is the default. */
+export type LayoutOptions = { readonly [K in keyof Layout]: readonly { readonly value: Layout[K]; readonly label: string }[] };
+export const LAYOUT_CHOICES: LayoutOptions = {
+  contact: [{ value: 'beside', label: 'Beside the name' }, { value: 'under', label: 'Under the name' }],
+  letterDate: [{ value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }],
+  columnDetail: [{ value: 'under', label: 'Under the item' }, { value: 'beside', label: 'Beside the item' }],
+};
+
+export function defaultLayout(): Layout {
+  return { contact: 'beside', letterDate: 'left', columnDetail: 'under' };
+}
+
 export interface Design {
   scheme: string;
   accent: string;
@@ -60,6 +82,7 @@ export interface QDocument {
   wordLimit: number | null;
   blockWordLimit: number | null;
   running: Running;
+  layout: Layout;
   blocks: Block[];
 }
 
@@ -282,7 +305,7 @@ function completeRunning(running: Running): Running {
 }
 
 export function newDocument(kind: DocKind, id?: string): QDocument {
-  const base = { id: id ?? uniqueId(kind), kind, numbering: 'number' as Numbering, wordLimit: null, blockWordLimit: null, running: defaultRunning() };
+  const base = { id: id ?? uniqueId(kind), kind, numbering: 'number' as Numbering, wordLimit: null, blockWordLimit: null, running: defaultRunning(), layout: defaultLayout() };
   switch (kind) {
     case 'cv':
       return { ...base, title: 'Curriculum vitae', blocks: [newBlock('masthead'), newSection('prose'), newSection('achievements'), newSection('entries'), newSection('columns')] };
@@ -317,6 +340,18 @@ function inferKind(doc: Raw): DocKind {
   return 'blank';
 }
 
+/** Keep a choice the file names and fall back to the settled one for anything else. */
+function completeLayout(raw: unknown): Layout {
+  const given = isObj(raw) ? raw : {};
+  const fallback = defaultLayout();
+  const pick = <K extends keyof Layout>(key: K): Layout[K] => {
+    const allowed = LAYOUT_CHOICES[key] as readonly { value: string }[];
+    const value = given[key];
+    return allowed.some((o) => o.value === value) ? (value as Layout[K]) : fallback[key];
+  };
+  return { contact: pick('contact'), letterDate: pick('letterDate'), columnDetail: pick('columnDetail') };
+}
+
 function completeDocument(raw: Raw, taken: string[]): QDocument {
   const kind = (TEMPLATE_KINDS as readonly string[]).includes(String(raw.kind)) ? (raw.kind as DocKind) : inferKind(raw);
   const id = typeof raw.id === 'string' && raw.id ? raw.id : uniqueId(kind, taken);
@@ -330,6 +365,7 @@ function completeDocument(raw: Raw, taken: string[]): QDocument {
     wordLimit: typeof raw.wordLimit === 'number' ? raw.wordLimit : null,
     blockWordLimit: typeof raw.blockWordLimit === 'number' ? raw.blockWordLimit : null,
     running: completeRunning({ header: slots(running.header), footer: slots(running.footer), firstPage: typeof running.firstPage === 'boolean' ? running.firstPage : false }),
+    layout: completeLayout(raw.layout),
     blocks: Array.isArray(raw.blocks) ? (raw.blocks as Block[]) : [],
   };
 }

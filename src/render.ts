@@ -110,6 +110,9 @@ export function renderDocument(doc: QDocument): DocumentFragment {
   return frag;
 }
 
+/** One choice, both mastheads: a document has only one of them. */
+const contactClass = (doc: QDocument): string => (doc.layout.contact === 'under' ? ' contact-under' : '');
+
 function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => number): HTMLElement {
   const blocks: Path = ['blocks'];
   const i = path[1] as number;
@@ -121,7 +124,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
         ed('h1', 'name', [...path, 'name'], b.name, 'single', 'Your name'),
         ed('p', 'creds', [...path, 'creds'], b.creds, 'single', 'Post-nominals'),
         ed('p', 'tagline', [...path, 'tagline'], b.tagline, 'lines', 'One line that says what you are and what you bring'));
-      const el = h('header', 'mast blk', left, lineList('contact', [...path, 'contact'], b.contact, 'Contact line'));
+      const el = h('header', `mast blk${contactClass(doc)}`, left, lineList('contact', [...path, 'contact'], b.contact, 'Contact line'));
       el.append(blockCtl());
       return el;
     }
@@ -130,7 +133,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
         ed('p', 'doc-kicker', [...path, 'kicker'], b.kicker, 'single', 'Document type, for example Response to selection criteria. Leave empty for none.'),
         ed('h1', 'doc-title', [...path, 'title'], b.title, 'single', 'Title'),
         ed('p', 'doc-sub', [...path, 'sub'], b.sub, 'lines', 'Position number and organisation'));
-      const el = h('header', 'doc-mast blk', left, lineList('contact', [...path, 'contact'], b.contact, 'Contact line'));
+      const el = h('header', `doc-mast blk${contactClass(doc)}`, left, lineList('contact', [...path, 'contact'], b.contact, 'Contact line'));
       el.append(blockCtl());
       return el;
     }
@@ -178,7 +181,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
           break;
         }
         case 'columns': {
-          const cols = h('div', 'cols' + ((b.columns ?? []).length === 3 ? ' three' : ''));
+          const cols = h('div', 'cols' + ((b.columns ?? []).length === 3 ? ' three' : '') + (doc.layout.columnDetail === 'beside' ? ' detail-beside' : ''));
           (b.columns ?? []).forEach((col, k) => {
             const cp: Path = [...path, 'columns', k];
             const ul = h('ul');
@@ -247,7 +250,7 @@ function renderBlock(b: Block, path: Path, doc: QDocument, nextCriterion: () => 
       return wrap;
     }
     case 'letterhead': {
-      const el = h('div', 'letterhead blk',
+      const el = h('div', `letterhead blk${doc.layout.letterDate === 'right' ? ' date-right' : ''}`,
         ed('p', 'date', [...path, 'date'], b.date, 'single', 'Date'),
         lineList('recipient', [...path, 'recipient'], b.recipient, 'Recipient line'),
         ed('p', 'subject', [...path, 'subject'], b.subject, 'single', 'Subject line'));

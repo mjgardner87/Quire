@@ -57,7 +57,11 @@ visible flags for unresolved facts, so the file is always one click from a submi
 ## Capabilities and Constraints
 
 - A workspace holds several documents; each has a kind (cv, criteria, letter, blank), a title,
-  running header and footer text, numbering style, and optional word limits.
+  running header and footer text, numbering style, optional word limits, and three layout choices.
+- The layout choices are the contact block (beside or under the name), the letterhead date (left or
+  right) and a column's detail line (under or beside its item). Each appears under Document only
+  when the document holds the block it moves, and each default is what the design already did.
+  There is no alignment control on a paragraph: no centred body text and no justification.
 - Blocks: masthead, document masthead, text section, achievements list, career entries,
   two-column list, skills list, paragraphs, criterion, closing with referees, letterhead, sign-off.
   Any block can be added, moved, removed, or made to start a new page.

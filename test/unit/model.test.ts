@@ -7,6 +7,7 @@ import {
   toPlainText, toMarkdown,
   get, set, pparse, pstr,
   checkBeforeExport, exportWarning,
+  defaultLayout,
   type QDocument, type Block,
 } from '../../src/model';
 
@@ -97,6 +98,26 @@ describe('migration', () => {
     expect(() => validateWorkspace({ format: 'quire/1', documents: [{ id: 'a', blocks: [{ type: 'nope' }] }] })).toThrow(/block type/);
     expect(() => validateWorkspace({ format: 'quire/1', documents: [{ id: 'a', blocks: [] }, { id: 'a', blocks: [] }] })).toThrow(/duplicate/);
     expect(() => migrate('text')).toThrow(/Not a Quire file/);
+  });
+});
+
+describe('layout choices', () => {
+  test('a document with no layout takes the settled one, so nothing moves on an old file', () => {
+    const ws = migrate({ format: 'quire/1', documents: [{ id: 'a', title: 'A', blocks: [] }] });
+    expect(ws.documents[0]!.layout).toEqual(defaultLayout());
+    expect(defaultLayout()).toEqual({ contact: 'beside', letterDate: 'left', columnDetail: 'under' });
+  });
+
+  test('a choice is kept, and a word that is not a choice falls back', () => {
+    const ws = migrate({
+      format: 'quire/1',
+      documents: [{ id: 'a', title: 'A', blocks: [], layout: { contact: 'under', letterDate: 'centre', columnDetail: 'beside' } }],
+    });
+    expect(ws.documents[0]!.layout).toEqual({ contact: 'under', letterDate: 'left', columnDetail: 'beside' });
+  });
+
+  test('every template starts from the settled layout', () => {
+    for (const kind of TEMPLATE_KINDS) expect(newDocument(kind).layout).toEqual(defaultLayout());
   });
 });
 
