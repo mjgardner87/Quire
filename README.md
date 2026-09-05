@@ -23,7 +23,8 @@
 ---
 
 Quire holds the three documents an application needs, lets you edit them in place in the design
-that prints, counts words against the limits a panel sets, and prints to PDF from the browser.
+that prints, counts words against the limits a panel sets, and writes the PDF itself. A portal
+that will not take a PDF gets a Word file from the same document.
 It is one HTML file. It has no server, no account and no telemetry, and your documents never
 leave your machine.
 
@@ -45,6 +46,17 @@ A quire is a gathering of sheets.
    Edits also autosave in the browser.
 6. Click Export PDF. Quire writes the PDF itself and your browser saves it. No print dialog, and
    the same file in every browser.
+7. If the portal will not take a PDF, choose File, then Export Word file.
+
+### The Word file
+
+Some portals only accept `.doc` or `.docx`, and a panel sometimes asks for a document it can
+comment in. File, then Export Word file, writes one `.docx` for the document you are on: the same
+words, the same sections in the same order, the same bold, italic and flags, the same running
+header and footer, and the design's own families, sizes and accent.
+
+Word repaginates it. That is the trade: a Word file is a document Word lays out, so the line
+breaks and the page breaks are its own. Export PDF stays the way to send an application.
 
 ### Flags
 
@@ -97,7 +109,7 @@ npm test           # typecheck, unit tests, build, drift check, browser tests
 
 Node 24 or later. The browser suite reads the printed PDF with `pdfinfo`, `pdftotext` and
 `pdftoppm`, so it needs poppler-utils (`sudo dnf install poppler-utils`, or
-`sudo apt install poppler-utils`).
+`sudo apt install poppler-utils`). It reads the exported Word file back with `unzip`.
 
 `npm run fonts` subsets the vendored faces in `src/fonts/` and writes `src/fonts/faces.json`,
 which the build inlines. `npm run build` and `npm test` run it first.
@@ -153,6 +165,7 @@ a workspace from a file beside the page.
 | `src/editor.ts` | State, storage, history, panels, structure rail, events. |
 | `src/text.ts` | Model text to editable DOM and back. Bold, italic and flags are plain markers in the model. |
 | `src/pdf.ts` | Writes the PDF: pages, text, rectangles, embedded fonts. No DOM, unit tested. |
+| `src/docx.ts` | Writes the Word file: the stored zip and the WordprocessingML in it. No DOM, unit tested. |
 | `src/paint.ts` | Reads the laid-out document and produces the items the writer draws. |
 | `scripts/fonts.mjs` | Subsets the vendored faces and records their widths for the writer. |
 | `src/styles/document.css` | The printed design. Sizes are relative to `--base`, spacing to `--density`. |

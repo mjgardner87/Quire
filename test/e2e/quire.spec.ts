@@ -593,10 +593,13 @@ test.describe('print', () => {
     expect(execFileSync('pdfinfo', [file], { encoding: 'utf8' })).toMatch(/^Pages:\s+[1-9]/m);
   });
 
-  test('the primary action names the PDF it produces', async ({ page }) => {
+  // The tooltip told the author to choose Save as PDF as the destination long after Quire stopped
+  // using the print dialog at all. A control must never describe a step the tool no longer takes.
+  test('the primary action names the PDF it produces and no print dialog', async ({ page }) => {
     await page.goto(url('#cv'));
     await expect(page.locator('#print')).toHaveText(/Export PDF/);
-    await expect(page.locator('#print')).toHaveAttribute('title', /Save as PDF/);
+    await expect(page.locator('#print')).toHaveAttribute('title', /writes the file itself/);
+    await expect(page.locator('#print')).not.toHaveAttribute('title', /destination|Save as PDF/);
   });
 
   test('the sample CV prints a running footer on every sheet but the first', async ({ page }) => {
@@ -674,6 +677,37 @@ test.describe('print', () => {
     });
     const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
     expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  });
+
+  /**
+   * The Word file, read back the way a portal reads it: unzip -t checks the archive and the CRC
+   * of every part, then a real XML parser reads word/document.xml. A string that only looks like
+   * markup is not a document, and a zip Word rejects is worth nothing to the author.
+   */
+  test('Export Word writes a document a reader can open, past the same unsettled gate', async ({ page }) => {
+    await page.goto(url('#criteria'));
+    await page.evaluate(() => document.fonts.ready);
+
+    let message = '';
+    page.once('dialog', (d) => { message = d.message(); void d.accept(); });
+    const [download] = await Promise.all([page.waitForEvent('download'), fileMenu(page, '#export-docx')]);
+    expect(message).toContain('flag');
+    expect(download.suggestedFilename()).toMatch(/\.docx$/);
+
+    const file = join(ART, 'export.docx');
+    await download.saveAs(file);
+    execFileSync('unzip', ['-t', file], { encoding: 'utf8' });
+    const xml = execFileSync('unzip', ['-p', file, 'word/document.xml'], { encoding: 'utf8' });
+
+    const text = await page.evaluate((src) => {
+      const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+      const parsed = new DOMParser().parseFromString(src, 'application/xml');
+      if (parsed.getElementsByTagName('parsererror').length > 0) return 'PARSE ERROR';
+      return [...parsed.getElementsByTagNameNS(W, 't')].map((n) => n.textContent).join('');
+    }, xml);
+    expect(text).toContain('1. High level conceptual, strategic planning and policy skills.');
+    // The flag keeps its brackets, so nothing unresolved can pass as settled prose in Word either.
+    expect(text).toContain('[[CONFIRM:');
   });
 
   // A keyboard user must never land on a control they cannot see. The reveal is a 120ms opacity

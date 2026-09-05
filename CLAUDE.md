@@ -32,6 +32,7 @@ Do not add tests for coverage.
 | State, storage, history, panels, rail, events | `src/editor.ts` |
 | Text markers to and from DOM | `src/text.ts` |
 | PDF bytes: pages, text, rectangles, embedded fonts | `src/pdf.ts` (no DOM, unit tested) |
+| Word bytes: the stored zip and the WordprocessingML in it | `src/docx.ts` (no DOM, unit tested) |
 | Reading the laid-out document into PDF items | `src/paint.ts` |
 | Subsetting the vendored faces and their widths | `scripts/fonts.mjs` (writes the generated `src/fonts/faces.json`) |
 | Print design | `src/styles/document.css` |
@@ -88,6 +89,16 @@ Do not add tests for coverage.
 - A control that cannot act is disabled. The rail did that from the start; the same controls on
   the sheet stayed live and did nothing, because the model refuses the move. Both surfaces read
   the same rules.
+- A control must never describe a step the tool no longer takes, and a test can hold the wrong
+  words in place. The Export PDF tooltip told the author to choose Save as PDF as the print
+  destination for three commits after Quire started writing the PDF itself, because a browser test
+  asserted that exact stale string.
+- The Word file is not a second design. Word repaginates it, so `src/docx.ts` carries structure,
+  words, emphasis and the design's own families, sizes and colours, and never tries to reproduce
+  the sheet. Anything that needs the typesetting is the PDF's job.
+- OOXML is order-sensitive: the children of `w:pPr`, `w:rPr` and `w:sectPr` must appear in schema
+  order or Word rejects the file where LibreOffice accepts it. `para` and `rPr` build them in that
+  order by construction; keep it that way.
 - Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
   test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
   career entry hanging off the foot of the sheet were caught.

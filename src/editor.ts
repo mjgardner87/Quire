@@ -12,10 +12,14 @@ import {
   checkBeforeExport, exportWarning,
   LAYOUT_CHOICES, type Layout,
 } from './model';
+import { docxFileName, toDocx } from './docx';
 import { exportPdf } from './paint';
 import { h, renderDocument } from './render';
 import { caretAtStart, fill, flagAtSelection, flagSelection, placeCaret, readText, unflag } from './text';
 import { applicable, matchCommands, type Command, type CommandContext } from './commands';
+
+/** What a .docx is called on the wire. Word and every portal recognise this one string. */
+const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 export interface State { workspace: Workspace; activeId: string }
 interface Version { at: string; label: string; workspace: Workspace }
@@ -496,13 +500,7 @@ export class Editor {
   private saveFile(): void {
     const stamp = new Date().toISOString().slice(0, 10);
     const name = documentName(this.doc ?? this.state.workspace.documents[0] ?? newDocument('blank')).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'workspace';
-    const blob = new Blob([this.exportJSON()], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${name}-${stamp}.quire.json`;
-    document.body.append(a);
-    a.click();
-    window.setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    this.saveBytes(this.exportJSON(), 'application/json', `${name}-${stamp}.quire.json`);
     this.notify('Saved. Keep the file with the application it belongs to.');
   }
   private async openFile(file: File): Promise<void> {
@@ -897,6 +895,7 @@ export class Editor {
     $('#versions').addEventListener('click', () => { this.hideMenus(); this.openPanel('panel-versions', $('#file')); });
     $('#open-label').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#open-file').click(); } });
     $('#save').addEventListener('click', () => { this.hideMenus(); this.saveFile(); });
+    $('#export-docx').addEventListener('click', () => { this.hideMenus(); this.exportDocx(); });
     $<HTMLInputElement>('#open-file').addEventListener('change', (e) => {
       const input = e.currentTarget as HTMLInputElement;
       const file = input.files?.[0];
@@ -1129,6 +1128,7 @@ export class Editor {
       { id: 'copy-md', label: 'Copy document as Markdown', group: 'Document', when: (c) => c.hasDocument, run: () => { if (this.doc) this.copy(toMarkdown(this.doc), 'Markdown copied.'); } },
       { id: 'next-flag', label: 'Go to the next flag', group: 'Document', when: () => this.sheet.querySelectorAll('.flag').length > 0, run: () => this.nextFlag() },
       { id: 'print', label: 'Export PDF', group: 'File', keys: 'Ctrl P', run: () => { void this.exportPdf(); } },
+      { id: 'export-docx', label: 'Export Word file', group: 'File', when: (c) => c.hasDocument, run: () => this.exportDocx() },
       { id: 'save', label: 'Save file', group: 'File', keys: 'Ctrl S', run: () => this.saveFile() },
       { id: 'open', label: 'Open file', group: 'File', keys: 'Ctrl O', run: () => $('#open-file').click() },
       { id: 'versions', label: 'Versions', group: 'File', run: () => this.openPanel('panel-versions', $('#file')) },
@@ -1340,27 +1340,56 @@ export class Editor {
     this.sheet.querySelectorAll('.guide').forEach((g) => g.remove());
     const doc = this.doc;
     if (!doc) { this.notify('Add a document first.', true); return; }
-    // The last gate before the application leaves the tool. The author still owns every word, so
-    // this reports what is unsettled and lets them go on; it never refuses.
-    const warning = exportWarning(checkBeforeExport(doc));
-    if (warning && !confirm(`${warning}\n\nExport the PDF anyway?`)) return;
+    if (!this.settled(doc, 'PDF')) return;
     this.notify('Writing the PDF...');
     try {
       const bytes = await exportPdf(this.sheet, this.state.workspace.design, doc, formatDateAU(new Date()));
       const name = (documentName(doc) || doc.title).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
       const file = `${name || 'document'}-${doc.kind}.pdf`;
-      const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = file;
-      document.body.append(a);
-      a.click();
-      window.setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+      this.saveBytes(bytes as BlobPart, 'application/pdf', file);
       this.notify(`Saved ${file}.`);
     } catch (error) {
       this.notify(`The PDF could not be written: ${error instanceof Error ? error.message : String(error)}`, true);
       throw error;
     }
+  }
+
+  /**
+   * The Word file, for a portal that will not take a PDF and for a panel that asks for a document
+   * it can comment in. Word paginates it, so it carries the structure and the words rather than
+   * the typesetting; Export PDF stays the way an application is sent.
+   */
+  private exportDocx(): void {
+    const doc = this.doc;
+    if (!doc) { this.notify('Add a document first.', true); return; }
+    if (!this.settled(doc, 'Word file')) return;
+    try {
+      const file = docxFileName(doc);
+      this.saveBytes(toDocx(doc, this.state.workspace.design, formatDateAU(new Date())) as BlobPart, DOCX_TYPE, file);
+      this.notify(`Saved ${file}. Word repaginates it, so read it before you send it.`);
+    } catch (error) {
+      this.notify(`The Word file could not be written: ${error instanceof Error ? error.message : String(error)}`, true);
+      throw error;
+    }
+  }
+
+  /**
+   * The last gate before the application leaves the tool. The author still owns every word, so
+   * this reports what is unsettled and lets them go on; it never refuses.
+   */
+  private settled(doc: QDocument, what: string): boolean {
+    const warning = exportWarning(checkBeforeExport(doc));
+    return warning === null || confirm(`${warning}\n\nExport the ${what} anyway?`);
+  }
+
+  /** Hand bytes to the browser as a download. Every file Quire writes leaves through here. */
+  private saveBytes(data: BlobPart, type: string, file: string): void {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type }));
+    a.download = file;
+    document.body.append(a);
+    a.click();
+    window.setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
   }
 
   /* Test and scripting surface, exposed as window.Quire. */

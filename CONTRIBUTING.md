@@ -15,8 +15,9 @@ Keep the shape of the product: one offline file, no server, no account, no telem
 `main` is protected. Nobody pushes to it, including the owner. Every change lands as a pull
 request, reviewed and merged by the owner with a rebase merge.
 
-Install poppler-utils first. The browser suite reads the printed PDF with `pdfinfo` and
-`pdftotext`, and skips nothing when they are absent: it fails.
+Install poppler-utils and unzip first. The suite reads the exported PDF back with `pdfinfo` and
+`pdftotext`, and the exported Word file with `unzip`. It skips nothing when they are absent: it
+fails.
 
 ```sh
 git switch -c <topic>

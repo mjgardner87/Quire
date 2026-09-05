@@ -476,7 +476,9 @@ function inline(text: string, mode: 'plain' | 'md'): string {
   }).join('');
 }
 
-function criterionLabel(n: number, numbering: Numbering, heading: string): string {
+/** How a criterion is named: the document chooses, and the plain text, Markdown and Word
+ * exports all read the same choice. */
+export function criterionLabel(n: number, numbering: Numbering, heading: string): string {
   switch (numbering) {
     case 'both': return `Criterion ${n}. ${heading}`;
     case 'number': return `${n}. ${heading}`;

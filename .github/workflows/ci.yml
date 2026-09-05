@@ -36,8 +36,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install poppler-utils, which the print tests read the PDF with
-        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends poppler-utils
+      - name: Install the readers the export tests check the PDF and the Word file with
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends poppler-utils unzip
 
       - name: Install the Chromium build Playwright pins
         run: npx playwright install --with-deps chromium
