@@ -53,6 +53,7 @@ export class Editor {
   private future: State[] = [];
   private textEditPending = false;
   private saveTimer = 0;
+  private storageIsBlocked = false;
   private statusTimer = 0;
   private flagCursor = -1;
   private openPanelId: string | null = null;
@@ -92,8 +93,17 @@ export class Editor {
       return { workspace, activeId };
     } catch { return null; }
   }
+  /** The workspace lives in localStorage until the author saves a file. A private window, a full
+   *  quota or a browser set to block site data makes this throw. Say so once, then hold the close:
+   *  a silent failure looks exactly like a saved document. */
   private save(): void {
-    try { localStorage.setItem(STORE, JSON.stringify(this.state)); } catch { /* storage unavailable: edits live for the session only */ }
+    try { localStorage.setItem(STORE, JSON.stringify(this.state)); }
+    catch { this.storageFailed(); }
+  }
+  private storageFailed(): void {
+    if (this.storageIsBlocked) return;
+    this.storageIsBlocked = true;
+    this.notify('This browser will not store your work. Save a file before you close the tab.', true);
   }
   private saveSoon(): void { clearTimeout(this.saveTimer); this.saveTimer = window.setTimeout(() => this.save(), 150); }
 
@@ -108,14 +118,14 @@ export class Editor {
     if (!prev) return;
     this.future.push(clone(this.state));
     this.state = prev;
-    this.save(); this.render();
+    this.save(); this.setHash(); this.render();
   }
   redo(): void {
     const next = this.future.pop();
     if (!next) return;
     this.past.push(clone(this.state));
     this.state = next;
-    this.save(); this.render();
+    this.save(); this.setHash(); this.render();
   }
   private updateHistoryButtons(): void {
     $<HTMLButtonElement>('#undo').disabled = this.past.length === 0;
@@ -437,10 +447,12 @@ export class Editor {
     const sig = doc.blocks.find((b) => b.type === 'signoff');
     if (sig && sig.type === 'signoff' && name) sig.name = name;
   }
+  /** History belongs to the workspace, not to one document. A tab click is a view change, so it
+   *  keeps the stack; a snapshot carries its own activeId, so an undo returns to the document the
+   *  change was made in. */
   private setActive(id: string): void {
     if (!this.state.workspace.documents.some((d) => d.id === id)) return;
     this.state.activeId = id;
-    this.past = []; this.future = [];
     this.save(); this.setHash(); this.render();
   }
   private setHash(): void { history.replaceState(null, '', `#${encodeURIComponent(this.state.activeId)}`); }
@@ -528,7 +540,7 @@ export class Editor {
   private pushVersion(label: string): void {
     const list = this.versions();
     list.unshift({ at: new Date().toISOString(), label, workspace: clone(this.state.workspace) });
-    try { localStorage.setItem(VERSIONS, JSON.stringify(list.slice(0, 15))); } catch { /* storage full or blocked */ }
+    try { localStorage.setItem(VERSIONS, JSON.stringify(list.slice(0, 15))); } catch { this.storageFailed(); }
   }
   private restoreVersion(index: number): void {
     const v = this.versions()[index];
@@ -785,6 +797,8 @@ export class Editor {
 
   private bind(): void {
     const sheet = this.sheet;
+
+    window.addEventListener('beforeunload', (e) => { if (this.storageIsBlocked) e.preventDefault(); });
 
     sheet.addEventListener('focusin', (e) => {
       const target = e.target as HTMLElement;

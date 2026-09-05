@@ -79,6 +79,15 @@ Do not add tests for coverage.
 - The running header and footer sit in the margin band, and the exporter centres each line in its
   own band. Measuring the line from the content edge instead drew the header 4.5pt inside the
   content box, across the first line of a full sheet.
+- History belongs to the workspace, not to one document. Switching documents used to clear the
+  undo and redo stacks, so a tab click destroyed the whole history with no warning. A snapshot
+  carries its own `activeId`, so an undo returns to the document the change was made in.
+- A swallowed storage write looks exactly like a saved document. `localStorage.setItem` throws in
+  a private window, on a full quota, and in a browser set to block site data. Both writes report
+  it once and the close is held while the browser stays in that state.
+- A control that cannot act is disabled. The rail did that from the start; the same controls on
+  the sheet stayed live and did nothing, because the model refuses the move. Both surfaces read
+  the same rules.
 - Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
   test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
   career entry hanging off the foot of the sheet were caught.
