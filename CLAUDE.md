@@ -103,6 +103,15 @@ Do not add tests for coverage.
   white background and painted over the words on that line. Now the label sits in the right margin
   with the word badges, and the guide line runs behind the ink at `z-index: -1` inside the sheet's
   own stacking context (`isolation: isolate`). The browser test fails when a label overlaps a run.
+- The exporter reads the sheet, so anything drawn for the screen reaches the PDF unless the clone
+  strips it. A page break was a dashed rule and a "New page" tag on paper, and the break itself was
+  never taken, because `packPages` cut only on overflow. `paginate` takes `.pb`, `.current-block`
+  and `.moved` off the clone and hands the break tops to `packPages`. The browser test reads the
+  PDF back page by page.
+- Chrome on the sheet keeps the light tokens whatever the system scheme. `:root, .sheet` declares
+  the light set and the dark block overrides `:root` only; a token read inside the sheet must come
+  from the sheet. A dark override for a selector the light block also styles goes after the light
+  block, or the light rule wins on source order.
 - Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
   test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
   career entry hanging off the foot of the sheet were caught.

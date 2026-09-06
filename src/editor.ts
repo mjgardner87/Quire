@@ -13,7 +13,7 @@ import {
   LAYOUT_CHOICES, type Layout,
 } from './model';
 import { docxFileName, toDocx } from './docx';
-import { exportPdf } from './paint';
+import { exportPdf, paginate } from './paint';
 import { h, renderDocument } from './render';
 import { caretAtStart, fill, flagAtSelection, flagSelection, placeCaret, readText, unflag } from './text';
 import { applicable, matchCommands, type Command, type CommandContext } from './commands';
@@ -63,6 +63,9 @@ export class Editor {
   private saveTimer = 0;
   private storageIsBlocked = false;
   private statusTimer = 0;
+  private measureTimer = 0;
+  /** Rises with every request for an exact count, so a stale answer is dropped. */
+  private measureTicket = 0;
   private flagCursor = -1;
   private openPanelId: string | null = null;
   private panelOpener: HTMLElement | null = null;
@@ -331,6 +334,7 @@ export class Editor {
     const contentPx = this.sheet.scrollHeight - padTop - padBottom;
     const pages = doc ? Math.max(1, contentPx / pageContent) : 0;
     $('#pages').textContent = doc ? (pages < 1.05 ? 'About 1 page' : `About ${pages.toFixed(1)} pages`) : '';
+    this.measureTicket += 1;
 
     const words = doc ? documentWords(doc) : 0;
     const wordsEl = $('#words');
@@ -345,16 +349,52 @@ export class Editor {
     flagsEl.title = flags ? 'Go to the next flag' : 'Nothing is flagged for confirmation';
 
     if (doc && !matchMedia('print').matches) {
-      for (let k = 1; k < Math.ceil(pages); k++) {
-        const label = h('span', null, h('b', null, `Page ${k + 1}`), 'about here');
-        label.title = `Page ${k + 1} starts about here. An estimate: the exported PDF is exact.`;
-        const g = h('div', 'guide', label);
-        g.style.top = `${padTop + k * pageContent}px`;
-        this.sheet.append(g);
-      }
+      this.placeGuides(Array.from({ length: Math.ceil(pages) - 1 }, (_, k) => (k + 1) * pageContent));
+      this.measurePagesSoon();
     }
   }
   private updateStatusSoon(): void { clearTimeout(this.statusTimer); this.statusTimer = window.setTimeout(() => this.updateStatus(), 200); }
+
+  /** One guide per page start after the first, at a flow offset from the top of the content. */
+  private placeGuides(starts: readonly number[]): void {
+    this.sheet.querySelectorAll('.guide').forEach((g) => g.remove());
+    const padTop = parseFloat(getComputedStyle(this.sheet).paddingTop) || 0;
+    starts.forEach((start, k) => {
+      const label = h('span', null, h('b', null, `Page ${k + 2}`), 'about here');
+      label.title = `Page ${k + 2} starts about here. The exported PDF is exact.`;
+      const g = h('div', 'guide', label);
+      g.style.top = `${padTop + start}px`;
+      this.sheet.append(g);
+    });
+  }
+
+  /**
+   * The exact count. The estimate above is the height of the sheet over the height of a page;
+   * the exporter lays the document out in the embedded faces and cuts it under the keep-together
+   * rules, which is what the PDF will have. It runs when the author pauses, and a result that
+   * arrives after a later edit is dropped. The guides move to the exporter's cuts, still marked
+   * as approximate, because the sheet on screen may be set in a different face.
+   */
+  private measurePagesSoon(): void {
+    clearTimeout(this.measureTimer);
+    this.measureTimer = window.setTimeout(() => { void this.measurePages(); }, 350);
+  }
+  private async measurePages(): Promise<void> {
+    const doc = this.doc;
+    if (!doc) return;
+    const ticket = this.measureTicket;
+    let starts: readonly number[];
+    try {
+      ({ layout: { starts } } = await paginate(this.sheet, this.state.workspace.design));
+    } catch (error) {
+      console.warn('The page count stays an estimate: the layout failed.', error);
+      return;
+    }
+    if (ticket !== this.measureTicket || this.doc !== doc) return;
+    const n = starts.length;
+    $('#pages').textContent = n === 1 ? '1 page' : `${n} pages`;
+    this.placeGuides(starts.slice(1));
+  }
 
   /* ------------------------------------------------------------------ */
   /* Structural operations                                               */
