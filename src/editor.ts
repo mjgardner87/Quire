@@ -22,6 +22,9 @@ import { applicable, matchCommands, type Command, type CommandContext } from './
 const DOCX_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 export interface State { workspace: Workspace; activeId: string }
+
+/** Smooth scrolling for the author who has not asked the operating system for less motion. */
+const scrollBehaviour = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 interface Version { at: string; label: string; workspace: Workspace }
 
 /** The scripting and test surface exposed as window.Quire. */
@@ -343,7 +346,9 @@ export class Editor {
 
     if (doc && !matchMedia('print').matches) {
       for (let k = 1; k < Math.ceil(pages); k++) {
-        const g = h('div', 'guide', h('span', null, `Page ${k + 1} starts about here`));
+        const label = h('span', null, h('b', null, `Page ${k + 1}`), 'about here');
+        label.title = `Page ${k + 1} starts about here. An estimate: the exported PDF is exact.`;
+        const g = h('div', 'guide', label);
         g.style.top = `${padTop + k * pageContent}px`;
         this.sheet.append(g);
       }
@@ -395,7 +400,7 @@ export class Editor {
     if (listPath === 'blocks' && (to === 0 || index === 0)) return;
     this.commit(() => { const [item] = list.splice(index, 1); list.splice(to, 0, item); });
     const moved = this.sheet.querySelector<HTMLElement>(`[data-list="${listPath}"][data-index="${to}"]`)?.parentElement;
-    moved?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    moved?.scrollIntoView({ block: 'nearest', behavior: scrollBehaviour() });
     moved?.classList.add('moved');
     window.setTimeout(() => moved?.classList.remove('moved'), 600);
   }
@@ -425,7 +430,7 @@ export class Editor {
     const at = closing === -1 ? doc.blocks.length : closing;
     this.commit(() => doc.blocks.splice(at, 0, block));
     const el = this.sheet.querySelector<HTMLElement>(`[data-list="blocks"][data-index="${at}"]`)?.parentElement;
-    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el?.scrollIntoView({ block: 'center', behavior: scrollBehaviour() });
     const first = el?.querySelector<HTMLElement>('[contenteditable]');
     if (first) placeCaret(first, false);
   }
@@ -825,7 +830,7 @@ export class Editor {
     const sel = getSelection();
     sel?.removeAllRanges();
     sel?.addRange(range);
-    flag.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    flag.scrollIntoView({ block: 'center', behavior: scrollBehaviour() });
   }
 
   /* ------------------------------------------------------------------ */
@@ -1140,7 +1145,7 @@ export class Editor {
   }
   private gotoBlock(index: number): void {
     const el = this.sheet.querySelector<HTMLElement>(`.ctl[data-list="blocks"][data-index="${index}"]`)?.parentElement;
-    el?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    el?.scrollIntoView({ block: 'start', behavior: scrollBehaviour() });
     el?.querySelector<HTMLElement>('[contenteditable]')?.focus({ preventScroll: true });
   }
 
@@ -1222,9 +1227,13 @@ export class Editor {
     this.paletteItems = matchCommands(applicable(this.commands(), this.context(this.savedRun())), query).slice(0, 40);
     this.paletteIndex = 0;
     if (this.paletteItems.length === 0) { list.append(h('li', 'empty', 'Nothing matches. Try a section name, a block heading or an action.')); return; }
+    /* The group is named once, on the first row of each run; a column of identical labels is noise. */
+    let lastGroup = '';
     this.paletteItems.forEach((c, i) => {
-      const li = h('li', i === 0 ? 'active' : null, h('span', 'group', c.group), h('span', 'label', c.label), c.keys ? h('kbd', null, c.keys) : null);
+      const li = h('li', i === 0 ? 'active' : null, h('span', 'group', c.group === lastGroup ? '' : c.group), h('span', 'label', c.label), c.keys ? h('kbd', null, c.keys) : null);
+      lastGroup = c.group;
       li.role = 'option'; li.dataset.index = String(i);
+      li.setAttribute('aria-label', `${c.label}, ${c.group}`);
       li.addEventListener('mouseenter', () => this.setPaletteIndex(i));
       li.addEventListener('click', () => this.runPalette(i));
       list.append(li);
@@ -1273,7 +1282,7 @@ export class Editor {
     switch (btn.dataset.act) {
       case 'goto': {
         const el = this.sheet.querySelector<HTMLElement>(`.ctl[data-list="blocks"][data-index="${index}"]`)?.parentElement;
-        el?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        el?.scrollIntoView({ block: 'start', behavior: scrollBehaviour() });
         el?.querySelector<HTMLElement>('[contenteditable]')?.focus({ preventScroll: true });
         break;
       }
@@ -1343,11 +1352,12 @@ export class Editor {
     if (!this.settled(doc, 'PDF')) return;
     this.notify('Writing the PDF...');
     try {
-      const bytes = await exportPdf(this.sheet, this.state.workspace.design, doc, formatDateAU(new Date()));
+      const { bytes, pages } = await exportPdf(this.sheet, this.state.workspace.design, doc, formatDateAU(new Date()));
       const name = (documentName(doc) || doc.title).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
       const file = `${name || 'document'}-${doc.kind}.pdf`;
       this.saveBytes(bytes as BlobPart, 'application/pdf', file);
-      this.notify(`Saved ${file}.`);
+      /* The status line estimates the count; the exporter knows it. Say the exact number here. */
+      this.notify(`Saved ${file}, ${pages === 1 ? '1 page' : `${pages} pages`}.`);
     } catch (error) {
       this.notify(`The PDF could not be written: ${error instanceof Error ? error.message : String(error)}`, true);
       throw error;

@@ -346,8 +346,8 @@ export function packPages(marks: readonly Mark[], contentH: number): Item[][] {
   return pages;
 }
 
-/** The whole document as PDF bytes, laid out exactly as the sheet on screen. */
-export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocument, date: string): Promise<Uint8Array> {
+/** The whole document as PDF bytes, laid out exactly as the sheet on screen, and its page count. */
+export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocument, date: string): Promise<{ bytes: Uint8Array; pages: number }> {
   await loadFaces();
   await document.fonts.ready;
   const geo: Geometry = {
@@ -395,7 +395,7 @@ export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocume
     }
     const pages = packPages(marks, geo.contentH);
     runningItems(doc, date, geo, pages);
-    return writePdf(pages.map((items): Page => ({ items })), A4);
+    return { bytes: writePdf(pages.map((items): Page => ({ items })), A4), pages: pages.length };
   } finally {
     holder.remove();
     suppress.remove();
