@@ -28,7 +28,7 @@
 
 @media screen {
   *, *::before, *::after { box-sizing: border-box; }
-  html { background: var(--c-desk); }
+  html { background: var(--c-desk); scrollbar-color: var(--c-line-strong) var(--c-desk); }
   body { margin: 0; color: var(--c-ink); }
   [hidden] { display: none !important; }
 
@@ -157,6 +157,7 @@
     position: sticky; top: var(--bar-h);
     width: 284px; flex: none;
     height: calc(100vh - var(--bar-h)); overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--c-line-strong) transparent;
     padding: 14px 10px 24px 10px;
     display: flex; flex-direction: column; gap: 6px;
     font: 500 12.5px/1.3 var(--ui);
@@ -233,7 +234,7 @@
 
   .desk { flex: 1 1 auto; min-width: 0; padding: 28px 24px 64px; display: flex; justify-content: center; }
   .sheet {
-    position: relative;
+    position: relative; isolation: isolate;   /* so a guide at z-index -1 stays above the paper */
     width: 210mm; min-height: 297mm; flex: none;
     padding: var(--m-top, 14mm) var(--m-side, 17mm);
     background: #fff;
@@ -323,17 +324,22 @@
     font: 500 10px/1 var(--ui); color: var(--accent); background: #fff; padding: 2px 6px 2px 0;
   }
 
-  .guide { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--c-line-strong); pointer-events: none; }
+  /* The page guide runs behind the ink and its label sits in the right margin, like the word
+     badges, so neither ever covers a word. */
+  .guide { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--c-line-strong); pointer-events: none; z-index: -1; }
   .guide span {
-    position: absolute; right: 4mm; top: -8px;
-    font: 500 10px/1 var(--ui); color: var(--c-muted); background: #fff; padding: 2px 6px;
+    position: absolute; right: 1.5mm; bottom: 3px; width: 15mm;
+    text-align: right;
+    font: 500 10px/1.3 var(--ui); color: var(--c-muted);
   }
+  .guide span b { display: block; font-weight: 600; color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
 
   /* ---------- Panels ---------- */
 
   .panel {
     position: fixed; top: calc(var(--bar-h) + 6px); left: 16px; z-index: 30;
     width: 400px; max-width: calc(100vw - 32px); max-height: calc(100vh - var(--bar-h) - 20px); overflow: auto;
+    scrollbar-width: thin; scrollbar-color: var(--c-line-strong) transparent;
     background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 10px;
     box-shadow: var(--shadow-panel);
     font: 400 13px/1.4 var(--ui); color: var(--c-ink);
@@ -461,7 +467,7 @@
     background: none; border: 0; border-bottom: 1px solid var(--c-line); border-radius: 10px 10px 0 0; outline: none;
   }
   .palette input::placeholder { color: var(--c-quiet); }
-  .palette ol { list-style: none; margin: 0; padding: 6px; max-height: 380px; overflow-y: auto; }
+  .palette ol { list-style: none; margin: 0; padding: 6px; max-height: 380px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--c-line-strong) transparent; }
   .palette li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
   .palette li .group { font: 500 10.5px/1 var(--ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-quiet); min-width: 64px; }
   .palette li .label { flex: 1; }
@@ -489,7 +495,8 @@
   @keyframes settle { from { background: var(--c-accent-soft); } to { background: transparent; } }
 
   @media (max-width: 1100px) {
-    .rail { display: none; }
+    /* The rail cannot show here, so the button that toggles it would be a control that does nothing. */
+    .rail, #rail-toggle { display: none; }
   }
   @media (max-width: 760px) {
     /* The wrapped toolbar has no fixed height, so it scrolls with the page instead of covering it. */
@@ -501,6 +508,13 @@
     .desk { padding: 12px 8px 40px; justify-content: flex-start; overflow-x: auto; }
     .sheet { zoom: 0.6; }
     .ctl, .wc { display: none; }
+  }
+  @media (max-width: 500px) {
+    /* A phone: the whole width of the sheet on the desk, with no sideways scroll. */
+    .sheet { zoom: 0.46; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 }
 

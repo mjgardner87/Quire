@@ -313,7 +313,7 @@ Sizes on the sheet are rem on a root of `--base`, default 10pt, chosen from 9, 9
 - **Running header and footer** (400, 7.6pt, tracking 0.02em, muted): Set in the label face. Print uses the `@page` margin boxes. The exporter centres each line in its own margin band, so the two media put the line in the same place.
 - **Control** (500, 13px, line-height 1): Every button, tab, select, menu item and input in the chrome. The wordmark is 600 at 15px with tracking -0.01em, in ink, with the mark 7px to its left.
 - **Rail** (500, 12.5px, line-height 1.3): Rail rows and the status line. The current document's title in the rail is 600 at 13px; its meta line is 11.5px.
-- **Badge** (600, 10.5 to 11px, tracking 0.08em, uppercase, chrome muted): Menu group headings, the rail heading, panel sub-headings. Word counts in the margin are 500 at 10.5px, tabular, in chrome quiet; page-break and guide tags are 500 at 10px.
+- **Badge** (600, 10.5 to 11px, tracking 0.08em, uppercase, chrome muted): Menu group headings, the rail heading, panel sub-headings. Word counts in the margin are 500 at 10.5px, tabular, in chrome quiet; the page-break tag is 500 at 10px. The guide label is two lines at 10px in the right margin: the page number at 600 in ink 2, then "about here" at 500 in chrome muted.
 
 ### Named Rules
 **The Base Rule.** Inside the sheet, every size is a rem of `--base` and every vertical gap is a millimetre value multiplied by `--density`. No pixel enters the sheet.
@@ -357,7 +357,7 @@ Depth is nearly flat. Two shadows exist. The sheet casts a soft offset shadow on
 ### Named Rules
 **The Two Shadows Rule.** Only the sheet and floating surfaces cast a shadow. A control is flat, and a hairline border says where it ends.
 
-**The Rise Rule.** A floating surface rises: opacity 0 to 1 and 4px upward over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`. A toast rises from below over 6px. The selection toolbar rises over 120ms, because it follows the caret and must not lag it. Hover changes fade over 120ms on the same curve. A moved block settles from the soft accent wash to transparent over 600ms. Nothing else moves.
+**The Rise Rule.** A floating surface rises: opacity 0 to 1 and 4px upward over 160ms on `cubic-bezier(0.2, 0.8, 0.2, 1)`. A toast rises from below over 6px. The selection toolbar rises over 120ms, because it follows the caret and must not lag it. Hover changes fade over 120ms on the same curve. A moved block settles from the soft accent wash to transparent over 600ms. Nothing else moves. A reader whose system asks for reduced motion gets none of it: every animation and transition in the chrome is off, and a jump to a block or a flag scrolls without easing.
 
 ## Shapes
 
@@ -365,7 +365,9 @@ Corners are small and graded by size. An editable run has a 2px corner so its ho
 
 Rules are hairlines. On paper they are 0.5pt in rule or rule strong; in the chrome they are 1px in line or line strong. The one heavier mark is the accent bar at the head of a document: 16mm wide, 1.6pt tall. Bullets are dashes, not discs: a 2.2mm by 0.6pt accent stroke before an achievement, a 1.8mm by 0.5pt rule-strong stroke before an entry bullet. Skills are separated by a middle dot in the accent.
 
-Dashed lines mean "not yet part of the page": the page-break marker, the guide lines, the add-section button in the rail, the adder under a block and the drop indicator's neighbours. Borders are 1px throughout; a `kbd` key has a 2px bottom border so it reads as a key.
+Dashed lines mean "not yet part of the page": the page-break marker, the guide lines, the add-section button in the rail, the adder under a block and the drop indicator's neighbours. The guide line runs behind the ink and its label sits in the right margin with the word badges, so neither covers a word. Borders are 1px throughout; a `kbd` key has a 2px bottom border so it reads as a key.
+
+Scrollbars belong to the palette: line strong on a transparent track, thin, in the rail, the panels and the palette list; the page's own scrollbar is line strong on the desk.
 
 ## Components
 
@@ -395,7 +397,7 @@ The same menu vocabulary, opened at the pointer. Right-click on any editable run
 A small white bar that appears 8px above a text selection or a flag on the sheet: 3px padding, 1px line border, 7px corners, panel shadow, rising over 120ms. Its buttons are 26px tall with 7px side padding, 12px Inter at 500 in ink, 5px corners, no border, with a 14px Phosphor icon; hover takes the soft accent wash and accent text. Bold and Italic are icon-only with `title` and `aria-label`; a 1px 16px-tall line separates them from Flag or Remove flag, which carry their labels. It shows only the commands that apply: Bold, Italic and the separator need a selection, Flag hides inside a flag, Remove flag shows only there. It hides while a panel is open and stays clamped 8px inside the viewport.
 
 ### Command palette
-Ctrl K. A 560px white dialog centred at 96px from the top, 10px corners, 1px line border, panel shadow, rising over 160ms. A 44px input at 14px Inter with 16px side padding, no border but a 1px line beneath, placeholder in chrome quiet. Below it a list padded 6px and capped at 380px: each row is an uppercase group label (500, 10.5px, 0.06em, chrome quiet, 64px minimum) then the command, then its shortcut as a plain `kbd`; rows have 8px by 10px padding and 6px corners. Hover and the active row take the soft accent wash; the active row and its group label turn accent. At most 40 matches show; an empty result is a single muted line. A hint line in 11.5px chrome quiet sits under a 1px top line. Arrow keys move, Enter runs, Esc closes.
+Ctrl K. A 560px white dialog centred at 96px from the top, 10px corners, 1px line border, panel shadow, rising over 160ms. A 44px input at 14px Inter with 16px side padding, no border but a 1px line beneath, placeholder in chrome quiet. Below it a list padded 6px and capped at 380px: each row holds a 64px group column, then the command, then its shortcut as a plain `kbd`; the group's uppercase label (500, 10.5px, 0.06em, chrome quiet) appears on the first row of each run and the column stays empty beneath it; rows have 8px by 10px padding and 6px corners. Hover and the active row take the soft accent wash; the active row and its group label turn accent. At most 40 matches show; an empty result is a single muted line. A hint line in 11.5px chrome quiet sits under a 1px top line. Arrow keys move, Enter runs, Esc closes.
 
 ### Panels
 - **Style:** Fixed under the toolbar, 400px wide, white, 1px line border, 10px corners, panel shadow, 13px Inter at 400. Rises over 160ms. The shortcuts panel docks right; all others dock left at 16px.

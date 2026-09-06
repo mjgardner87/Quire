@@ -53,10 +53,11 @@ verdict, DESIGN.md, and every shipping raster carrying its provenance.
     <div class="menu-anchor">
       <button id="file" class="tb-btn quiet" type="button" aria-haspopup="menu" aria-expanded="false">File</button>
       <div id="menu-file" class="menu right" role="menu" aria-label="File" hidden>
-        <button id="export-docx" type="button" role="menuitem">Export Word file</button>
         <button id="save" type="button" role="menuitem">Save file <kbd>Ctrl S</kbd></button>
         <label id="open-label" class="menu-item" for="open-file" role="menuitem" tabindex="0">Open file <kbd>Ctrl O</kbd></label>
         <input type="file" id="open-file" accept="application/json,.json" hidden>
+        <span class="menu-sep" role="separator"></span>
+        <button id="export-docx" type="button" role="menuitem">Export Word file</button>
         <button id="versions" type="button" role="menuitem" aria-haspopup="dialog">Versions</button>
         <button id="help" type="button" role="menuitem" aria-haspopup="dialog">Keyboard shortcuts <kbd>?</kbd></button>
         <span class="menu-sep" role="separator"></span>
@@ -78,7 +79,7 @@ verdict, DESIGN.md, and every shipping raster carrying its provenance.
     <button id="doc-menu" class="tb-btn" type="button" aria-haspopup="dialog" aria-expanded="false">Document</button>
     <span class="tb-spacer"></span>
     <div class="status" aria-live="polite">
-      <span id="pages" title="An estimate. The print preview is exact."></span>
+      <span id="pages" title="An estimate. The exported PDF is exact."></span>
       <span id="words"></span>
       <button id="flags" class="flags" type="button"></button>
     </div>

@@ -530,6 +530,8 @@ test.describe('print', () => {
     const file = join(ART, 'export-cv.pdf');
     await download.saveAs(file);
     expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+    // The status line estimates; the exporter knows. The toast closes the loop with the exact count.
+    await expect(page.locator('#toast')).toHaveText(/2 pages/);
 
     const info = execFileSync('pdfinfo', [file], { encoding: 'utf8' });
     expect(info).toMatch(/^Pages:\s+2/m);
@@ -732,5 +734,72 @@ test.describe('print', () => {
       if (settled) invisible.push(settled);
     }
     expect(invisible).toEqual([]);
+  });
+});
+
+test.describe('chrome', () => {
+  // The guide label used to sit inside the content box with a white background, so "Page 2
+  // starts about here" painted over the words on that line. Both the line and the label now
+  // stay clear of the text: the label lives in the right margin and the line runs behind the ink.
+  test('the page guide never covers the words', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('.guide')).toHaveCount(1);
+    const overlaps = await page.evaluate(() => {
+      const sheet = document.querySelector('#sheet')!.getBoundingClientRect();
+      const side = parseFloat(getComputedStyle(document.querySelector('#sheet')!).paddingRight);
+      const contentRight = sheet.right - side;
+      const runs = [...document.querySelectorAll<HTMLElement>('#sheet [data-path]')].map((el) => el.getBoundingClientRect());
+      const hit: string[] = [];
+      for (const label of document.querySelectorAll<HTMLElement>('.guide span')) {
+        const b = label.getBoundingClientRect();
+        if (b.left < contentRight) hit.push(`label inside the content box: ${b.left} < ${contentRight}`);
+        for (const r of runs) if (b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top) hit.push(`label over a run at ${r.top}`);
+      }
+      const line = document.querySelector<HTMLElement>('.guide')!;
+      if (Number(getComputedStyle(line).zIndex) >= 0) hit.push('the line paints over the text');
+      return hit;
+    });
+    expect(overlaps).toEqual([]);
+    await expect(page.locator('.guide span').first()).toHaveAttribute('title', /about here/);
+  });
+
+  // The tool writes the PDF itself. A tooltip that sends the author to a print preview describes
+  // a step that no longer exists.
+  test('the page estimate points at the exported PDF', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await expect(page.locator('#pages')).toHaveAttribute('title', /PDF/);
+    await expect(page.locator('#pages')).not.toHaveAttribute('title', /preview/i);
+  });
+
+  test('the chrome fits a narrow window and honours reduced motion', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    // Below 1100px the rail cannot show, so a button that toggles it is a control that does nothing.
+    await page.setViewportSize({ width: 1000, height: 800 });
+    await expect(page.locator('#rail')).toBeHidden();
+    await expect(page.locator('#rail-toggle')).toBeHidden();
+    // On a phone the sheet scales to the desk instead of overflowing it.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(300);
+    const [scroll, client] = await page.locator('.desk').evaluate((el) => [el.scrollWidth, el.clientWidth]);
+    expect(scroll).toBeLessThanOrEqual(client);
+    // A reader who asked for less motion gets none from the chrome.
+    await page.setViewportSize({ width: 1280, height: 1000 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.click('#design');
+    expect(await page.locator('#panel-design').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+  });
+
+  // Ten rows in a row that each say INSERT read as noise. The group is named once, on its first row.
+  test('the palette names each group once', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#palette')).toBeVisible();
+    const labels = await page.locator('#palette-list li .group').allTextContents();
+    const named = labels.filter((t) => t.trim());
+    expect(named.length).toBeGreaterThan(1);
+    expect(named.length).toBe(new Set(named).size);
+    expect(labels[0]).toBe(named[0]);
   });
 });

@@ -99,6 +99,10 @@ Do not add tests for coverage.
 - OOXML is order-sensitive: the children of `w:pPr`, `w:rPr` and `w:sectPr` must appear in schema
   order or Word rejects the file where LibreOffice accepts it. `para` and `rPr` build them in that
   order by construction; keep it that way.
+- Chrome on the sheet lives in the margins. The guide label used to sit inside the content box on a
+  white background and painted over the words on that line. Now the label sits in the right margin
+  with the word badges, and the guide line runs behind the ink at `z-index: -1` inside the sheet's
+  own stacking context (`isolation: isolate`). The browser test fails when a label overlaps a run.
 - Verify an export by reading the PDF back, never by trusting the code that wrote it. The browser
   test renders every sheet and fails on any ink in the outer 4mm, which is how three lines of a
   career entry hanging off the foot of the sheet were caught.
