@@ -67,7 +67,10 @@ export function toColour(css: string): { rgb: Colour; alpha: number } {
   return { rgb: [(parts[0] ?? 0) / 255, (parts[1] ?? 0) / 255, (parts[2] ?? 0) / 255], alpha: parts[3] ?? 1 };
 }
 
-interface Geometry { readonly contentW: number; readonly contentH: number; readonly marginTop: number; readonly marginSide: number }
+export interface Geometry { readonly contentW: number; readonly contentH: number; readonly marginTop: number; readonly marginSide: number }
+
+/** The document cut into pages: the items on each, and the flow offset each page starts at. */
+export interface Pagination { readonly pages: Item[][]; readonly starts: readonly number[] }
 
 /** One line of text as the browser laid it out: its box, its string and the style that drew it. */
 interface Line { readonly rect: DOMRect; readonly text: string; readonly style: CSSStyleDeclaration }
@@ -307,8 +310,8 @@ function squareEntries(root: HTMLElement): void {
  * an overflowing line is not moved to the next page, it is drawn off the foot of this one and
  * lost. Laying the document out in one flow and cutting it here is the same in every browser.
  */
-export function packPages(marks: readonly Mark[], contentH: number): Item[][] {
-  if (!marks.length) return [[]];
+export function packPages(marks: readonly Mark[], contentH: number, breaks: readonly number[] = []): Pagination {
+  if (!marks.length) return { pages: [[]], starts: [0] };
   // Marks that overlap in the flow belong together: a name and the contact block beside it, or
   // the two halves of a two-column block, cannot be split by a horizontal cut.
   const order = [...marks].sort((a, b) => a.top - b.top || a.bottom - b.bottom);
@@ -330,11 +333,22 @@ export function packPages(marks: readonly Mark[], contentH: number): Item[][] {
   const pageOf = new Map<number, number>();
   let page = 0;
   let offset = 0;
+  const starts: number[] = [0];
+  let nextBreak = 0;
   for (const unit of units) {
-    // A unit taller than the sheet has to run on; anything else that will not fit starts a page.
-    if (unit.bottom - offset > contentH && unit.top - offset > 0.5 && unit.bottom - unit.top <= contentH) {
+    // The first unit at or below a break the author set starts a page, unless it is already first.
+    let forced = false;
+    while (nextBreak < breaks.length && breaks[nextBreak]! <= unit.top + 0.5) { forced = true; nextBreak += 1; }
+    if (forced && unit.top - offset > 0.5) {
       page += 1;
       offset = unit.top;
+      starts.push(offset);
+    }
+    // A unit taller than the sheet has to run on; anything else that will not fit starts a page.
+    else if (unit.bottom - offset > contentH && unit.top - offset > 0.5 && unit.bottom - unit.top <= contentH) {
+      page += 1;
+      offset = unit.top;
+      starts.push(offset);
     }
     for (const group of unit.groups) { offsetOf.set(group, offset); pageOf.set(group, page); }
   }
@@ -343,11 +357,15 @@ export function packPages(marks: readonly Mark[], contentH: number): Item[][] {
     const at = pageOf.get(mark.group) ?? 0;
     pages[at]?.push(mark.draw(offsetOf.get(mark.group) ?? 0));
   }
-  return pages;
+  return { pages, starts };
 }
 
-/** The whole document as PDF bytes, laid out exactly as the sheet on screen, and its page count. */
-export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocument, date: string): Promise<{ bytes: Uint8Array; pages: number }> {
+/**
+ * Lay the sheet out in the embedded faces and cut it into pages. This is the layout the PDF is
+ * drawn from, so the editor asks it for the page count too: the status line then says what the
+ * exported file will have, rather than an estimate from the height of the sheet on screen.
+ */
+export async function paginate(sheet: HTMLElement, design: Design): Promise<{ geo: Geometry; layout: Pagination }> {
   await loadFaces();
   await document.fonts.ready;
   const geo: Geometry = {
@@ -372,9 +390,17 @@ export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocume
   document.head.append(suppress);
   try {
     holder.querySelectorAll(CHROME).forEach((el) => el.remove());
+    // Editing state is not part of the document: the bar beside the current block and the wash on
+    // a block that was just moved are both drawn from a class the clone carries over.
+    holder.querySelectorAll('.current-block, .moved').forEach((el) => el.classList.remove('current-block', 'moved'));
+    // A page break the author set. On screen it is a dashed rule and a "New page" tag; on paper it
+    // is a cut, so the class comes off before anything is measured and the block's top is kept.
+    const broken = [...holder.querySelectorAll<HTMLElement>('.pb')];
+    broken.forEach((el) => el.classList.remove('pb'));
     materialisePseudos(holder, suppress);
     squareEntries(holder);
     const origin = holder.getBoundingClientRect();
+    const breaks = broken.map((el) => el.getBoundingClientRect().top - origin.top).sort((a, b) => a - b);
     const marks: Mark[] = [];
     const ids = new Map<Element, number>();
     let counter = 0;
@@ -393,11 +419,16 @@ export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocume
       const group = atomicGroup(text.parentElement, holder, ids, next);
       for (const line of linesOf(text, style)) textMark(line, origin, geo, group, marks);
     }
-    const pages = packPages(marks, geo.contentH);
-    runningItems(doc, date, geo, pages);
-    return { bytes: writePdf(pages.map((items): Page => ({ items })), A4), pages: pages.length };
+    return { geo, layout: packPages(marks, geo.contentH, breaks) };
   } finally {
     holder.remove();
     suppress.remove();
   }
+}
+
+/** The whole document as PDF bytes, laid out exactly as the sheet on screen, and its page count. */
+export async function exportPdf(sheet: HTMLElement, design: Design, doc: QDocument, date: string): Promise<{ bytes: Uint8Array; pages: number }> {
+  const { geo, layout } = await paginate(sheet, design);
+  runningItems(doc, date, geo, layout.pages);
+  return { bytes: writePdf(layout.pages.map((items): Page => ({ items })), A4), pages: layout.pages.length };
 }

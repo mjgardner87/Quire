@@ -548,6 +548,28 @@ test.describe('print', () => {
     expect(page2).toContain('Jordan Example');
   });
 
+  // A page break is a cut on paper. The exporter used to ignore it, and drew the on-screen
+  // dashed rule and its "New page" tag into the file instead.
+  test('a page break the author sets reaches the exported PDF, without its on-screen tag', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => {
+      const ws = JSON.parse(window.Quire.exportJSON().replace(/\[\[[\s\S]*?\]\]/g, 'confirmed')) as { documents: { blocks: { pageBreak?: boolean }[] }[] };
+      ws.documents[0]!.blocks[2]!.pageBreak = true;
+      window.Quire.importJSON(JSON.stringify(ws));
+    });
+    await expect(page.locator('#pages')).toHaveText('3 pages');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-page-break.pdf');
+    await download.saveAs(file);
+    expect(execFileSync('pdfinfo', [file], { encoding: 'utf8' })).toMatch(/^Pages:\s+3/m);
+    const page1 = execFileSync('pdftotext', ['-f', '1', '-l', '1', file, '-'], { encoding: 'utf8' });
+    expect(page1).toContain('PROFILE');
+    expect(page1).not.toContain('SELECTED ACHIEVEMENTS');
+    expect(execFileSync('pdftotext', ['-f', '2', '-l', '2', file, '-'], { encoding: 'utf8' })).toContain('SELECTED ACHIEVEMENTS');
+    expect(execFileSync('pdftotext', [file, '-'], { encoding: 'utf8' })).not.toContain('New page');
+  });
+
   // Nothing belongs outside the page box but the running header and footer, and those sit well
   // inside it. Ink in the last 4mm means a fragment overflowed its column, which is how a float
   // used to leave three lines of an entry hanging off the foot of the sheet.
@@ -740,20 +762,20 @@ test.describe('print', () => {
 test.describe('chrome', () => {
   // The guide label used to sit inside the content box with a white background, so "Page 2
   // starts about here" painted over the words on that line. Both the line and the label now
-  // stay clear of the text: the label lives in the right margin and the line runs behind the ink.
+  // stay clear of the text: the label lives in the left margin and the line runs behind the ink.
   test('the page guide never covers the words', async ({ page }) => {
     await page.goto(url('#cv'));
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator('.guide')).toHaveCount(1);
     const overlaps = await page.evaluate(() => {
       const sheet = document.querySelector('#sheet')!.getBoundingClientRect();
-      const side = parseFloat(getComputedStyle(document.querySelector('#sheet')!).paddingRight);
-      const contentRight = sheet.right - side;
+      const side = parseFloat(getComputedStyle(document.querySelector('#sheet')!).paddingLeft);
+      const contentLeft = sheet.left + side;
       const runs = [...document.querySelectorAll<HTMLElement>('#sheet [data-path]')].map((el) => el.getBoundingClientRect());
       const hit: string[] = [];
       for (const label of document.querySelectorAll<HTMLElement>('.guide span')) {
         const b = label.getBoundingClientRect();
-        if (b.left < contentRight) hit.push(`label inside the content box: ${b.left} < ${contentRight}`);
+        if (b.right > contentLeft) hit.push(`label inside the content box: ${b.right} > ${contentLeft}`);
         for (const r of runs) if (b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top) hit.push(`label over a run at ${r.top}`);
       }
       const line = document.querySelector<HTMLElement>('.guide')!;
@@ -789,6 +811,93 @@ test.describe('chrome', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.click('#design');
     expect(await page.locator('#panel-design').evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+  });
+
+  // "About 1.8 pages" was a division of the sheet's height by a page's. The exporter lays the
+  // document out in the embedded faces and cuts it under the keep-together rules, so it knows the
+  // count the PDF will have. The status line now says that count, and the guides sit where the
+  // exporter cuts, still marked as approximate because the screen may be set in a different face.
+  test('the status counts pages the way the exporter does', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator('#pages')).toHaveText('2 pages');
+    await expect(page.locator('.guide')).toHaveCount(1);
+    await page.evaluate(() => {
+      const ws = JSON.parse(window.Quire.exportJSON()) as { documents: { blocks: unknown[] }[] };
+      ws.documents[0]!.blocks = ws.documents[0]!.blocks.slice(0, 3);
+      window.Quire.importJSON(JSON.stringify(ws));
+    });
+    await expect(page.locator('#pages')).toHaveText('1 page');
+    await expect(page.locator('.guide')).toHaveCount(0);
+  });
+
+  // The author writes in the evening. When the system asks for a dark scheme the desk, the bars
+  // and the panels go dark and the sheet stays paper. Every chrome text keeps AA on its own
+  // surface in both schemes and for every accent, including the accent-tinted current row and
+  // the chrome that sits on the white sheet.
+  test('the chrome follows a dark system setting and holds AA in both', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    const accents = ['#1f5c4d', '#2b4c7e', '#7a2e2e', '#333a40', '#8a5a12', '#5b3a6e'];
+    for (const scheme of ['light', 'dark'] as const) {
+      await page.emulateMedia({ colorScheme: scheme });
+      for (const accent of accents) {
+        await page.evaluate((a) => {
+          const ws = JSON.parse(window.Quire.exportJSON()) as { design: { accent: string; scheme: string } };
+          ws.design.accent = a; ws.design.scheme = 'custom';
+          window.Quire.importJSON(JSON.stringify(ws));
+        }, accent);
+        await page.click('.prose p >> nth=0');
+        await page.click('#design');
+        await expect(page.locator('.rail-row.current')).toHaveCount(1);
+        await page.waitForTimeout(200);   /* the row's wash fades in over 120ms; read it settled */
+        const report = await page.evaluate((mode) => {
+          const ctx = document.createElement('canvas').getContext('2d')!;
+          const rgb = (css: string): [number, number, number] => {
+            ctx.fillStyle = '#000'; ctx.fillStyle = css; ctx.clearRect(0, 0, 1, 1);
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 1, 1); ctx.fillStyle = css; ctx.fillRect(0, 0, 1, 1);
+            const d = ctx.getImageData(0, 0, 1, 1).data;
+            return [d[0]! / 255, d[1]! / 255, d[2]! / 255];
+          };
+          const lum = ([r, g, b]: [number, number, number]): number => {
+            const f = (c: number): number => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+          };
+          const contrast = (a: string, b: string): number => {
+            const [x, y] = [lum(rgb(a)), lum(rgb(b))];
+            return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+          };
+          const $ = (sel: string): HTMLElement => document.querySelector<HTMLElement>(sel)!;
+          const cs = (sel: string): CSSStyleDeclaration => getComputedStyle($(sel));
+          const failures: string[] = [];
+          const desk = lum(rgb(getComputedStyle(document.documentElement).backgroundColor));
+          if (mode === 'dark' ? desk > 0.1 : desk < 0.7) failures.push(`desk luminance ${desk.toFixed(2)} in ${mode}`);
+          if (lum(rgb(cs('#sheet').backgroundColor)) < 0.95) failures.push('the sheet is not paper');
+          const pairs: [string, string, string][] = [
+            ['active tab', cs('.tab[aria-selected="true"]').color, cs('.toolbar').backgroundColor],
+            ['other tab', cs('.tab:not([aria-selected="true"])').color, cs('.toolbar').backgroundColor],
+            ['status', cs('#pages').color, cs('.toolbar').backgroundColor],
+            ['flag pill', cs('#flags').color, cs('#flags').backgroundColor],
+            ['primary button', cs('#print').color, cs('#print').backgroundColor],
+            ['rail title', cs('.rail-title .t').color, cs('.rail').backgroundColor],
+            ['rail meta', cs('.rail-doc-meta').color, cs('.rail').backgroundColor],
+            ['current rail row', cs('.rail-row.current .rail-title').color, cs('.rail-row.current').backgroundColor],
+            ['panel label', cs('#panel-design .f-label').color, cs('#panel-design').backgroundColor],
+            ['panel hint', cs('#panel-design .f-hint').color, cs('#panel-design').backgroundColor],
+            ['panel link', cs('#panel-design .link').color, cs('#panel-design').backgroundColor],
+            ['word badge on the sheet', cs('.wc').color, cs('#sheet').backgroundColor],
+            ['guide label on the sheet', cs('.guide span').color, cs('#sheet').backgroundColor],
+          ];
+          for (const [name, fg, bg] of pairs) {
+            const c = contrast(fg, bg);
+            if (c < 4.5) failures.push(`${name}: ${c.toFixed(2)}:1 (${fg} on ${bg})`);
+          }
+          return failures;
+        }, scheme);
+        expect(report, `${scheme} with ${accent}`).toEqual([]);
+        await page.keyboard.press('Escape');
+      }
+    }
   });
 
   // Ten rows in a row that each say INSERT read as noise. The group is named once, on its first row.

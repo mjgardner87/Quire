@@ -38,7 +38,7 @@ The design is fixed and good; the content is free. Word processors give the auth
 and therefore every way to make a document look assembled. Quire gives the author the text, the
 structure (which sections, in what order, on which page) and a small set of design choices that
 cannot produce an ugly result. What a neighbouring tool cannot truthfully copy: the documents are
-edited inside the exact print layout, with live page estimates, word counts per criterion, and
+edited inside the exact print layout, with a live page count from the layout that writes the PDF, word counts per criterion, and
 visible flags for unresolved facts, so the file is always one click from a submission-ready PDF.
 
 ## Operating Context
@@ -79,6 +79,7 @@ visible flags for unresolved facts, so the file is always one click from a submi
 - Edits autosave in the browser, scoped to the file's own location. Saved versions can be
   restored. The workspace can be saved to and opened from a JSON file, or opened from a URL
   parameter for headless rendering.
+- The editor chrome follows the system colour scheme; the sheet is paper in both.
 - No server, no account, no telemetry. No personal data in the repository: the seed is fictional.
 - Terminology: workspace, document, block, section, entry, bullet, criterion, flag, version,
   running header, running footer. "Section" is the user-facing word for a block with a heading.

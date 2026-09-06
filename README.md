@@ -45,7 +45,9 @@ A quire is a gathering of sheets.
 5. Choose File, then Save file, to keep a `.quire.json` file with the application it belongs to.
    Edits also autosave in the browser.
 6. Click Export PDF. Quire writes the PDF itself and your browser saves it. No print dialog, and
-   the same file in every browser.
+   the same file in every browser. The page count in the toolbar comes from the same layout, so
+   it is the count the file will have; the dashed guides on the sheet show about where each page
+   starts. A page break you set is a cut in the PDF and in the Word file.
 7. If the portal will not take a PDF, choose File, then Export Word file.
 
 ### The Word file
@@ -65,6 +67,10 @@ still have to confirm cannot slip into a submission. To flag words: select them 
 toolbar that appears, right-click them, or press Ctrl+Shift+F.
 
 Ctrl+K opens a command palette with every action, every section type and a jump to any block.
+
+The editor follows your system's colour scheme. In dark mode the desk, the bars and the panels go
+dark and the sheet stays white, so an evening at the desk is easier on the eyes and the page still
+reads as paper.
 
 ### Keyboard
 
