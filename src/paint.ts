@@ -258,7 +258,10 @@ function runningItems(doc: QDocument, date: string, geo: Geometry, pages: Item[]
 function materialisePseudos(root: HTMLElement, suppress: HTMLStyleElement): void {
   const planned: { el: Element; which: '::before' | '::after'; span: HTMLSpanElement }[] = [];
   for (const el of [...root.querySelectorAll('*')]) {
+    // An empty field shows its hint through a ::before. The hint is chrome, not ink.
+    const hint = el instanceof HTMLElement && el.dataset.placeholder !== undefined && el.textContent === '';
     for (const which of ['::before', '::after'] as const) {
+      if (hint && which === '::before') continue;
       const pseudo = getComputedStyle(el, which);
       const content = pseudo.content;
       if (!content || content === 'none' || content === 'normal') continue;
