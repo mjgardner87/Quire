@@ -548,6 +548,29 @@ test.describe('print', () => {
     expect(page2).toContain('Jordan Example');
   });
 
+  // An empty field shows its hint on screen through a ::before. The exporter turns pseudos into
+  // real text, and a submitted CV once carried "One line of context, if it helps" five times.
+  test('an empty field exports as nothing, not as its on-screen hint', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => {
+      const ws = JSON.parse(window.Quire.exportJSON()) as { documents: { blocks: { paragraphs?: string[] }[] }[] };
+      ws.documents[0]!.blocks[1]!.paragraphs!.push('');
+      window.Quire.importJSON(JSON.stringify(ws));
+    });
+    await expect(page.locator('[data-placeholder="One line of context, if it helps"]:empty')).not.toHaveCount(0);
+    await expect(page.locator('[data-placeholder="Paragraph"]:empty')).not.toHaveCount(0);
+    page.once('dialog', (d) => d.accept());
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-empty-fields.pdf');
+    await download.saveAs(file);
+    const all = execFileSync('pdftotext', [file, '-'], { encoding: 'utf8' });
+    expect(all).toContain('Jordan Example');
+    expect(all).not.toContain('One line of context');
+    expect(all).not.toContain('Detail line, if any');
+    expect(all).not.toMatch(/^\s*Paragraph\s*$/m);
+  });
+
   // A page break is a cut on paper. The exporter used to ignore it, and drew the on-screen
   // dashed rule and its "New page" tag into the file instead.
   test('a page break the author sets reaches the exported PDF, without its on-screen tag', async ({ page }) => {
