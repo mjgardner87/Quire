@@ -38,6 +38,11 @@ export interface PageSize { readonly w: number; readonly h: number }
 export const A4: PageSize = { w: 595.276, h: 841.89 };
 
 interface Face {
+  /** Where the outlines live: `glyf` for Inter, the `CFF ` table for XCharter. */
+  readonly format: 'cff' | 'truetype';
+  /** For a CFF face, the `CFF ` table's place in `data`. */
+  readonly cffStart?: number;
+  readonly cffLength?: number;
   readonly data: string;
   readonly widths: readonly number[];
   readonly ascent: number;
@@ -49,7 +54,7 @@ interface Face {
 }
 const FACES = facesJSON as unknown as Record<FaceId, Face>;
 const BASE_NAME: Record<FaceId, string> = {
-  'serif': 'SourceSerif4', 'serif-bold': 'SourceSerif4-SemiBold', 'serif-italic': 'SourceSerif4-Italic',
+  'serif': 'XCharter-Roman', 'serif-bold': 'XCharter-Bold', 'serif-italic': 'XCharter-Italic',
   'sans': 'Inter', 'sans-medium': 'Inter-Medium', 'sans-bold': 'Inter-SemiBold', 'sans-italic': 'Inter-Italic',
 };
 
@@ -147,15 +152,24 @@ export function writePdf(pages: readonly Page[], size: PageSize): Uint8Array {
   for (const id of faces) {
     const face = FACES[id];
     const data = base64ToBytes(face.data);
+    // A TrueType face embeds whole through /FontFile2. A CFF face embeds its `CFF ` table alone
+    // through /FontFile3 /Subtype /Type1C, and its font dictionary is a /Type1, not a /TrueType.
+    const cff = face.format === 'cff';
+    const outlines = cff ? data.subarray(face.cffStart, face.cffStart! + face.cffLength!) : data;
     const file = add(concat([
-      bytes(`<< /Length ${data.length} /Length1 ${data.length} >>\nstream\n`), data, bytes('\nendstream'),
+      bytes(cff
+        ? `<< /Subtype /Type1C /Length ${outlines.length} >>\nstream\n`
+        : `<< /Length ${outlines.length} /Length1 ${outlines.length} >>\nstream\n`),
+      outlines, bytes('\nendstream'),
     ]));
     const descriptor = add(bytes(
       `<< /Type /FontDescriptor /FontName /${BASE_NAME[id]} /Flags ${face.flags}`
       + ` /FontBBox [${face.bbox.join(' ')}] /ItalicAngle ${face.italicAngle} /Ascent ${face.ascent}`
-      + ` /Descent ${face.descent} /CapHeight ${face.capHeight} /StemV 80 /FontFile2 ${file} 0 R >>`));
+      + ` /Descent ${face.descent} /CapHeight ${face.capHeight} /StemV 80`
+      + ` /FontFile${cff ? 3 : 2} ${file} 0 R >>`));
     fontRefs.set(id, add(bytes(
-      `<< /Type /Font /Subtype /TrueType /BaseFont /${BASE_NAME[id]} /FirstChar 0 /LastChar 255`
+      `<< /Type /Font /Subtype /${cff ? 'Type1' : 'TrueType'} /BaseFont /${BASE_NAME[id]}`
+      + ` /FirstChar 0 /LastChar 255`
       + ` /Widths [${face.widths.join(' ')}] /Encoding /WinAnsiEncoding /FontDescriptor ${descriptor} 0 R >>`)));
   }
   const resources = `<< /Font << ${faces.map((f) => `/${f} ${fontRefs.get(f)} 0 R`).join(' ')} >> >>`;

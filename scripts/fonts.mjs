@@ -26,14 +26,31 @@ export const WIN_ANSI = (() => {
 })();
 
 const FACES = {
-  'serif': 'SourceSerif4-Regular.ttf',
-  'serif-bold': 'SourceSerif4-SemiBold.ttf',
-  'serif-italic': 'SourceSerif4-Italic.ttf',
+  'serif': 'XCharter-Roman.otf',
+  'serif-bold': 'XCharter-Bold.otf',
+  'serif-italic': 'XCharter-Italic.otf',
   'sans': 'Inter-Regular.ttf',
   'sans-medium': 'Inter-Medium.ttf',
   'sans-bold': 'Inter-SemiBold.ttf',
   'sans-italic': 'Inter-Italic.ttf',
 };
+
+/**
+ * Where the outlines live in a subset sfnt. A TrueType face carries them in `glyf` and a PDF
+ * embeds the whole file through /FontFile2. XCharter carries them in `CFF `, and a PDF embeds
+ * that one table through /FontFile3 /Subtype /Type1C. The browser needs the whole sfnt either
+ * way to make a FontFace, so record where the table sits rather than storing its bytes twice.
+ */
+function outlines(sfnt) {
+  const count = sfnt.readUInt16BE(4);
+  for (let i = 0; i < count; i++) {
+    const entry = 12 + i * 16;
+    if (sfnt.toString('ascii', entry, entry + 4) === 'CFF ') {
+      return { format: 'cff', cffStart: sfnt.readUInt32BE(entry + 8), cffLength: sfnt.readUInt32BE(entry + 12) };
+    }
+  }
+  return { format: 'truetype' };
+}
 
 const text = WIN_ANSI.filter((cp) => cp !== null).map((cp) => String.fromCodePoint(cp)).join('');
 const out = {};
@@ -48,6 +65,7 @@ for (const [id, file] of Object.entries(FACES)) {
     return glyph ? Math.round(glyph.advanceWidth * scale) : 0;
   });
   out[id] = {
+    ...outlines(subset),
     data: subset.toString('base64'),
     widths,
     ascent: Math.round(font.ascent * scale),
@@ -57,7 +75,7 @@ for (const [id, file] of Object.entries(FACES)) {
     bbox: [font.bbox.minX, font.bbox.minY, font.bbox.maxX, font.bbox.maxY].map((v) => Math.round(v * scale)),
     flags: id.includes('serif') ? 34 : 32,
   };
-  console.log(`  ${id.padEnd(13)} ${String(source.length).padStart(7)} -> ${String(subset.length).padStart(6)} bytes`);
+  console.log(`  ${id.padEnd(13)} ${String(source.length).padStart(7)} -> ${String(subset.length).padStart(6)} bytes  ${out[id].format}`);
 }
 writeFileSync(join(dir, 'faces.json'), JSON.stringify(out));
 const total = Object.values(out).reduce((n, f) => n + f.data.length, 0);

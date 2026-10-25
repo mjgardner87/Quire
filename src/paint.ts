@@ -393,6 +393,10 @@ export async function paginate(sheet: HTMLElement, design: Design): Promise<{ ge
     // Editing state is not part of the document: the bar beside the current block and the wash on
     // a block that was just moved are both drawn from a class the clone carries over.
     holder.querySelectorAll('.current-block, .moved').forEach((el) => el.classList.remove('current-block', 'moved'));
+    // The grey hint on an empty field is editing state as well. It is a ::before carrying
+    // content: attr(data-placeholder), and materialisePseudos turns every pseudo into a real
+    // element, so "One line of context, if it helps" printed into the file once per empty field.
+    holder.querySelectorAll('[data-placeholder]').forEach((el) => el.removeAttribute('data-placeholder'));
     // A page break the author set. On screen it is a dashed rule and a "New page" tag; on paper it
     // is a cut, so the class comes off before anything is measured and the block's top is kept.
     const broken = [...holder.querySelectorAll<HTMLElement>('.pb')];

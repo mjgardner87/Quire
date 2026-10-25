@@ -31,6 +31,33 @@ describe('pdf writer', () => {
     expect(text).toContain('Canberra ACT');
   });
 
+  // The sheet previews in XCharter, so the PDF is set in XCharter. Its outlines are CFF, which a
+  // PDF carries as /FontFile3 /Subtype /Type1C. Embedding it through /FontFile2, the TrueType
+  // route, writes a file no reader can draw.
+  test('the serif is XCharter, embedded as Type 1C and readable', () => {
+    const pages: Page[] = [{ items: [
+      { kind: 'text', x: 60, y: 700, size: 11, face: 'serif', colour: [0, 0, 0], text: 'Hunter Class combat system' },
+      { kind: 'text', x: 60, y: 680, size: 11, face: 'serif-bold', colour: [0, 0, 0], text: 'Bold sets the heading' },
+      { kind: 'text', x: 60, y: 660, size: 11, face: 'serif-italic', colour: [0, 0, 0], text: 'Italic sets the aside' },
+    ] }];
+    const file = join(ART, 'writer-serif-xcharter.pdf');
+    writeFileSync(file, writePdf(pages, A4));
+    const fonts = execFileSync('pdffonts', [file], { encoding: 'utf8' });
+    for (const line of fonts.split('\n').filter((l) => /XCharter/.test(l))) {
+      expect(line).toMatch(/Type 1C/);
+      expect(line).toMatch(/WinAnsi/);
+    }
+    expect(fonts).toMatch(/XCharter-Roman/);
+    expect(fonts).toMatch(/XCharter-Bold/);
+    expect(fonts).toMatch(/XCharter-Italic/);
+    expect(fonts).not.toMatch(/SourceSerif/);
+
+    const text = execFileSync('pdftotext', [file, '-'], { encoding: 'utf8' });
+    expect(text).toContain('Hunter Class combat system');
+    expect(text).toContain('Bold sets the heading');
+    expect(text).toContain('Italic sets the aside');
+  });
+
   test('writes one page per page and keeps their text apart', () => {
     const pages: Page[] = [
       { items: [{ kind: 'text', x: 60, y: 700, size: 11, face: 'serif', colour: [0, 0, 0], text: 'First sheet' }] },

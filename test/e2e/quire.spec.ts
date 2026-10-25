@@ -548,6 +548,25 @@ test.describe('print', () => {
     expect(page2).toContain('Jordan Example');
   });
 
+  // An empty field shows a grey hint on screen so the author knows what belongs there. The hint is
+  // a ::before carrying content: attr(data-placeholder), and the exporter gives every pseudo a real
+  // element, so "One line of context, if it helps" printed into the file four times on a real CV.
+  test('the hint on an empty field stays on screen and never reaches the exported PDF', async ({ page }) => {
+    await page.goto(url('#cv'));
+    await page.evaluate(() => document.fonts.ready);
+    // The seed's last two career entries carry no context line, so the hints are on the sheet.
+    const hints = await page.locator('.sheet [contenteditable][data-placeholder]:empty')
+      .evaluateAll((els) => [...new Set(els.map((e) => (e as HTMLElement).dataset.placeholder!))]);
+    expect(hints).toContain('One line of context, if it helps');
+
+    page.once('dialog', (d) => d.accept());
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#print')]);
+    const file = join(ART, 'export-no-placeholder.pdf');
+    await download.saveAs(file);
+    const all = execFileSync('pdftotext', [file, '-'], { encoding: 'utf8' });
+    for (const hint of hints) expect(all).not.toContain(hint);
+  });
+
   // A page break is a cut on paper. The exporter used to ignore it, and drew the on-screen
   // dashed rule and its "New page" tag into the file instead.
   test('a page break the author sets reaches the exported PDF, without its on-screen tag', async ({ page }) => {
